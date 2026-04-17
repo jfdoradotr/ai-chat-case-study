@@ -8,13 +8,19 @@ struct TabBarView: View {
   var body: some View {
     TabView {
       Tab("Explore", systemImage: "eyes") {
-        Text("Explore")
+        NavigationStack {
+          Text("Explore")
+        }
       }
       Tab("Chats", systemImage: "bubble.left.and.bubble.right.fill") {
-        Text("Chats")
+        NavigationStack {
+          Text("Chats")
+        }
       }
       Tab("Profile", systemImage: "person.fill") {
-        Text("Profile")
+        NavigationStack {
+          Text("Profile")
+        }
       }
     }
   }
