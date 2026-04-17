@@ -5,15 +5,15 @@
 import SwiftUI
 
 struct OnboardingCompletedView: View {
+  @Environment(AppState.self) private var appState
+
   var body: some View {
     VStack(spacing: 24) {
       Spacer()
       Text("Onboarding Completed!")
         .font(.largeTitle.weight(.semibold))
       Spacer()
-      Button {
-        // TODO: Finish onboarding and enter app
-      } label: {
+      Button(action: onFinishButtonPressed) {
         Text("Finish")
           .frame(maxWidth: .infinity)
       }
@@ -22,10 +22,15 @@ struct OnboardingCompletedView: View {
     }
     .padding()
   }
+
+  private func onFinishButtonPressed() {
+    appState.updateViewState(showTabBar: true)
+  }
 }
 
 #Preview {
   NavigationStack {
     OnboardingCompletedView()
+      .environment(AppState())
   }
 }
