@@ -6,21 +6,37 @@ import SwiftUI
 
 struct WelcomeView: View {
   var body: some View {
-    VStack(spacing: 24) {
-      Spacer()
-      Text("Welcome!")
-        .font(.largeTitle.weight(.semibold))
-      Spacer()
-      NavigationLink {
-        OnboardingCompletedView()
-      } label: {
-        Text("Get Started")
-          .frame(maxWidth: .infinity)
+    VStack {
+      Rectangle()
+        .ignoresSafeArea()
+
+      VStack(spacing: 16) {
+        Text("AI Chat 🤖")
+          .font(.largeTitle.weight(.bold))
+        Text("Website @ SwiftyJourney.com")
+          .font(.caption)
+          .foregroundStyle(.secondary)
+        NavigationLink {
+          OnboardingCompletedView()
+        } label: {
+          Text("Get Started")
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.glassProminent)
+        .controlSize(.large)
+
+        Button("Already have an account? Sign in") {}
+        HStack {
+          Button("Terms of Service") {}
+          Circle()
+            .fill(.accent)
+            .frame(width: 6, height: 6)
+          Button("Privacy Policy") {}
+        }
+        .padding(.top, 16)
       }
-      .buttonStyle(.glassProminent)
-      .controlSize(.large)
+      .padding()
     }
-    .padding()
   }
 }
 
