@@ -11,15 +11,11 @@ struct AppView: View {
     AppViewBuilder(
       showTabBar: showTabBar,
       tabBarView: {
-        ZStack {
-          Color.red.ignoresSafeArea()
-          Text("TabBar")
-        }
+        TabBarView()
       },
       onboardingView: {
-        ZStack {
-          Color.blue.ignoresSafeArea()
-          Text("Onboarding")
+        NavigationStack {
+          WelcomeView()
         }
       }
     )
