@@ -22,3 +22,64 @@ struct AppViewBuilder<TabBarView: View, OnboardingView: View>: View {
     .animation(.smooth, value: showTabBar)
   }
 }
+
+// MARK: - Previews
+
+#Preview("Onboarding") {
+  AppViewBuilder(
+    showTabBar: false,
+    tabBarView: {
+      ZStack {
+        Color.red.ignoresSafeArea()
+        Text("TabBar")
+      }
+    },
+    onboardingView: {
+      ZStack {
+        Color.blue.ignoresSafeArea()
+        Text("Onboarding")
+      }
+    }
+  )
+}
+
+#Preview("TabBar") {
+  AppViewBuilder(
+    showTabBar: true,
+    tabBarView: {
+      ZStack {
+        Color.red.ignoresSafeArea()
+        Text("TabBar")
+      }
+    },
+    onboardingView: {
+      ZStack {
+        Color.blue.ignoresSafeArea()
+        Text("Onboarding")
+      }
+    }
+  )
+}
+
+#Preview("Interactive") {
+  @Previewable @State var showTabBar = false
+
+  AppViewBuilder(
+    showTabBar: showTabBar,
+    tabBarView: {
+      ZStack {
+        Color.red.ignoresSafeArea()
+        Text("TabBar")
+      }
+    },
+    onboardingView: {
+      ZStack {
+        Color.blue.ignoresSafeArea()
+        Text("Onboarding")
+      }
+    }
+  )
+  .onTapGesture {
+    showTabBar.toggle()
+  }
+}
