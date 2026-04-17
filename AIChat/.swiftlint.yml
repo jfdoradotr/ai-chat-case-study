@@ -1,0 +1,283 @@
+# SwiftLint configuration
+# Verified against SwiftLint 0.63.2 rule list.
+# Run: swift package plugin swiftlint    (SwiftLintPlugins)
+# Or:  swiftlint lint --config .swiftlint.yml
+
+# ----------------------------------------------------------------------------
+# Paths
+# ----------------------------------------------------------------------------
+included:
+  - AIChat
+
+excluded:
+  - AIChat.xcodeproj
+  - .build
+  - .swiftpm
+  - DerivedData
+  - build
+  - Pods
+  - fastlane
+  - vendor
+  - "**/*.generated.swift"
+  - "**/Package.swift"
+
+# ----------------------------------------------------------------------------
+# Disabled default rules
+# Each entry lists the reason — do not drop rules without replacing the reason.
+# ----------------------------------------------------------------------------
+disabled_rules:
+  # SwiftUI-friendly: trailing closures are ambiguous for views with multiple
+  # closure parameters (e.g. Button(action:label:)). The default rule is kept,
+  # but `trailing_closure` opt-in stays off.
+  - todo                      # Noisy during course progression; PR review catches TODOs.
+
+# ----------------------------------------------------------------------------
+# Opt-in rules
+# Every rule below exists in SwiftLint 0.63.2. Organized by purpose.
+# ----------------------------------------------------------------------------
+opt_in_rules:
+  # Correctness & safety
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - overridden_super_call
+  - prohibited_super_call
+  - fatal_error_message
+  - unavailable_function
+  - unhandled_throwing_task           # Critical for Swift Concurrency hygiene
+  - unowned_variable_capture
+  - untyped_error_in_catch
+  - identical_operands
+  - yoda_condition
+  - discouraged_object_literal
+  - discouraged_optional_boolean
+  - discouraged_optional_collection
+  - redundant_nil_coalescing
+  - redundant_self
+  - redundant_type_annotation
+  - static_operator
+  - weak_delegate
+  - strong_iboutlet
+  - private_action
+  - private_outlet
+  - local_doc_comment
+  - lower_acl_than_parent
+
+  # Collections & expressions
+  - array_init
+  - contains_over_filter_count
+  - contains_over_filter_is_empty
+  - contains_over_first_not_nil
+  - contains_over_range_nil_comparison
+  - empty_collection_literal
+  - empty_count
+  - empty_string
+  - first_where
+  - last_where
+  - flatmap_over_map_reduce
+  - joined_default_parameter
+  - reduce_into
+  - sorted_first_last
+  - toggle_bool
+
+  # API & modern Swift
+  - explicit_init
+  - fallthrough
+  - legacy_multiple
+  - legacy_objc_type
+  - optional_enum_case_matching
+  - pattern_matching_keywords
+  - prefer_self_in_static_references
+  - prefer_self_type_over_type_of_self
+  - prefer_zero_over_explicit_init
+  - override_in_extension
+  - convenience_type
+
+  # Style & formatting
+  - attributes
+  - closure_end_indentation
+  - closure_spacing
+  - collection_alignment
+  - indentation_width
+  - let_var_whitespace
+  - literal_expression_end_indentation
+  - modifier_order
+  - multiline_arguments
+  - multiline_parameters
+  - operator_usage_whitespace
+  - unneeded_parentheses_in_closure_argument
+  - vertical_parameter_alignment_on_call
+  - vertical_whitespace_between_cases
+  - vertical_whitespace_closing_braces
+  - vertical_whitespace_opening_braces
+
+  # Tests
+  - empty_xctest_method
+  - single_test_class
+  - test_case_accessibility
+  - xct_specific_matcher
+
+# ----------------------------------------------------------------------------
+# Analyzer rules (run via `swiftlint analyze`)
+# ----------------------------------------------------------------------------
+analyzer_rules:
+  - capture_variable
+  - typesafe_array_init
+  - unused_declaration
+  - unused_import
+
+# ----------------------------------------------------------------------------
+# Rule configuration
+# ----------------------------------------------------------------------------
+
+# Personal preference: 2-space indentation instead of the Swift default of 4.
+indentation_width:
+  indentation_width: 2
+  include_comments: true
+  include_compiler_directives: true
+  severity: warning
+
+# SwiftUI views, modifiers, and Foundation signatures often push past 120.
+line_length:
+  warning: 140
+  error: 200
+  ignores_urls: true
+  ignores_function_declarations: true
+  ignores_comments: true
+
+# SwiftUI view bodies can grow; keep a reasonable ceiling.
+function_body_length:
+  warning: 60
+  error: 120
+
+type_body_length:
+  warning: 300
+  error: 500
+
+file_length:
+  warning: 500
+  error: 1000
+  ignore_comment_only_lines: true
+
+cyclomatic_complexity:
+  warning: 12
+  error: 20
+  ignores_case_statements: true
+
+function_parameter_count:
+  warning: 6
+  error: 8
+
+large_tuple:
+  warning: 3
+  error: 4
+
+nesting:
+  type_level:
+    warning: 3
+  function_level:
+    warning: 4
+
+identifier_name:
+  min_length:
+    warning: 2
+    error: 1
+  max_length:
+    warning: 50
+    error: 60
+  excluded:
+    - id
+    - to
+    - ok
+    - on
+    - up
+    - db
+    - ui
+    - vc
+    - vm
+    - x
+    - y
+    - i
+    - j
+    - k
+    - n
+
+type_name:
+  min_length:
+    warning: 3
+    error: 2
+  max_length:
+    warning: 50
+    error: 60
+
+generic_type_name:
+  min_length:
+    warning: 1   # Allow `T`, `U`, `V` for generic presenters/stores.
+  max_length:
+    warning: 40
+
+trailing_whitespace:
+  ignores_empty_lines: false
+  ignores_comments: true
+
+vertical_whitespace:
+  max_empty_lines: 2
+
+trailing_comma:
+  mandatory_comma: false
+
+force_unwrapping:
+  severity: error
+
+implicitly_unwrapped_optional:
+  severity: error
+  mode: all_except_iboutlets
+
+unhandled_throwing_task:
+  severity: error
+
+modifier_order:
+  preferred_modifier_order:
+    - override
+    - acl
+    - setterACL
+    - dynamic
+    - mutators
+    - lazy
+    - final
+    - required
+    - convenience
+    - typeMethods
+    - owned
+
+attributes:
+  always_on_same_line:
+    - "@IBAction"
+    - "@IBOutlet"
+    - "@IBDesignable"
+    - "@IBInspectable"
+    - "@GKInspectable"
+    - "@NSManaged"
+    - "@objc"
+    - "@testable"
+    - "@discardableResult"
+    - "@Environment"
+    - "@EnvironmentObject"
+    - "@State"
+    - "@StateObject"
+    - "@Binding"
+    - "@Bindable"
+    - "@Published"
+    - "@FocusState"
+    - "@ScaledMetric"
+    - "@AppStorage"
+    - "@SceneStorage"
+  always_on_line_above:
+    - "@MainActor"
+    - "@Observable"
+    - "@ModelActor"
+    - "@Model"
+
+# Warnings become errors above this count — keeps the codebase clean.
+warning_threshold: 50
+
+reporter: "xcode"
