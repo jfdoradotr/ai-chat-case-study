@@ -12,14 +12,20 @@ struct ProfileView: View {
       .navigationTitle("Profile")
       .toolbar {
         ToolbarItem(placement: .primaryAction) {
-          Button("Settings", systemImage: "gear") {
-            showSettingsView = true
-          }
+          Button(
+            "Settings",
+            systemImage: "gear",
+            action: onSettingsButtonPressed
+          )
         }
       }
       .sheet(isPresented: $showSettingsView) {
         Text("SettingsView")
       }
+  }
+
+  private func onSettingsButtonPressed() {
+    showSettingsView = true
   }
 }
 
