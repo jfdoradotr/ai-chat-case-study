@@ -21,9 +21,9 @@ struct OnboardingIntroductionView: View {
       .frame(maxHeight: .infinity)
 
       NavigationLink {
-        OnboardingCompletedView()
+        OnboardingColorSelectionView()
       } label: {
-        Text("Get Started")
+        Text("Continue")
           .frame(maxWidth: .infinity)
       }
       .buttonStyle(.glassProminent)
