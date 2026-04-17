@@ -14,11 +14,13 @@ struct AppView: View {
           Color.red.ignoresSafeArea()
           Text("TabBar")
         }
+        .transition(.move(edge: .trailing))
       } else {
         ZStack {
           Color.blue.ignoresSafeArea()
           Text("Onboarding")
         }
+        .transition(.move(edge: .leading))
       }
     }
     .animation(.smooth, value: showTabBar)
