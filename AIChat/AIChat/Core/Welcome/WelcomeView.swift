@@ -7,15 +7,12 @@ import SwiftUI
 struct WelcomeView: View {
   var body: some View {
     VStack(spacing: 0) {
-      AsyncImage(url: URL(string: "https://picsum.photos/600/600")) { phase in
-        switch phase {
-        case .success(let image):
-          image.resizable().scaledToFill()
-        case .empty, .failure:
-          Rectangle().fill(.accent.opacity(0.3))
-        @unknown default:
-          Rectangle().fill(.accent.opacity(0.3))
-        }
+      CachedAsyncImage(
+        url: URL(string: "https://picsum.photos/600/600")
+      ) { image in
+        image.resizable().scaledToFill()
+      } placeholder: {
+        Rectangle().fill(.accent.opacity(0.3))
       }
       .ignoresSafeArea()
       VStack(spacing: 16) {
