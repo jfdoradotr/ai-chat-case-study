@@ -12,7 +12,7 @@ struct WelcomeView: View {
         .font(.largeTitle.weight(.semibold))
       Spacer()
       NavigationLink {
-        Text("Onboarding Completed")
+        OnboardingCompletedView()
       } label: {
         Text("Get Started")
           .frame(maxWidth: .infinity)
