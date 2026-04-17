@@ -5,7 +5,7 @@
 import SwiftUI
 
 struct AppView: View {
-  @State private var showTabBar = false
+  @AppStorage("showTabBarView") private var showTabBar = false
 
   var body: some View {
     AppViewBuilder(
