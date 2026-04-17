@@ -7,14 +7,8 @@ import SwiftUI
 struct WelcomeView: View {
   var body: some View {
     VStack(spacing: 0) {
-//      CachedAsyncImage(
-//        url: URL(string: "https://picsum.photos/600/600")
-//      ) { image in
-//        image.resizable().scaledToFill()
-//      } placeholder: {
-//        Rectangle().fill(.accent.opacity(0.3))
-//      }
-//      .ignoresSafeArea()
+      ImageLoaderView(url: Constants.randomImageURL)
+        .ignoresSafeArea()
       VStack(spacing: 16) {
         Text("AI Chat 🤖")
           .font(.largeTitle.weight(.bold))
@@ -32,6 +26,7 @@ struct WelcomeView: View {
         .controlSize(.large)
 
         Button("Already have an account? Sign in") {}
+          .underline()
         HStack(spacing: 8) {
           Button("Terms of Service") {}
           Circle()
