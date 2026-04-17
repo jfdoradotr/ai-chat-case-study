@@ -22,32 +22,3 @@ struct AppViewBuilder<TabBarView: View, OnboardingView: View>: View {
     .animation(.smooth, value: showTabBar)
   }
 }
-
-struct AppView: View {
-  @State private var showTabBar = false
-
-  var body: some View {
-    AppViewBuilder(
-      showTabBar: showTabBar,
-      tabBarView: {
-        ZStack {
-          Color.red.ignoresSafeArea()
-          Text("TabBar")
-        }
-      },
-      onboardingView: {
-        ZStack {
-          Color.blue.ignoresSafeArea()
-          Text("Onboarding")
-        }
-      }
-    )
-    .onTapGesture {
-      showTabBar.toggle()
-    }
-  }
-}
-
-#Preview {
-  AppView()
-}
