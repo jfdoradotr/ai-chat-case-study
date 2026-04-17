@@ -7,7 +7,7 @@ import SwiftUI
 struct OnboardingColorSelectionView: View {
   @State private var selectedColor: Color?
 
-  private let profileColors: [Color] = [.red, .green, .orange, .blue, .mint, .purple, .cyan]
+  private let profileColors: [Color] = [.red, .green, .orange, .blue, .mint, .purple, .cyan, .teal, .indigo]
 
   var body: some View {
     ScrollView {
@@ -40,7 +40,7 @@ struct OnboardingColorSelectionView: View {
     }
     .safeAreaInset(edge: .bottom, alignment: .center, spacing: 16) {
       ZStack {
-        if let selectedColor {
+        if selectedColor != nil {
           NavigationLink {
             OnboardingCompletedView()
           } label: {
