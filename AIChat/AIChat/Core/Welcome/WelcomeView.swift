@@ -7,14 +7,14 @@ import SwiftUI
 struct WelcomeView: View {
   var body: some View {
     VStack(spacing: 0) {
-      CachedAsyncImage(
-        url: URL(string: "https://picsum.photos/600/600")
-      ) { image in
-        image.resizable().scaledToFill()
-      } placeholder: {
-        Rectangle().fill(.accent.opacity(0.3))
-      }
-      .ignoresSafeArea()
+//      CachedAsyncImage(
+//        url: URL(string: "https://picsum.photos/600/600")
+//      ) { image in
+//        image.resizable().scaledToFill()
+//      } placeholder: {
+//        Rectangle().fill(.accent.opacity(0.3))
+//      }
+//      .ignoresSafeArea()
       VStack(spacing: 16) {
         Text("AI Chat 🤖")
           .font(.largeTitle.weight(.bold))
