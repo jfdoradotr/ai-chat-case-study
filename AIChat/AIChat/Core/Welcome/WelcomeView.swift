@@ -17,7 +17,7 @@ struct WelcomeView: View {
           .font(.caption)
           .foregroundStyle(.secondary)
         NavigationLink {
-          OnboardingCompletedView()
+          OnboardingIntroductionView()
         } label: {
           Text("Get Started")
             .frame(maxWidth: .infinity)
