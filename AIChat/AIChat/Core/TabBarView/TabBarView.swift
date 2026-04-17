@@ -9,17 +9,17 @@ struct TabBarView: View {
     TabView {
       Tab("Explore", systemImage: "eyes") {
         NavigationStack {
-          Text("Explore")
+          ExploreView()
         }
       }
       Tab("Chats", systemImage: "bubble.left.and.bubble.right.fill") {
         NavigationStack {
-          Text("Chats")
+          ChatsView()
         }
       }
       Tab("Profile", systemImage: "person.fill") {
         NavigationStack {
-          Text("Profile")
+          ProfileView()
         }
       }
     }
