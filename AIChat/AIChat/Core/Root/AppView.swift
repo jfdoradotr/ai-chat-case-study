@@ -21,6 +21,7 @@ struct AppView: View {
         }
       }
     }
+    .animation(.smooth, value: showTabBar)
     .onTapGesture {
       showTabBar.toggle()
     }
