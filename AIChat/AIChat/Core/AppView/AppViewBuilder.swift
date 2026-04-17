@@ -1,0 +1,85 @@
+//
+//  Copyright © Juan Francisco Dorado Torres. All rights reserved.
+//
+
+import SwiftUI
+
+struct AppViewBuilder<TabBarView: View, OnboardingView: View>: View {
+  let showTabBar: Bool
+  @ViewBuilder let tabBarView: TabBarView
+  @ViewBuilder let onboardingView: OnboardingView
+
+  var body: some View {
+    ZStack {
+      if showTabBar {
+        tabBarView
+          .transition(.move(edge: .trailing))
+      } else {
+        onboardingView
+          .transition(.move(edge: .leading))
+      }
+    }
+    .animation(.smooth, value: showTabBar)
+  }
+}
+
+// MARK: - Previews
+
+#Preview("Onboarding") {
+  AppViewBuilder(
+    showTabBar: false,
+    tabBarView: {
+      ZStack {
+        Color.red.ignoresSafeArea()
+        Text("TabBar")
+      }
+    },
+    onboardingView: {
+      ZStack {
+        Color.blue.ignoresSafeArea()
+        Text("Onboarding")
+      }
+    }
+  )
+}
+
+#Preview("TabBar") {
+  AppViewBuilder(
+    showTabBar: true,
+    tabBarView: {
+      ZStack {
+        Color.red.ignoresSafeArea()
+        Text("TabBar")
+      }
+    },
+    onboardingView: {
+      ZStack {
+        Color.blue.ignoresSafeArea()
+        Text("Onboarding")
+      }
+    }
+  )
+}
+
+#Preview("Interactive") {
+  @Previewable @State var showTabBar = false
+
+  AppViewBuilder(
+    showTabBar: showTabBar,
+    tabBarView: {
+      ZStack {
+        Color.red.ignoresSafeArea()
+        Text("TabBar")
+      }
+    },
+    onboardingView: {
+      ZStack {
+        Color.blue.ignoresSafeArea()
+        Text("Onboarding")
+      }
+    }
+  )
+  .onTapGesture {
+    showTabBar.toggle()
+  }
+}
