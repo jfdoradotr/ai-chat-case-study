@@ -20,7 +20,9 @@ struct ProfileView: View {
         }
       }
       .sheet(isPresented: $showSettingsView) {
-        Text("SettingsView")
+        NavigationStack {
+          SettingsView()
+        }
       }
   }
 
@@ -32,5 +34,6 @@ struct ProfileView: View {
 #Preview {
   NavigationStack {
     ProfileView()
+      .environment(AppState())
   }
 }
