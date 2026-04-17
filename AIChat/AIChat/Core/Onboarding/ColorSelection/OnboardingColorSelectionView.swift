@@ -39,18 +39,23 @@ struct OnboardingColorSelectionView: View {
       .padding(.horizontal, 24)
     }
     .safeAreaInset(edge: .bottom, alignment: .center, spacing: 16) {
-      NavigationLink {
-        OnboardingCompletedView()
-      } label: {
-        Text("Continue")
-          .frame(maxWidth: .infinity)
+      ZStack {
+        if let selectedColor {
+          NavigationLink {
+            OnboardingCompletedView()
+          } label: {
+            Text("Continue")
+              .frame(maxWidth: .infinity)
+          }
+          .buttonStyle(.glassProminent)
+          .controlSize(.large)
+          .transition(AnyTransition.move(edge: .bottom))
+        }
       }
-      .buttonStyle(.glassProminent)
-      .controlSize(.large)
       .padding(.horizontal, 24)
       .background(Color(.systemBackground))
     }
-    .animation(.smooth, value: selectedColor)
+    .animation(.bouncy, value: selectedColor)
   }
 }
 
