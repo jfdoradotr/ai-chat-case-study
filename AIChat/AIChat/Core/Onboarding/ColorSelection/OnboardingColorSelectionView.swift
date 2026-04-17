@@ -48,6 +48,7 @@ struct OnboardingColorSelectionView: View {
       .buttonStyle(.glassProminent)
       .controlSize(.large)
       .padding(.horizontal, 24)
+      .background(Color(.systemBackground))
     }
     .animation(.smooth, value: selectedColor)
   }
