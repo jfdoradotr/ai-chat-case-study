@@ -5,19 +5,23 @@
 import SwiftUI
 
 struct OnboardingIntroductionView: View {
+  private var avatarStyledText: Text {
+    Text("avatars")
+      .foregroundStyle(.accent)
+      .fontWeight(.semibold)
+  }
+
+  private var realConversationsStyledText: Text {
+    Text("real conversations")
+      .foregroundStyle(.accent)
+      .fontWeight(.semibold)
+  }
+
   var body: some View {
     VStack {
-      Group {
-        Text("Make your own ")
-        + Text("avatars ")
-          .foregroundStyle(.accent)
-          .fontWeight(.semibold)
-        + Text("and chat with them!\n\nHave ")
-        + Text("real conversations ")
-          .foregroundStyle(.accent)
-          .fontWeight(.semibold)
-        + Text("with AI generated responses.")
-      }
+      Text(
+        "Make your own \(avatarStyledText) and chat with them!\n\nHave \(realConversationsStyledText) with AI generated responses."
+      )
       .frame(maxHeight: .infinity)
 
       NavigationLink {
