@@ -14,6 +14,7 @@ struct OnboardingColorSelectionView: View {
       colorGrid
         .padding(.horizontal, 24)
     }
+    .navigationBarBackButtonHidden(true)
     .safeAreaInset(edge: .bottom, alignment: .center, spacing: 16) {
       bottomBar
     }

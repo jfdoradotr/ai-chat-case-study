@@ -20,6 +20,7 @@ struct OnboardingCompletedView: View {
         .font(.title.weight(.medium))
         .foregroundStyle(.secondary)
     }
+    .navigationBarBackButtonHidden(true)
     .frame(maxHeight: .infinity)
     .safeAreaInset(edge: .bottom) {
       PrimaryButton(

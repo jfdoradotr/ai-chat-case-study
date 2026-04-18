@@ -29,6 +29,8 @@ struct OnboardingIntroductionView: View {
       }
     }
     .padding(.horizontal, 24)
+    .font(.title3)
+    .navigationBarBackButtonHidden(true)
   }
 }
 
