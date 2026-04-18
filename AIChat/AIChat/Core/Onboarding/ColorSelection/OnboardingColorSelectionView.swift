@@ -11,51 +11,65 @@ struct OnboardingColorSelectionView: View {
 
   var body: some View {
     ScrollView {
-      LazyVGrid(
-        columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 3),
-        alignment: .center,
-        spacing: 16,
-        pinnedViews: [.sectionHeaders],
-        content: {
-          Section {
-            ForEach(profileColors, id: \.self) { color in
-              Circle()
-                .fill(.accent)
-                .overlay {
-                  color
-                    .clipShape(Circle())
-                    .padding(selectedColor == color ? 10 : 0)
-                }
-                .onTapGesture {
-                  selectedColor = color
-                }
-            }
-          } header: {
-            Text("Select a profile color")
-              .font(.headline)
-          }
-        }
-      )
-      .padding(.horizontal, 24)
+      colorGrid
+        .padding(.horizontal, 24)
     }
     .safeAreaInset(edge: .bottom, alignment: .center, spacing: 16) {
-      ZStack {
-        if selectedColor != nil {
-          NavigationLink {
-            OnboardingCompletedView()
-          } label: {
-            Text("Continue")
-              .frame(maxWidth: .infinity)
-          }
-          .buttonStyle(.glassProminent)
-          .controlSize(.large)
-          .transition(AnyTransition.move(edge: .bottom))
-        }
-      }
-      .padding(.horizontal, 24)
-      .background(Color(.systemBackground))
+      bottomBar
     }
     .animation(.bouncy, value: selectedColor)
+  }
+
+  private var colorGrid: some View {
+    LazyVGrid(
+      columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 3),
+      alignment: .center,
+      spacing: 16,
+      pinnedViews: [.sectionHeaders]
+    ) {
+      Section {
+        ForEach(profileColors, id: \.self) { color in
+          ProfileColorCell(color: color, isSelected: selectedColor == color) {
+            selectedColor = color
+          }
+        }
+      } header: {
+        Text("Select a profile color")
+          .font(.headline)
+      }
+    }
+  }
+
+  @ViewBuilder private var bottomBar: some View {
+    ZStack {
+      if let selectedColor {
+        PrimaryButton(title: "Continue") {
+          OnboardingCompletedView(selectedColor: selectedColor)
+        }
+        .transition(.move(edge: .bottom))
+      }
+    }
+    .padding(.horizontal, 24)
+    .background(Color(.systemBackground))
+  }
+}
+
+private struct ProfileColorCell: View {
+  let color: Color
+  let isSelected: Bool
+  let onTap: () -> Void
+
+  var body: some View {
+    Button(action: onTap) {
+      Circle()
+        .fill(.accent)
+        .overlay {
+          color
+            .clipShape(Circle())
+            .padding(isSelected ? 10 : 0)
+        }
+    }
+    .buttonStyle(.plain)
   }
 }
 
