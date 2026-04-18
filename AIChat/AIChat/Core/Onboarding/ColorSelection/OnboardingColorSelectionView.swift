@@ -77,4 +77,5 @@ private struct ProfileColorCell: View {
   NavigationStack {
     OnboardingColorSelectionView()
   }
+  .environment(AppState())
 }
