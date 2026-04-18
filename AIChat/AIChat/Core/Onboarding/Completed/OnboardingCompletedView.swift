@@ -7,30 +7,43 @@ import SwiftUI
 struct OnboardingCompletedView: View {
   @Environment(AppState.self) private var appState
 
+  @State private var isCompletingProfileSetup = false
+
+  let selectedColor: Color
+
   var body: some View {
-    VStack(spacing: 24) {
-      Spacer()
-      Text("Onboarding Completed!")
+    VStack(alignment: .leading, spacing: 12) {
+      Text("Setup complete!")
         .font(.largeTitle.weight(.semibold))
-      Spacer()
-      Button(action: onFinishButtonPressed) {
-        Text("Finish")
-          .frame(maxWidth: .infinity)
-      }
-      .buttonStyle(.glassProminent)
-      .controlSize(.large)
+        .foregroundStyle(selectedColor)
+      Text("We've set up your profile and you're ready to start chatting.")
+        .font(.title.weight(.medium))
+        .foregroundStyle(.secondary)
     }
-    .padding()
+    .navigationBarBackButtonHidden(true)
+    .frame(maxHeight: .infinity)
+    .safeAreaInset(edge: .bottom) {
+      PrimaryButton(
+        title: "Finish",
+        isLoading: isCompletingProfileSetup,
+        action: onFinishButtonPressed
+      )
+    }
+    .padding(24)
   }
 
   private func onFinishButtonPressed() {
-    appState.updateViewState(showTabBar: true)
+    isCompletingProfileSetup = true
+    Task {
+      try? await Task.sleep(for: .seconds(3))
+      appState.updateViewState(showTabBar: true)
+    }
   }
 }
 
 #Preview {
   NavigationStack {
-    OnboardingCompletedView()
-      .environment(AppState())
+    OnboardingCompletedView(selectedColor: .orange)
   }
+  .environment(AppState())
 }
