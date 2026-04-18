@@ -5,16 +5,30 @@
 import SwiftUI
 
 struct ExploreView: View {
-  let avatar: AvatarModel = .preview
+  let featuredAvatars: [AvatarModel] = .preview
 
   var body: some View {
-    HeroCellView(
-      imageURL: Constants.randomImageURL,
-      title: avatar.name,
-      subtitle: avatar.description
-    )
-    .frame(height: 200)
+    List {
+      featuredAvatarsSection
+        .listRowSeparator(.hidden)
+    }
+    .listStyle(.plain)
     .navigationTitle("Explore")
+  }
+
+  private var featuredAvatarsSection: some View {
+    Section {
+      CarouselView(items: featuredAvatars) { avatar in
+        HeroCellView(
+          imageURL: Constants.randomImageURL,
+          title: avatar.name,
+          subtitle: avatar.description
+        )
+      }
+      .frame(height: 200)
+    } header: {
+      Text("Featured Avatars")
+    }
   }
 }
 
