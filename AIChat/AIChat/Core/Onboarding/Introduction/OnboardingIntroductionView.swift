@@ -24,14 +24,9 @@ struct OnboardingIntroductionView: View {
       )
       .frame(maxHeight: .infinity)
 
-      NavigationLink {
+      PrimaryButton(title: "Continue") {
         OnboardingColorSelectionView()
-      } label: {
-        Text("Continue")
-          .frame(maxWidth: .infinity)
       }
-      .buttonStyle(.glassProminent)
-      .controlSize(.large)
     }
     .padding(.horizontal, 24)
   }

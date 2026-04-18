@@ -16,14 +16,9 @@ struct WelcomeView: View {
         Text("Website @ SwiftyJourney.com")
           .font(.caption)
           .foregroundStyle(.secondary)
-        NavigationLink {
+        PrimaryButton(title: "Get Started") {
           OnboardingIntroductionView()
-        } label: {
-          Text("Get Started")
-            .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.glassProminent)
-        .controlSize(.large)
 
         Button("Already have an account? Sign in") {}
           .underline()
