@@ -11,7 +11,12 @@ struct HeroCellView: View {
 
   var body: some View {
     ZStack {
-      ImageLoaderView(url: imageURL)
+      if let imageURL {
+        ImageLoaderView(url: imageURL)
+      } else {
+        Rectangle()
+          .fill(.gray.opacity(0.6))
+      }
     }
     .overlay(
       LinearGradient(
@@ -44,5 +49,20 @@ struct HeroCellView: View {
 
 #Preview {
   HeroCellView()
+    .frame(height: 200)
+}
+
+#Preview("No Subtitle") {
+  HeroCellView(subtitle: nil)
+    .frame(height: 200)
+}
+
+#Preview("No Title") {
+  HeroCellView(title: nil)
+    .frame(height: 200)
+}
+
+#Preview("No Image") {
+  HeroCellView(imageURL: nil)
     .frame(height: 200)
 }
