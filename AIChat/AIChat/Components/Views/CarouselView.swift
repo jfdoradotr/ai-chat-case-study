@@ -12,6 +12,8 @@ struct CarouselView<Content: View, T: Identifiable>: View {
     TabView {
       ForEach(items) { item in
         content(item)
+          .padding(.horizontal, 16)
+          .padding(.bottom, 50)
       }
     }
     .tabViewStyle(.page(indexDisplayMode: .always))
