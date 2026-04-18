@@ -4,7 +4,7 @@
 
 import Foundation
 
-struct AvatarModel {
+struct AvatarModel: Identifiable {
   let avatarId: String
   let name: String?
   let character: Character?
@@ -12,6 +12,8 @@ struct AvatarModel {
   let location: Location?
   let authorId: String?
   let dateCreated: Date?
+
+  var id: String { avatarId }
 
   var description: String {
     var components: [String] = []

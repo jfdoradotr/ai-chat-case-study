@@ -4,11 +4,14 @@
 
 import SwiftUI
 
-struct CarouselView: View {
+struct CarouselView<Content: View, T: Identifiable>: View {
+  let items: [T]
+  let content: (T) -> Content
+
   var body: some View {
     TabView {
-      ForEach(0..<3) { index in
-        Text("\(index)")
+      ForEach(items) { item in
+        content(item)
       }
     }
     .tabViewStyle(.page(indexDisplayMode: .always))
@@ -17,5 +20,12 @@ struct CarouselView: View {
 }
 
 #Preview {
-  CarouselView()
+  CarouselView(items: [AvatarModel].preview) { avatar in
+    HeroCellView(
+      imageURL: Constants.randomImageURL,
+      title: avatar.name,
+      subtitle: avatar.description
+    )
+  }
+    .frame(height: 300)
 }
