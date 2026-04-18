@@ -49,3 +49,61 @@ extension AvatarModel {
     case park, mall, museum, city, dessert, forest, space
   }
 }
+
+extension AvatarModel {
+  static var preview: AvatarModel {
+    [AvatarModel].preview[0]
+  }
+}
+
+extension [AvatarModel] {
+  static var preview: [AvatarModel] {
+    [
+      AvatarModel(
+        avatarId: "avatar_1",
+        name: "Alpha",
+        character: .man,
+        action: .walking,
+        location: .city,
+        authorId: "author_1",
+        dateCreated: .now
+      ),
+      AvatarModel(
+        avatarId: "avatar_2",
+        name: "Beta",
+        character: .woman,
+        action: .studying,
+        location: .museum,
+        authorId: "author_2",
+        dateCreated: .now
+      ),
+      AvatarModel(
+        avatarId: "avatar_3",
+        name: "Gamma",
+        character: .alien,
+        action: .relaxing,
+        location: .space,
+        authorId: "author_3",
+        dateCreated: .now
+      ),
+      AvatarModel(
+        avatarId: "avatar_4",
+        name: "Delta",
+        character: .dog,
+        action: .eating,
+        location: .park,
+        authorId: "author_4",
+        dateCreated: .now
+      ),
+      AvatarModel(
+        avatarId: "avatar_5",
+        name: "Epsilon",
+        character: .cat,
+        action: .sitting,
+        location: .forest,
+        authorId: "author_5",
+        dateCreated: .now
+      )
+    ]
+  }
+}
