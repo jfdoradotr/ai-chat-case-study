@@ -6,18 +6,38 @@ import SwiftUI
 
 struct CarouselView<Content: View, T: Identifiable>: View {
   let items: [T]
-  let content: (T) -> Content
+  @ViewBuilder let content: (T) -> Content
+
+  @State private var selection: T.ID?
 
   var body: some View {
-    TabView {
-      ForEach(items) { item in
-        content(item)
-          .padding(.horizontal, 16)
-          .padding(.bottom, 50)
+    VStack(spacing: 16) {
+      ScrollView(.horizontal) {
+        LazyHStack(spacing: 0) {
+          ForEach(items) { item in
+            content(item)
+              .padding(.horizontal, 16)
+              .containerRelativeFrame(.horizontal)
+              .scrollTransition(.interactive.threshold(.visible(0.95))) { content, phase in
+                content.scaleEffect(phase.isIdentity ? 1 : 0.9)
+              }
+          }
+        }
+        .scrollTargetLayout()
+      }
+      .scrollTargetBehavior(.paging)
+      .scrollIndicators(.hidden)
+      .scrollPosition(id: $selection)
+
+      HStack(spacing: 8) {
+        ForEach(items) { item in
+          Circle()
+            .fill(selection == item.id ? Color.accentColor : Color.secondary.opacity(0.3))
+            .frame(width: 8, height: 8)
+        }
       }
     }
-    .tabViewStyle(.page(indexDisplayMode: .always))
-    .indexViewStyle(.page(backgroundDisplayMode: .always))
+    .onAppear { selection = items.first?.id }
   }
 }
 
