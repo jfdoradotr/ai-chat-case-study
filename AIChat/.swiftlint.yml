@@ -271,6 +271,7 @@ attributes:
     - "@ScaledMetric"
     - "@AppStorage"
     - "@SceneStorage"
+    - "@ViewBuilder"
   always_on_line_above:
     - "@MainActor"
     - "@Observable"
