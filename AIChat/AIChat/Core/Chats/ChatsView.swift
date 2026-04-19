@@ -5,9 +5,16 @@
 import SwiftUI
 
 struct ChatsView: View {
+  let chats: [ChatModel] = .preview
+
   var body: some View {
-    Text("Chats")
-      .navigationTitle("Chats")
+    List {
+      ForEach(chats) { chat in
+        Text(chat.id)
+      }
+    }
+    .listStyle(.plain)
+    .navigationTitle("Chats")
   }
 }
 
