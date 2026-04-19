@@ -34,28 +34,28 @@ extension [ChatModel] {
         id: "chat_001",
         userId: "user_001",
         avatarId: "avatar_001",
-        dateCreated: now.addingTimeInterval(-86400 * 3),
-        dateModified: now.addingTimeInterval(-3600)
+        dateCreated: now.adding(days: -3),
+        dateModified: now.adding(hours: -1)
       ),
       ChatModel(
         id: "chat_002",
         userId: "user_001",
         avatarId: "avatar_002",
-        dateCreated: now.addingTimeInterval(-86400 * 2),
-        dateModified: now.addingTimeInterval(-7200)
+        dateCreated: now.adding(days: -2),
+        dateModified: now.adding(hours: -2)
       ),
       ChatModel(
         id: "chat_003",
         userId: "user_002",
         avatarId: "avatar_003",
-        dateCreated: now.addingTimeInterval(-86400),
-        dateModified: now.addingTimeInterval(-1800)
+        dateCreated: now.adding(days: -1),
+        dateModified: now.adding(minutes: -30)
       ),
       ChatModel(
         id: "chat_004",
         userId: "user_003",
         avatarId: "avatar_004",
-        dateCreated: now.addingTimeInterval(-43200),
+        dateCreated: now.adding(hours: -12),
         dateModified: now
       )
     ]
