@@ -6,6 +6,8 @@ import SwiftUI
 
 struct CustomListCellView: View {
   var imageURL: URL? = Constants.randomImageURL
+  var title: String? = "Alpha"
+  var subtitle: String? = "An alien that is smiling in the park"
 
   var body: some View {
     HStack(spacing: 8) {
@@ -22,11 +24,15 @@ struct CustomListCellView: View {
       .clipShape(.rect(cornerRadius: 16))
 
       VStack(alignment: .leading, spacing: 4) {
-        Text("Alpha")
-          .font(.headline)
-        Text("An alien that is smiling in the park")
-          .font(.subheadline)
-          .foregroundStyle(.secondary)
+        if let title {
+          Text(title)
+            .font(.headline)
+        }
+        if let subtitle {
+          Text(subtitle)
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+        }
       }
       .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -35,4 +41,20 @@ struct CustomListCellView: View {
 
 #Preview {
   CustomListCellView()
+}
+
+#Preview("No Image") {
+  CustomListCellView(imageURL: nil)
+}
+
+#Preview("No Title") {
+  CustomListCellView(title: nil)
+}
+
+#Preview("No Subtitle") {
+  CustomListCellView(subtitle: nil)
+}
+
+#Preview("Empty") {
+  CustomListCellView(imageURL: nil, title: nil, subtitle: nil)
 }
