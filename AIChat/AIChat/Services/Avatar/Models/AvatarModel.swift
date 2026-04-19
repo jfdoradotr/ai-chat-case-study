@@ -43,7 +43,7 @@ struct AvatarModel: Identifiable {
 }
 
 extension AvatarModel {
-  enum Character: String {
+  enum Character: String, CaseIterable {
     case man, woman, alien, dog, cat
 
     var phrase: String {

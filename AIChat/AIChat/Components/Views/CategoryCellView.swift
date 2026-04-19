@@ -38,7 +38,7 @@ struct CategoryCellView: View {
             .foregroundStyle(.white)
         }
       }
-      .padding(24)
+      .padding(16)
     }
     .clipShape(.rect(cornerRadius: cornerRadius))
     .aspectRatio(1, contentMode: .fit)

@@ -6,10 +6,14 @@ import SwiftUI
 
 struct ExploreView: View {
   let featuredAvatars: [AvatarModel] = .preview
+  let categories: [AvatarModel.Character] = AvatarModel.Character.allCases
 
   var body: some View {
     List {
       featuredAvatarsSection
+        .listRowSeparator(.hidden)
+
+      categoriesSection
         .listRowSeparator(.hidden)
     }
     .listStyle(.plain)
@@ -28,6 +32,25 @@ struct ExploreView: View {
       .frame(height: 200)
     } header: {
       Text("Featured Avatars")
+    }
+  }
+
+  private var categoriesSection: some View {
+    Section {
+      ScrollView(.horizontal) {
+        LazyHStack(spacing: 12) {
+          ForEach(categories, id: \.self) { category in
+            CategoryCellView(
+              title: category.rawValue.capitalized,
+              imageURL: Constants.randomImageURL
+            )
+            .frame(height: 140)
+          }
+        }
+      }
+      .scrollIndicators(.hidden)
+    } header: {
+      Text("Categories")
     }
   }
 }
