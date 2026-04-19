@@ -7,14 +7,15 @@ import SwiftUI
 struct ExploreView: View {
   let featuredAvatars: [AvatarModel] = .preview
   let categories: [AvatarModel.Character] = AvatarModel.Character.allCases
+  let popularAvatars: [AvatarModel] = .preview
 
   var body: some View {
     List {
       featuredAvatarsSection
         .listRowSeparator(.hidden)
-
       categoriesSection
         .listRowSeparator(.hidden)
+      popularSection
     }
     .listStyle(.plain)
     .navigationTitle("Explore")
@@ -51,6 +52,20 @@ struct ExploreView: View {
       .scrollIndicators(.hidden)
     } header: {
       Text("Categories")
+    }
+  }
+
+  private var popularSection: some View {
+    Section {
+      ForEach(popularAvatars) { avatar in
+        CustomListCellView(
+          imageURL: Constants.randomImageURL,
+          title: avatar.name,
+          subtitle: avatar.description
+        )
+      }
+    } header: {
+      Text("Popular")
     }
   }
 }
