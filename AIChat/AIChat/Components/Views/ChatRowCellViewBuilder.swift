@@ -8,16 +8,17 @@ struct ChatRowCellViewBuilder: View {
   @State private var avatar: AvatarModel?
   @State private var lastChatMessage: ChatMessageModel?
 
+  var currentUserId: String? = ""
   var chat: ChatModel = .preview
-  var getAvatar: () async -> AvatarModel
-  var getLastChatMessage: () async -> ChatMessageModel
+  var getAvatar: () async -> AvatarModel?
+  var getLastChatMessage: () async -> ChatMessageModel?
 
   var body: some View {
     ChatRowCellView(
       imageURL: avatar?.imageURL,
       headline: avatar?.name,
       subheadline: lastChatMessage?.content,
-      hasNewChat: false
+      hasNewChat: hasNewChat
     )
     .task {
       avatar = await getAvatar()
@@ -25,6 +26,11 @@ struct ChatRowCellViewBuilder: View {
     .task {
       lastChatMessage = await getLastChatMessage()
     }
+  }
+
+  private var hasNewChat: Bool {
+    guard let lastChatMessage, let currentUserId else { return false }
+    return lastChatMessage.hasBeenSeenByCurrentUser(userId: currentUserId)
   }
 }
 

@@ -9,7 +9,7 @@ struct ChatMessageModel {
   let chatId: String
   let authorId: String?
   let content: String?
-  let seenByIds: [String]?
+  let seenByIds: [String]
   let dateCreated: Date?
 
   init(
@@ -17,7 +17,7 @@ struct ChatMessageModel {
     chatId: String,
     authorId: String? = nil,
     content: String? = nil,
-    seenByIds: [String]? = nil,
+    seenByIds: [String] = [],
     dateCreated: Date? = nil
   ) {
     self.id = id
@@ -26,6 +26,11 @@ struct ChatMessageModel {
     self.content = content
     self.seenByIds = seenByIds
     self.dateCreated = dateCreated
+  }
+
+  func hasBeenSeenByCurrentUser(userId: String) -> Bool {
+    guard seenByIds.isEmpty else { return false }
+    return seenByIds.contains(userId)
   }
 }
 
