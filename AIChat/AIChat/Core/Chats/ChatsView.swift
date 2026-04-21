@@ -10,7 +10,19 @@ struct ChatsView: View {
   var body: some View {
     List {
       ForEach(chats) { chat in
-        Text(chat.id)
+        ChatRowCellViewBuilder(
+          currentUserId: nil, // FIXME: Add current user id
+          chat: chat,
+          getAvatar: {
+            try? await Task.sleep(for: .seconds(1))
+            return .preview
+          },
+          getLastChatMessage: {
+            try? await Task.sleep(for: .seconds(1))
+            return .preview
+          }
+        )
+        .listRowSeparator(.hidden)
       }
     }
     .listStyle(.plain)
@@ -19,5 +31,7 @@ struct ChatsView: View {
 }
 
 #Preview {
-  ExploreView()
+  NavigationStack {
+    ChatsView()
+  }
 }
