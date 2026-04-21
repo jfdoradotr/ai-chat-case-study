@@ -12,6 +12,7 @@ struct AvatarModel: Identifiable {
   let location: Location?
   let authorId: String?
   let dateCreated: Date?
+  let imageURL: URL?
 
   var id: String { avatarId }
 
@@ -30,7 +31,8 @@ struct AvatarModel: Identifiable {
     action: Action? = nil,
     location: Location? = nil,
     authorId: String? = nil,
-    dateCreated: Date? = nil
+    dateCreated: Date? = nil,
+    imageURL: URL? = nil
   ) {
     self.avatarId = avatarId
     self.name = name
@@ -39,6 +41,7 @@ struct AvatarModel: Identifiable {
     self.location = location
     self.authorId = authorId
     self.dateCreated = dateCreated
+    self.imageURL = imageURL
   }
 }
 
@@ -88,7 +91,8 @@ extension [AvatarModel] {
         action: .walking,
         location: .city,
         authorId: "author_1",
-        dateCreated: .now
+        dateCreated: .now,
+        imageURL: Constants.randomImageURL
       ),
       AvatarModel(
         avatarId: "avatar_2",
@@ -97,7 +101,8 @@ extension [AvatarModel] {
         action: .studying,
         location: .museum,
         authorId: "author_2",
-        dateCreated: .now
+        dateCreated: .now,
+        imageURL: Constants.randomImageURL
       ),
       AvatarModel(
         avatarId: "avatar_3",
@@ -106,7 +111,8 @@ extension [AvatarModel] {
         action: .relaxing,
         location: .space,
         authorId: "author_3",
-        dateCreated: .now
+        dateCreated: .now,
+        imageURL: Constants.randomImageURL
       ),
       AvatarModel(
         avatarId: "avatar_4",
@@ -115,7 +121,8 @@ extension [AvatarModel] {
         action: .eating,
         location: .park,
         authorId: "author_4",
-        dateCreated: .now
+        dateCreated: .now,
+        imageURL: Constants.randomImageURL
       ),
       AvatarModel(
         avatarId: "avatar_5",
@@ -124,7 +131,8 @@ extension [AvatarModel] {
         action: .sitting,
         location: .forest,
         authorId: "author_5",
-        dateCreated: .now
+        dateCreated: .now,
+        imageURL: Constants.randomImageURL
       )
     ]
   }
