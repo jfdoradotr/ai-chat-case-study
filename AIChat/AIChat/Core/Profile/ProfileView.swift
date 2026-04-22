@@ -8,7 +8,8 @@ struct ProfileView: View {
   @State private var showSettingsView = false
   @State private var showCreateAvatar = false
   @State private var currentUser: UserModel? = .preview
-  @State private var myAvatars: [AvatarModel] = .preview
+  @State private var myAvatars: [AvatarModel] = []
+  @State private var isLoading = true
 
   var body: some View {
     List {
@@ -24,14 +25,29 @@ struct ProfileView: View {
       .listRowBackground(Color.clear)
 
       Section  {
-        ForEach(myAvatars) { avatar in
-          CustomListCellView(
-            imageURL: avatar.imageURL,
-            title: avatar.name,
-            subtitle: nil
-          )
+        if myAvatars.isEmpty {
+          Group {
+            if isLoading {
+              ProgressView()
+            } else {
+              Text("Click + to create an avatar")
+            }
+          }
+          .listRowInsets(EdgeInsets())
+          .listRowBackground(Color.clear)
+          .frame(height: 150)
+          .frame(maxWidth: .infinity)
+          .foregroundStyle(.secondary)
+        } else {
+          ForEach(myAvatars) { avatar in
+            CustomListCellView(
+              imageURL: avatar.imageURL,
+              title: avatar.name,
+              subtitle: nil
+            )
+          }
+          .onDelete(perform: onDeleteAvatar)
         }
-        .onDelete(perform: onDeleteAvatar)
       } header: {
         HStack(spacing: 0) {
           Text("My avatars")
@@ -61,6 +77,15 @@ struct ProfileView: View {
     .fullScreenCover(isPresented: $showCreateAvatar) {
       Text("Create Avatar")
     }
+    .task {
+      await loadData()
+    }
+  }
+
+  private func loadData() async {
+    try? await Task.sleep(for: .seconds(5))
+    isLoading = false
+    myAvatars = .preview
   }
 
   private func onSettingsButtonPressed() {
