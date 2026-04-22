@@ -8,6 +8,7 @@ struct ProfileView: View {
   @State private var showSettingsView = false
   @State private var showCreateAvatar = false
   @State private var currentUser: UserModel? = .preview
+  @State private var myAvatars: [AvatarModel] = .preview
 
   var body: some View {
     List {
@@ -23,6 +24,14 @@ struct ProfileView: View {
       .listRowBackground(Color.clear)
 
       Section  {
+        ForEach(myAvatars) { avatar in
+          CustomListCellView(
+            imageURL: avatar.imageURL,
+            title: avatar.name,
+            subtitle: nil
+          )
+        }
+        .onDelete(perform: onDeleteAvatar)
       } header: {
         HStack(spacing: 0) {
           Text("My avatars")
@@ -60,6 +69,9 @@ struct ProfileView: View {
 
   private func onNewAvatarButtonPressed() {
     showCreateAvatar = true
+  }
+  private func onDeleteAvatar(_ indexSet: IndexSet) {
+    myAvatars.remove(atOffsets: indexSet)
   }
 }
 
