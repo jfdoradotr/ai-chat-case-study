@@ -6,24 +6,32 @@ import SwiftUI
 
 struct ProfileView: View {
   @State private var showSettingsView = false
+  @State private var currentUser: UserModel? = .preview
 
   var body: some View {
-    Text("Profile")
-      .navigationTitle("Profile")
-      .toolbar {
-        ToolbarItem(placement: .primaryAction) {
-          Button(
-            "Settings",
-            systemImage: "gear",
-            action: onSettingsButtonPressed
-          )
+    List {
+      Section {
+        ZStack {
+          Circle()
+            .fill(currentUser?.profileColor ?? .accent)
         }
       }
-      .sheet(isPresented: $showSettingsView) {
-        NavigationStack {
-          SettingsView()
-        }
+    }
+    .navigationTitle("Profile")
+    .toolbar {
+      ToolbarItem(placement: .primaryAction) {
+        Button(
+          "Settings",
+          systemImage: "gear",
+          action: onSettingsButtonPressed
+        )
       }
+    }
+    .sheet(isPresented: $showSettingsView) {
+      NavigationStack {
+        SettingsView()
+      }
+    }
   }
 
   private func onSettingsButtonPressed() {

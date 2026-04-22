@@ -2,24 +2,29 @@
 //  Copyright © Juan Francisco Dorado Torres. All rights reserved.
 //
 
-import Foundation
+import SwiftUI
 
 struct UserModel {
   let userId: String
   let dateCreated: Date?
-  let didCompleteOnboarding: Bool?
+  let didCompleteOnboarding: Bool
   let profileColorHex: String?
 
   init(
     userId: String,
     dateCreated: Date? = nil,
-    didCompleteOnboarding: Bool? = nil,
+    didCompleteOnboarding: Bool = false,
     profileColorHex: String? = nil
   ) {
     self.userId = userId
     self.dateCreated = dateCreated
     self.didCompleteOnboarding = didCompleteOnboarding
     self.profileColorHex = profileColorHex
+  }
+
+  var profileColor: Color {
+    guard let profileColorHex else { return .accent }
+    return Color(hex: profileColorHex) ?? .accent
   }
 }
 
@@ -51,7 +56,7 @@ extension [UserModel] {
       UserModel(
         userId: "user_004",
         dateCreated: .now.adding(days: -30),
-        didCompleteOnboarding: nil,
+        didCompleteOnboarding: false,
         profileColorHex: nil
       )
     ]
