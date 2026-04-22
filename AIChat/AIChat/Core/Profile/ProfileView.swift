@@ -6,6 +6,7 @@ import SwiftUI
 
 struct ProfileView: View {
   @State private var showSettingsView = false
+  @State private var showCreateAvatar = false
   @State private var currentUser: UserModel? = .preview
 
   var body: some View {
@@ -20,6 +21,18 @@ struct ProfileView: View {
       }
       .listRowInsets(EdgeInsets())
       .listRowBackground(Color.clear)
+
+      Section  {
+      } header: {
+        HStack(spacing: 0) {
+          Text("My avatars")
+          Spacer()
+          Button("Create avatar", systemImage: "plus.circle.fill", action: onNewAvatarButtonPressed)
+            .labelStyle(.iconOnly)
+            .buttonStyle(.borderless)
+            .font(.title2)
+        }
+      }
     }
     .navigationTitle("Profile")
     .toolbar {
@@ -36,10 +49,17 @@ struct ProfileView: View {
         SettingsView()
       }
     }
+    .fullScreenCover(isPresented: $showCreateAvatar) {
+      Text("Create Avatar")
+    }
   }
 
   private func onSettingsButtonPressed() {
     showSettingsView = true
+  }
+
+  private func onNewAvatarButtonPressed() {
+    showCreateAvatar = true
   }
 }
 
