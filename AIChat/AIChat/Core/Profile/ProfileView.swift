@@ -15,7 +15,11 @@ struct ProfileView: View {
           Circle()
             .fill(currentUser?.profileColor ?? .accent)
         }
+        .frame(width: 100, height: 100)
+        .frame(maxWidth: .infinity)
       }
+      .listRowInsets(EdgeInsets())
+      .listRowBackground(Color.clear)
     }
     .navigationTitle("Profile")
     .toolbar {
