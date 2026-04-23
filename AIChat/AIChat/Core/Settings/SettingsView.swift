@@ -30,17 +30,49 @@ struct SettingsView: View {
         HStack {
           Text("Account status: \(isPremium ? "PREMIUM" : "FREE")")
           Spacer()
-          Button("MANAGE") {}
-            .font(.caption)
-            .bold()
-            .foregroundStyle(.white)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .background(Color.blue)
-            .clipShape(.capsule)
+          if isPremium {
+            Button("MANAGE") {}
+              .font(.caption)
+              .bold()
+              .foregroundStyle(.white)
+              .padding(.horizontal, 8)
+              .padding(.vertical, 6)
+              .background(Color.blue)
+              .clipShape(.capsule)
+          }
         }
       } header: {
         Text("Purchases")
+      }
+      Section {
+        HStack {
+          Text("Version")
+          Spacer()
+          Text(Bundle.main.appVersion)
+        }
+        HStack {
+          Text("Build Number")
+          Spacer()
+          Text(Bundle.main.buildNumber)
+        }
+        Button(
+          "Contact us",
+          action: onSignOutPressed
+        )
+        .foregroundStyle(.blue)
+      } header: {
+        Text("Application")
+      } footer: {
+        VStack(alignment: .leading) {
+          Text("Created by Swifty Journey.")
+          if let url = URL(string: "https://swiftyjourney.com") {
+            HStack(spacing: 0) {
+              Text("Learn more at ")
+              Link("www.swiftyjourney.com", destination: url)
+            }
+          }
+        }
+        .font(.footnote)
       }
     }
     .navigationTitle("Settings")
