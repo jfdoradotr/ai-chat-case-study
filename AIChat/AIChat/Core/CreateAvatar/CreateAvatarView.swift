@@ -13,6 +13,7 @@ struct CreateAvatarView: View {
   @State private var location: AvatarModel.Location = .park
 
   @State private var isGenerating = false
+  @State private var generatedImage: UIImage?
 
   var body: some View {
     List {
@@ -34,10 +35,19 @@ struct CreateAvatarView: View {
             .fill(.secondary.opacity(0.3))
             .frame(width: 250, height: 250)
             .overlay(
-              Image(systemName: "star.fill")
-                .resizable()
-                .scaledToFill()
-                .padding(24)
+              ZStack {
+                if let generatedImage {
+                  Image(uiImage: generatedImage)
+                    .resizable()
+                    .scaledToFill()
+                    .padding(24)
+                } else {
+                  Image(systemName: "star.fill")
+                    .resizable()
+                    .scaledToFill()
+                    .padding(24)
+                }
+              }
             )
             .clipShape(Circle())
         }
@@ -65,6 +75,13 @@ struct CreateAvatarView: View {
 
   private func onGenerateImagePressed() {
     isGenerating = true
+    Task {
+      try? await Task.sleep(for: .seconds(3))
+      await MainActor.run {
+        generatedImage = UIImage(systemName: "star.fill")
+        isGenerating = false
+      }
+    }
   }
 
   private var nameSection: some View {
