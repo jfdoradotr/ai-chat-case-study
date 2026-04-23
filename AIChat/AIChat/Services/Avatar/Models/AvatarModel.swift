@@ -57,13 +57,13 @@ extension AvatarModel {
 }
 
 extension AvatarModel {
-  enum Action: String {
+  enum Action: String, CaseIterable {
     case smiling, sitting, eating, drinking, walking, shopping, studying, working, relaxing, fighting, crying
   }
 }
 
 extension AvatarModel {
-  enum Location: String {
+  enum Location: String, CaseIterable {
     case park, mall, museum, city, dessert, forest, space
 
     var phrase: String {
