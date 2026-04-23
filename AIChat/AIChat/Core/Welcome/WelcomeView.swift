@@ -5,6 +5,8 @@
 import SwiftUI
 
 struct WelcomeView: View {
+  @State private var showSignIn = false
+
   var body: some View {
     VStack(spacing: 0) {
       ImageLoaderView(url: Constants.randomImageURL)
@@ -20,7 +22,7 @@ struct WelcomeView: View {
           OnboardingIntroductionView()
         }
 
-        Button("Already have an account? Sign in") {}
+        Button("Already have an account? Sign in", action: onSignInPressed)
           .underline()
         HStack(spacing: 8) {
           Button("Terms of Service") {}
@@ -35,6 +37,14 @@ struct WelcomeView: View {
       }
       .padding()
     }
+    .sheet(isPresented: $showSignIn) {
+      CreateAccountView()
+        .presentationDetents([.medium])
+    }
+  }
+
+  private func onSignInPressed() {
+    showSignIn = true
   }
 }
 
