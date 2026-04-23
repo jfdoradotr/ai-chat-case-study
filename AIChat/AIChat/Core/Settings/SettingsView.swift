@@ -8,13 +8,40 @@ struct SettingsView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(AppState.self) private var appState
 
+  @State private var isPremium = false
+
   var body: some View {
     List {
-      Button(
-        "Sign out",
-        role: .destructive,
-        action: onSignOutPressed
-      )
+      Section {
+        Button(
+          "Sign out",
+          action: onSignOutPressed
+        )
+        .foregroundStyle(.primary)
+        Button(
+          "Delete account",
+          role: .destructive,
+          action: onSignOutPressed
+        )
+      } header: {
+        Text("Account")
+      }
+      Section {
+        HStack {
+          Text("Account status: \(isPremium ? "PREMIUM" : "FREE")")
+          Spacer()
+          Button("MANAGE") {}
+            .font(.caption)
+            .bold()
+            .foregroundStyle(.white)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .background(Color.blue)
+            .clipShape(.capsule)
+        }
+      } header: {
+        Text("Purchases")
+      }
     }
     .navigationTitle("Settings")
   }
