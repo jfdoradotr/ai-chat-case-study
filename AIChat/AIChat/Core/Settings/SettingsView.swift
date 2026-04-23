@@ -87,7 +87,8 @@ struct SettingsView: View {
     }
     .navigationTitle("Settings")
     .sheet(isPresented: $showCreateAccount) {
-      Text("Create Account Screen")
+      CreateAccountView()
+        .presentationDetents([.medium])
     }
   }
 
