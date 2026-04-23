@@ -31,6 +31,7 @@ struct CreateAvatarView: View {
         action: onSavePressed
       )
       .padding(.horizontal)
+      .disabled(generatedImage == nil || name.isEmpty)
     }
     .navigationTitle("Create Avatar")
     .toolbar {
@@ -122,6 +123,7 @@ struct CreateAvatarView: View {
             .tint(.accent)
             .opacity(isGenerating ? 1 : 0)
         }
+        .disabled(isCompletingCreateAvatar || isGenerating || name.isEmpty)
         Circle()
           .fill(.secondary.opacity(0.3))
           .frame(width: 250, height: 250)
@@ -129,11 +131,6 @@ struct CreateAvatarView: View {
             ZStack {
               if let generatedImage {
                 Image(uiImage: generatedImage)
-                  .resizable()
-                  .scaledToFill()
-                  .padding(24)
-              } else {
-                Image(systemName: "star.fill")
                   .resizable()
                   .scaledToFill()
                   .padding(24)

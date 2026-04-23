@@ -75,7 +75,9 @@ struct ProfileView: View {
       }
     }
     .fullScreenCover(isPresented: $showCreateAvatar) {
-      Text("Create Avatar")
+      NavigationStack {
+        CreateAvatarView()
+      }
     }
     .task {
       await loadData()
