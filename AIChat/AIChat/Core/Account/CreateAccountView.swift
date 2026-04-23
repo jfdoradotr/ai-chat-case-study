@@ -6,17 +6,44 @@ import AuthenticationServices
 import SwiftUI
 
 struct CreateAccountView: View {
+  enum PresentationState {
+    case signIn
+    case createAccount
+
+    var title: String {
+      switch self {
+      case .signIn:
+        return "Sign in!"
+
+      case .createAccount:
+        return "Create Account?"
+      }
+    }
+
+    var subtitle: String {
+      switch self {
+      case .signIn:
+        return "Connect to an existing account."
+
+      case .createAccount:
+        return "Don't lose your data!. Connect to an SSO provider to save your account."
+      }
+    }
+  }
+
+  let presentationState: PresentationState
+
   var body: some View {
     VStack(spacing: 24) {
       VStack(alignment: .leading, spacing: 8) {
-        Text("Create Account?")
+        Text(presentationState.title)
           .font(.largeTitle.weight(.semibold))
-        Text("Don't lose your data!. Connect to an SSO provider to save your account.")
+        Text(presentationState.subtitle)
           .font(.body)
       }
       .frame(maxWidth: .infinity, alignment: .leading)
 
-      SignInWithAppleButton(.signIn) { request in
+      SignInWithAppleButton(presentationState == .signIn ? .signIn : .signUp) { request in
         request.requestedScopes = [.fullName, .email]
       } onCompletion: { result in
         switch result {
@@ -49,5 +76,5 @@ struct CreateAccountView: View {
 }
 
 #Preview {
-  CreateAccountView()
+  CreateAccountView(presentationState: .createAccount)
 }

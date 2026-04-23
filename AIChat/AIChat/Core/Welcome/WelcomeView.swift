@@ -38,7 +38,7 @@ struct WelcomeView: View {
       .padding()
     }
     .sheet(isPresented: $showSignIn) {
-      CreateAccountView()
+      CreateAccountView(presentationState: .signIn)
         .presentationDetents([.medium])
     }
   }
