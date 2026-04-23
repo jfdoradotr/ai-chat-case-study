@@ -14,47 +14,23 @@ struct CreateAvatarView: View {
 
   @State private var isGenerating = false
   @State private var generatedImage: UIImage?
+  @State private var isCompletingCreateAvatar = false
 
   var body: some View {
     List {
       nameSection
       attributesSection
-      Section {
-        VStack(spacing: 16) {
-          ZStack {
-            Button("Generate image", action: onGenerateImagePressed)
-              .buttonStyle(.glassProminent)
-              .opacity(isGenerating ? 0 : 1)
-              .allowsHitTesting(!isGenerating)
-            ProgressView()
-              .controlSize(.regular)
-              .tint(.accent)
-              .opacity(isGenerating ? 1 : 0)
-          }
-          Circle()
-            .fill(.secondary.opacity(0.3))
-            .frame(width: 250, height: 250)
-            .overlay(
-              ZStack {
-                if let generatedImage {
-                  Image(uiImage: generatedImage)
-                    .resizable()
-                    .scaledToFill()
-                    .padding(24)
-                } else {
-                  Image(systemName: "star.fill")
-                    .resizable()
-                    .scaledToFill()
-                    .padding(24)
-                }
-              }
-            )
-            .clipShape(Circle())
-        }
-        .frame(maxWidth: .infinity)
-      }
-      .listRowInsets(EdgeInsets())
-      .listRowBackground(Color.clear)
+      imageSection
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
+    }
+    .safeAreaInset(edge: .bottom) {
+      PrimaryButton(
+        title: "Save",
+        isLoading: isCompletingCreateAvatar,
+        action: onSavePressed
+      )
+      .padding(.horizontal)
     }
     .navigationTitle("Create Avatar")
     .toolbar {
@@ -80,6 +56,16 @@ struct CreateAvatarView: View {
       await MainActor.run {
         generatedImage = UIImage(systemName: "star.fill")
         isGenerating = false
+      }
+    }
+  }
+
+  private func onSavePressed() {
+    isCompletingCreateAvatar = true
+    Task {
+      try? await Task.sleep(for: .seconds(3))
+      await MainActor.run {
+        isCompletingCreateAvatar = false
       }
     }
   }
@@ -120,6 +106,43 @@ struct CreateAvatarView: View {
       }
     } header: {
       Text("Attributes")
+    }
+  }
+
+  private var imageSection: some View {
+    Section {
+      VStack(spacing: 16) {
+        ZStack {
+          Button("Generate image", action: onGenerateImagePressed)
+            .buttonStyle(.glassProminent)
+            .opacity(isGenerating ? 0 : 1)
+            .allowsHitTesting(!isGenerating)
+          ProgressView()
+            .controlSize(.regular)
+            .tint(.accent)
+            .opacity(isGenerating ? 1 : 0)
+        }
+        Circle()
+          .fill(.secondary.opacity(0.3))
+          .frame(width: 250, height: 250)
+          .overlay(
+            ZStack {
+              if let generatedImage {
+                Image(uiImage: generatedImage)
+                  .resizable()
+                  .scaledToFill()
+                  .padding(24)
+              } else {
+                Image(systemName: "star.fill")
+                  .resizable()
+                  .scaledToFill()
+                  .padding(24)
+              }
+            }
+          )
+          .clipShape(Circle())
+      }
+      .frame(maxWidth: .infinity)
     }
   }
 }
