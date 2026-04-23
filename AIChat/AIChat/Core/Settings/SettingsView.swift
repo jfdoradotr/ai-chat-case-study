@@ -9,20 +9,29 @@ struct SettingsView: View {
   @Environment(AppState.self) private var appState
 
   @State private var isPremium = false
+  @State private var isAnonymousUser = true
 
   var body: some View {
     List {
       Section {
-        Button(
-          "Sign out",
-          action: onSignOutPressed
-        )
-        .foregroundStyle(.primary)
-        Button(
-          "Delete account",
-          role: .destructive,
-          action: onSignOutPressed
-        )
+        if isAnonymousUser {
+          Button(
+            "Save & back-up account",
+            action: onCreateAccountPressed
+          )
+          .foregroundStyle(.primary)
+        } else {
+          Button(
+            "Sign out",
+            action: onSignOutPressed
+          )
+          .foregroundStyle(.primary)
+          Button(
+            "Delete account",
+            role: .destructive,
+            action: onDeleteAccountPressed
+          )
+        }
       } header: {
         Text("Account")
       }
@@ -31,7 +40,7 @@ struct SettingsView: View {
           Text("Account status: \(isPremium ? "PREMIUM" : "FREE")")
           Spacer()
           if isPremium {
-            Button("MANAGE") {}
+            Button("MANAGE", action: onManagePressed)
               .font(.caption)
               .bold()
               .foregroundStyle(.white)
@@ -57,7 +66,7 @@ struct SettingsView: View {
         }
         Button(
           "Contact us",
-          action: onSignOutPressed
+          action: onContactUsPressed
         )
         .foregroundStyle(.blue)
       } header: {
@@ -85,6 +94,11 @@ struct SettingsView: View {
     }
     appState.updateViewState(showTabBar: false)
   }
+
+  private func onCreateAccountPressed() {}
+  private func onDeleteAccountPressed() {}
+  private func onManagePressed() {}
+  private func onContactUsPressed() {}
 }
 
 #Preview {
