@@ -24,7 +24,7 @@ struct ProfileView: View {
       .listRowInsets(EdgeInsets())
       .listRowBackground(Color.clear)
 
-      Section  {
+      Section {
         if myAvatars.isEmpty {
           Group {
             if isLoading {
