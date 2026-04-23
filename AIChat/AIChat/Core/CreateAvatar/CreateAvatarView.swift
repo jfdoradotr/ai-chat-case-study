@@ -12,14 +12,24 @@ struct CreateAvatarView: View {
   @State private var action: AvatarModel.Action = .smiling
   @State private var location: AvatarModel.Location = .park
 
+  @State private var isGenerating = false
+
   var body: some View {
     List {
       nameSection
       attributesSection
       Section {
         VStack(spacing: 16) {
-          Button("Generate image", action: onGenerateImagePressed)
-            .buttonStyle(.glassProminent)
+          ZStack {
+            Button("Generate image", action: onGenerateImagePressed)
+              .buttonStyle(.glassProminent)
+              .opacity(isGenerating ? 0 : 1)
+              .allowsHitTesting(!isGenerating)
+            ProgressView()
+              .controlSize(.regular)
+              .tint(.accent)
+              .opacity(isGenerating ? 1 : 0)
+          }
           Circle()
             .fill(.secondary.opacity(0.3))
             .frame(width: 250, height: 250)
@@ -54,6 +64,7 @@ struct CreateAvatarView: View {
   }
 
   private func onGenerateImagePressed() {
+    isGenerating = true
   }
 
   private var nameSection: some View {
