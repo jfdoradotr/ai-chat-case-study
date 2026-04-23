@@ -10,6 +10,7 @@ struct SettingsView: View {
 
   @State private var isPremium = false
   @State private var isAnonymousUser = true
+  @State private var showCreateAccount = false
 
   var body: some View {
     List {
@@ -85,6 +86,9 @@ struct SettingsView: View {
       }
     }
     .navigationTitle("Settings")
+    .sheet(isPresented: $showCreateAccount) {
+      Text("Create Account Screen")
+    }
   }
 
   private func onSignOutPressed() {
@@ -95,9 +99,14 @@ struct SettingsView: View {
     appState.updateViewState(showTabBar: false)
   }
 
-  private func onCreateAccountPressed() {}
+  private func onCreateAccountPressed() {
+    showCreateAccount = true
+  }
+
   private func onDeleteAccountPressed() {}
+
   private func onManagePressed() {}
+
   private func onContactUsPressed() {}
 }
 
