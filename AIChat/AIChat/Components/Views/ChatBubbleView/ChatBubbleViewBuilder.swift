@@ -18,6 +18,8 @@ struct ChatBubbleViewBuilder: View {
       imageURL: imageURL
     )
     .frame(maxWidth: .infinity, alignment: isCurrentUser ? .trailing : .leading)
+    .padding(.leading, isCurrentUser ? 75 : 0)
+    .padding(.trailing, isCurrentUser ? 0 : 75)
   }
 }
 
