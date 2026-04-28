@@ -5,23 +5,29 @@
 import SwiftUI
 
 struct ChatBubbleView: View {
-  let text: String = "This is sample text"
+  var text: String = "This is sample text"
   var textColor: Color = .primary
   var backgroundColor: Color = .gray
+  var showImage: Bool = true
   var imageURL: URL?
+
+  private let offset: CGFloat = 14
 
   var body: some View {
     HStack(alignment: .top) {
-      ZStack {
-        if let imageURL {
-          ImageLoaderView(url: imageURL)
-        } else {
-          Rectangle()
-            .fill(.secondary)
+      if showImage {
+        ZStack {
+          if let imageURL {
+            ImageLoaderView(url: imageURL)
+          } else {
+            Rectangle()
+              .fill(.secondary)
+          }
         }
+        .frame(width: 45, height: 45)
+        .clipShape(.circle)
+        .offset(y: offset)
       }
-      .frame(width: 45, height: 45)
-      .clipShape(.circle)
       Text(text)
         .font(.body)
         .foregroundStyle(textColor)
@@ -30,6 +36,7 @@ struct ChatBubbleView: View {
         .background(backgroundColor)
         .clipShape(.rect(cornerRadius: 16))
     }
+    .padding(.bottom, showImage ? offset : 0)
   }
 }
 
@@ -39,6 +46,8 @@ struct ChatBubbleView: View {
       ChatBubbleView()
       ChatBubbleView()
       ChatBubbleView()
+      ChatBubbleView(textColor: .white, backgroundColor: .red, showImage: false)
+      ChatBubbleView(textColor: .white, backgroundColor: .red, showImage: false)
     }
   }
 }
