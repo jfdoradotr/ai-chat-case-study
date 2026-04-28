@@ -61,7 +61,18 @@ struct ChatView: View {
   }
 
   private func onSendButtonTapped() {
-
+    guard let currentUser else { return }
+    let content = messageText
+    let message = ChatMessageModel(
+      id: UUID().uuidString,
+      chatId: UUID().uuidString,
+      authorId: currentUser.userId,
+      content: content,
+      seenByIds: [],
+      dateCreated: .now
+    )
+    chatMesages.append(message)
+    messageText = ""
   }
 }
 
