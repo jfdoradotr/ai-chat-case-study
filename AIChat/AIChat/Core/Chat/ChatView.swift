@@ -11,6 +11,9 @@ struct ChatView: View {
   @State private var messageText: String = ""
   @State private var showSettings = false
   @State private var scrollPosition: String?
+  @State private var validationError: TextValidationError?
+
+  private let textValidator = TextValidator()
 
   var body: some View {
     VStack(spacing: 0) {
@@ -23,6 +26,17 @@ struct ChatView: View {
       ToolbarItem(placement: .primaryAction) {
         Button("Menu", systemImage: "ellipsis", action: onSettingsButtonTapped)
       }
+    }
+    .alert(
+      "Message Not Sent",
+      isPresented: Binding(
+        get: { validationError != nil },
+        set: { if !$0 { validationError = nil } }
+      )
+    ) {
+      Button("OK", role: .cancel, action: {})
+    } message: {
+      Text(validationError?.localizedDescription ?? "")
     }
     .confirmationDialog("What would you like to do?", isPresented: $showSettings) {
       Button("Report User/Chat", role: .destructive, action: onReportButtonTapped)
@@ -85,7 +99,13 @@ struct ChatView: View {
 
   private func onSendButtonTapped() {
     guard let currentUser else { return }
-    let content = messageText
+    let content: String
+    do {
+      content = try textValidator.validate(messageText)
+    } catch let error as TextValidationError {
+      validationError = error
+      return
+    } catch { return }
     let message = ChatMessageModel(
       id: UUID().uuidString,
       chatId: UUID().uuidString,
