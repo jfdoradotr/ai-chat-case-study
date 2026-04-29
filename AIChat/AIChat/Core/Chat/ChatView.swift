@@ -5,13 +5,27 @@
 import SwiftUI
 
 struct ChatView: View {
+  enum ChatValidationError: LocalizedError {
+    case emptyMessage
+    case badWord
+
+    var errorDescription: String? {
+      switch self {
+      case .emptyMessage:
+        "Your message is empty. Please type something."
+      case .badWord:
+        "Your message contains inappropriate language. Please revise it."
+      }
+    }
+  }
+
   @State private var chatMesages: [ChatMessageModel] = .preview
   @State private var avatar: AvatarModel? = .preview
   @State private var currentUser: UserModel? = .preview
   @State private var messageText: String = ""
   @State private var showSettings = false
   @State private var scrollPosition: String?
-  @State private var showAlert = false
+  @State private var validationError: ChatValidationError?
 
   var body: some View {
     VStack(spacing: 0) {
@@ -25,10 +39,16 @@ struct ChatView: View {
         Button("Menu", systemImage: "ellipsis", action: onSettingsButtonTapped)
       }
     }
-    .alert("Message Not Sent", isPresented: $showAlert) {
+    .alert(
+      "Message Not Sent",
+      isPresented: Binding(
+        get: { validationError != nil },
+        set: { if !$0 { validationError = nil } }
+      )
+    ) {
       Button("OK", role: .cancel, action: {})
     } message: {
-      Text("Your message contains inappropriate language. Please revise it.")
+      Text(validationError?.localizedDescription ?? "")
     }
     .confirmationDialog("What would you like to do?", isPresented: $showSettings) {
       Button("Report User/Chat", role: .destructive, action: onReportButtonTapped)
@@ -94,19 +114,21 @@ struct ChatView: View {
     "idiot", "stupid", "damn", "bastard", "moron"
   ]
 
-  private func checkIfMessageIsValid() -> Bool {
+  private func checkIfMessageIsValid() throws {
     let trimmed = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard !trimmed.isEmpty else { return false }
+    guard !trimmed.isEmpty else { throw ChatValidationError.emptyMessage }
     let words = trimmed.lowercased().components(separatedBy: .whitespacesAndNewlines)
-    return words.allSatisfy { !blockedWords.contains($0) }
+    guard words.allSatisfy({ !blockedWords.contains($0) }) else { throw ChatValidationError.badWord }
   }
 
   private func onSendButtonTapped() {
     guard let currentUser else { return }
-    guard checkIfMessageIsValid() else {
-      showAlert = true
+    do {
+      try checkIfMessageIsValid()
+    } catch let error as ChatValidationError {
+      validationError = error
       return
-    }
+    } catch { return }
     let content = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
     let message = ChatMessageModel(
       id: UUID().uuidString,
