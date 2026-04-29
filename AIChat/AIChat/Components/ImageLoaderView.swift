@@ -8,19 +8,25 @@ import SDWebImageSwiftUI
 struct ImageLoaderView: View {
   let url: URL?
   var contentMode: ContentMode = .fill
+  var forceTransitionAnimation = false
 
   var body: some View {
-    Color.clear
-      .overlay {
-        WebImage(url: url)
-          .resizable()
-          .indicator(.activity)
-          .aspectRatio(contentMode: contentMode)
-          .allowsHitTesting(false)
-      }
-      .clipped()
-      .contentShape(Rectangle())
-      .drawingGroup()
+    ZStack {
+      Color.clear
+        .overlay {
+          WebImage(url: url)
+            .resizable()
+            .indicator(.activity)
+            .aspectRatio(contentMode: contentMode)
+            .allowsHitTesting(false)
+        }
+        .clipped()
+        .contentShape(Rectangle())
+        .ifSatisfiedCondition(forceTransitionAnimation) { content in
+          content
+            .drawingGroup()
+        }
+    }
   }
 }
 

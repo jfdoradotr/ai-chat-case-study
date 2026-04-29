@@ -14,7 +14,10 @@ struct ProfileModalView: View {
   var body: some View {
     VStack(spacing: 0) {
       if let imageURL {
-        ImageLoaderView(url: imageURL)
+        ImageLoaderView(
+          url: imageURL,
+          forceTransitionAnimation: true
+        )
           .aspectRatio(1, contentMode: .fit)
       }
 
