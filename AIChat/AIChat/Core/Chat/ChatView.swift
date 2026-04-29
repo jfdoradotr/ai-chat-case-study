@@ -9,6 +9,7 @@ struct ChatView: View {
   @State private var avatar: AvatarModel? = .preview
   @State private var currentUser: UserModel? = .preview
   @State private var messageText: String = ""
+  @State private var showSettings = false
 
   var body: some View {
     VStack(spacing: 0) {
@@ -17,6 +18,18 @@ struct ChatView: View {
     }
     .navigationTitle(avatar?.name ?? "Chat")
     .toolbarTitleDisplayMode(.inline)
+    .toolbar {
+      ToolbarItem(placement: .primaryAction) {
+        Button("Menu", systemImage: "ellipsis", action: onSettingsButtonTapped)
+      }
+    }
+    .confirmationDialog("What would you like to do?", isPresented: $showSettings) {
+      Button("Report User/Chat", role: .destructive, action: onReportButtonTapped)
+      Button("Delete Chat", role: .destructive, action: onReportButtonTapped)
+      Button("Cancel", role: .cancel, action: {})
+    } message: {
+      Text("What would you like to do?")
+    }
   }
 
   private var scrollViewSection: some View {
@@ -33,7 +46,9 @@ struct ChatView: View {
       }
       .frame(maxWidth: .infinity)
       .padding(.horizontal, 8)
+      .rotationEffect(.degrees(180))
     }
+    .rotationEffect(.degrees(180))
   }
 
   private var textFieldSection: some View {
@@ -77,6 +92,12 @@ struct ChatView: View {
     chatMesages.append(message)
     messageText = ""
   }
+
+  private func onSettingsButtonTapped() {
+    showSettings = true
+  }
+
+  private func onReportButtonTapped() {}
 }
 
 #Preview {
