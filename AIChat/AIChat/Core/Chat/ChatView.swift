@@ -47,8 +47,8 @@ struct ChatView: View {
         }
       }
       .zIndex(9999)
+      .animation(.bouncy, value: showProfileModal)
     }
-    .animation(.bouncy, value: showProfileModal)
     .navigationTitle(avatar?.name ?? "Chat")
     .toolbarTitleDisplayMode(.inline)
     .toolbar {
