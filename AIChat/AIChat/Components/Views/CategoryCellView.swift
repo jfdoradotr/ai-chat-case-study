@@ -34,7 +34,7 @@ struct CategoryCellView: View {
       VStack(alignment: .leading, spacing: 4) {
         if let title {
           Text(title)
-            .font(.headline)
+            .font(font)
             .foregroundStyle(.white)
         }
       }

@@ -49,6 +49,14 @@ extension AvatarModel {
   enum Character: String, CaseIterable {
     case man, woman, alien, dog, cat
 
+    var plural: String {
+      switch self {
+      case .man: "Men"
+      case .woman: "Women"
+      default: "\(rawValue.capitalized)s"
+      }
+    }
+
     var phrase: String {
       let startsWithVowel = rawValue.lowercased().first.map { "aeiou".contains($0) } ?? false
       return "\(startsWithVowel ? "An" : "A") \(rawValue)"
