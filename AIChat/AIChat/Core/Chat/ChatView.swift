@@ -25,6 +25,11 @@ struct ChatView: View {
         Button("Menu", systemImage: "ellipsis", action: onSettingsButtonTapped)
       }
     }
+    .alert("Message Not Sent", isPresented: $showAlert) {
+      Button("OK", role: .cancel, action: {})
+    } message: {
+      Text("Your message contains inappropriate language. Please revise it.")
+    }
     .confirmationDialog("What would you like to do?", isPresented: $showSettings) {
       Button("Report User/Chat", role: .destructive, action: onReportButtonTapped)
       Button("Delete Chat", role: .destructive, action: onReportButtonTapped)
@@ -84,28 +89,36 @@ struct ChatView: View {
       .background(Color(.secondarySystemBackground))
   }
 
+  private let blockedWords: Set<String> = [
+    "idiota", "estupido", "imbecil", "maldito", "bastardo",
+    "idiot", "stupid", "damn", "bastard", "moron"
+  ]
+
   private func checkIfMessageIsValid() -> Bool {
-    !messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    let trimmed = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return false }
+    let words = trimmed.lowercased().components(separatedBy: .whitespacesAndNewlines)
+    return words.allSatisfy { !blockedWords.contains($0) }
   }
 
   private func onSendButtonTapped() {
-    guard checkIfMessageIsValid(), let currentUser else { return }
-    let content = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
-    if checkIfMessageIsValid() {
-      let message = ChatMessageModel(
-        id: UUID().uuidString,
-        chatId: UUID().uuidString,
-        authorId: currentUser.userId,
-        content: content,
-        seenByIds: [],
-        dateCreated: .now
-      )
-      chatMesages.append(message)
-      scrollPosition = message.id
-      messageText = ""
-    } else {
-
+    guard let currentUser else { return }
+    guard checkIfMessageIsValid() else {
+      showAlert = true
+      return
     }
+    let content = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
+    let message = ChatMessageModel(
+      id: UUID().uuidString,
+      chatId: UUID().uuidString,
+      authorId: currentUser.userId,
+      content: content,
+      seenByIds: [],
+      dateCreated: .now
+    )
+    chatMesages.append(message)
+    scrollPosition = message.id
+    messageText = ""
   }
 
   private func onSettingsButtonTapped() {
