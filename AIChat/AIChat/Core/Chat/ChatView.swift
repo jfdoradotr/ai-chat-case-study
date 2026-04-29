@@ -5,27 +5,15 @@
 import SwiftUI
 
 struct ChatView: View {
-  enum ChatValidationError: LocalizedError {
-    case emptyMessage
-    case badWord
-
-    var errorDescription: String? {
-      switch self {
-      case .emptyMessage:
-        "Your message is empty. Please type something."
-      case .badWord:
-        "Your message contains inappropriate language. Please revise it."
-      }
-    }
-  }
-
   @State private var chatMesages: [ChatMessageModel] = .preview
   @State private var avatar: AvatarModel? = .preview
   @State private var currentUser: UserModel? = .preview
   @State private var messageText: String = ""
   @State private var showSettings = false
   @State private var scrollPosition: String?
-  @State private var validationError: ChatValidationError?
+  @State private var validationError: TextValidationError?
+
+  private let textValidator = TextValidator()
 
   var body: some View {
     VStack(spacing: 0) {
@@ -109,27 +97,15 @@ struct ChatView: View {
       .background(Color(.secondarySystemBackground))
   }
 
-  private let blockedWords: Set<String> = [
-    "idiota", "estupido", "imbecil", "maldito", "bastardo",
-    "idiot", "stupid", "damn", "bastard", "moron"
-  ]
-
-  private func checkIfMessageIsValid() throws {
-    let trimmed = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard !trimmed.isEmpty else { throw ChatValidationError.emptyMessage }
-    let words = trimmed.lowercased().components(separatedBy: .whitespacesAndNewlines)
-    guard words.allSatisfy({ !blockedWords.contains($0) }) else { throw ChatValidationError.badWord }
-  }
-
   private func onSendButtonTapped() {
     guard let currentUser else { return }
+    let content: String
     do {
-      try checkIfMessageIsValid()
-    } catch let error as ChatValidationError {
+      content = try textValidator.validate(messageText)
+    } catch let error as TextValidationError {
       validationError = error
       return
     } catch { return }
-    let content = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
     let message = ChatMessageModel(
       id: UUID().uuidString,
       chatId: UUID().uuidString,
