@@ -29,12 +29,13 @@ struct ModalSupportView<Content: View>: View {
 #Preview {
   @Previewable @State var showModal = false
 
-  ZStack {
-    Button("Click me") { showModal = true }
-    ModalSupportView(showModal: $showModal) {
-      Text("Hi")
-        .background(Color.red)
-        .transition(.slide)
+  Button("Click me") { showModal = true }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .overlay {
+      ModalSupportView(showModal: $showModal) {
+        Text("Hi")
+          .background(Color.red)
+          .transition(.slide)
+      }
     }
-  }
 }
