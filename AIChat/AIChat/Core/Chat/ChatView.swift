@@ -11,6 +11,7 @@ struct ChatView: View {
   @State private var messageText: String = ""
   @State private var showSettings = false
   @State private var scrollPosition: String?
+  @State private var showAlert = false
 
   var body: some View {
     VStack(spacing: 0) {
@@ -83,20 +84,28 @@ struct ChatView: View {
       .background(Color(.secondarySystemBackground))
   }
 
+  private func checkIfMessageIsValid() -> Bool {
+    !messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+  }
+
   private func onSendButtonTapped() {
-    guard let currentUser else { return }
-    let content = messageText
-    let message = ChatMessageModel(
-      id: UUID().uuidString,
-      chatId: UUID().uuidString,
-      authorId: currentUser.userId,
-      content: content,
-      seenByIds: [],
-      dateCreated: .now
-    )
-    chatMesages.append(message)
-    scrollPosition = message.id
-    messageText = ""
+    guard checkIfMessageIsValid(), let currentUser else { return }
+    let content = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
+    if checkIfMessageIsValid() {
+      let message = ChatMessageModel(
+        id: UUID().uuidString,
+        chatId: UUID().uuidString,
+        authorId: currentUser.userId,
+        content: content,
+        seenByIds: [],
+        dateCreated: .now
+      )
+      chatMesages.append(message)
+      scrollPosition = message.id
+      messageText = ""
+    } else {
+
+    }
   }
 
   private func onSettingsButtonTapped() {
