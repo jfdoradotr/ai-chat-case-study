@@ -33,7 +33,12 @@ struct ChatView: View {
             }
 
           if let avatar {
-            ProfileModalView {
+            ProfileModalView(
+              imageURL: avatar.imageURL,
+              title: avatar.name,
+              subtitle: avatar.character?.rawValue.capitalized,
+              headline: avatar.description
+            ) {
               showProfileModal = false
             }
             .padding(40)

@@ -20,6 +20,7 @@ struct ImageLoaderView: View {
       }
       .clipped()
       .contentShape(Rectangle())
+      .drawingGroup()
   }
 }
 
