@@ -10,6 +10,7 @@ struct ChatBubbleView: View {
   var backgroundColor: Color = .gray
   var showImage: Bool = true
   var imageURL: URL?
+  var onImagePressed: (() -> Void)?
 
   private let offset: CGFloat = 14
 
@@ -19,6 +20,9 @@ struct ChatBubbleView: View {
         ZStack {
           if let imageURL {
             ImageLoaderView(url: imageURL)
+              .onTapGesture {
+                onImagePressed?()
+              }
           } else {
             Rectangle()
               .fill(.secondary)
