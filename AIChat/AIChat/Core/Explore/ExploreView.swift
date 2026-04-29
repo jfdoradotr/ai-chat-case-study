@@ -49,12 +49,14 @@ struct ExploreView: View {
       ScrollView(.horizontal) {
         LazyHStack(spacing: 12) {
           ForEach(categories, id: \.self) { category in
-            NavigationLink(value: category) {
-              CategoryCellView(
-                title: category.plural.capitalized,
-                imageURL: Constants.randomImageURL
-              )
-              .frame(height: 140)
+            if let imageURL = popularAvatars.first(where: { $0.character == category })?.imageURL {
+              NavigationLink(value: category) {
+                CategoryCellView(
+                  title: category.plural.capitalized,
+                  imageURL: imageURL
+                )
+                .frame(height: 140)
+              }
             }
           }
         }
@@ -68,11 +70,13 @@ struct ExploreView: View {
   private var popularSection: some View {
     Section {
       ForEach(popularAvatars) { avatar in
-        CustomListCellView(
-          imageURL: Constants.randomImageURL,
-          title: avatar.name,
-          subtitle: avatar.description
-        )
+        NavigationLink(value: avatar.avatarId) {
+          CustomListCellView(
+            imageURL: Constants.randomImageURL,
+            title: avatar.name,
+            subtitle: avatar.description
+          )
+        }
       }
     } header: {
       Text("Popular")
