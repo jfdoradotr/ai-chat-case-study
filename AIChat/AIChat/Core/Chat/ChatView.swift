@@ -17,37 +17,23 @@ struct ChatView: View {
   private let textValidator = TextValidator()
 
   var body: some View {
-    ZStack {
-      VStack(spacing: 0) {
-        scrollViewSection
-        textFieldSection
-      }
-
-      ZStack {
-        if showProfileModal {
-          Color.black.opacity(0.6)
-            .ignoresSafeArea()
-            .transition(AnyTransition.opacity.animation(.smooth))
-            .onTapGesture {
-              showProfileModal = false
-            }
-
-          if let avatar {
-            ProfileModalView(
-              imageURL: avatar.imageURL,
-              title: avatar.name,
-              subtitle: avatar.character?.rawValue.capitalized,
-              headline: avatar.description
-            ) {
-              showProfileModal = false
-            }
-            .padding(40)
-            .transition(.slide)
-          }
+    VStack(spacing: 0) {
+      scrollViewSection
+      textFieldSection
+    }
+    .showModal(isPresented: $showProfileModal) {
+      if let avatar {
+        ProfileModalView(
+          imageURL: avatar.imageURL,
+          title: avatar.name,
+          subtitle: avatar.character?.rawValue.capitalized,
+          headline: avatar.description
+        ) {
+          showProfileModal = false
         }
+        .padding(40)
+        .transition(.slide)
       }
-      .zIndex(9999)
-      .animation(.bouncy, value: showProfileModal)
     }
     .navigationTitle(avatar?.name ?? "Chat")
     .toolbarTitleDisplayMode(.inline)

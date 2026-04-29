@@ -4,25 +4,42 @@
 
 import SwiftUI
 
-struct ModalSupportView<Content: View>: View {
-  @Binding var showModal: Bool
-  @ViewBuilder var content: Content
+struct ModalSupportViewModifier<ModalContent: View>: ViewModifier {
+  @Binding var isPresented: Bool
+  @ViewBuilder var modalContent: ModalContent
 
-  var body: some View {
-    ZStack {
-      if showModal {
-        Color.black.opacity(0.6)
-          .ignoresSafeArea()
-          .transition(AnyTransition.opacity.animation(.smooth))
-          .onTapGesture {
-            showModal = false
+  func body(content: Content) -> some View {
+    content
+      .overlay {
+        ZStack {
+          if isPresented {
+            Color.black.opacity(0.6)
+              .ignoresSafeArea()
+              .transition(AnyTransition.opacity.animation(.smooth))
+              .onTapGesture {
+                isPresented = false
+              }
+            modalContent
+              .frame(maxWidth: .infinity, maxHeight: .infinity)
           }
-        content
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .zIndex(9999)
+        .animation(.bouncy, value: isPresented)
       }
-    }
-    .zIndex(9999)
-    .animation(.bouncy, value: showModal)
+  }
+}
+
+extension View {
+  func showModal<Content: View>(
+    isPresented: Binding<Bool>,
+    @ViewBuilder content: () -> Content
+  ) -> some View {
+    modifier(
+      ModalSupportViewModifier(
+        isPresented: isPresented,
+        modalContent: content
+      )
+    )
   }
 }
 
@@ -31,11 +48,9 @@ struct ModalSupportView<Content: View>: View {
 
   Button("Click me") { showModal = true }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .overlay {
-      ModalSupportView(showModal: $showModal) {
-        Text("Hi")
-          .background(Color.red)
-          .transition(.slide)
-      }
+    .showModal(isPresented: $showModal) {
+      Text("Hi")
+        .background(Color.red)
+        .transition(.slide)
     }
 }
