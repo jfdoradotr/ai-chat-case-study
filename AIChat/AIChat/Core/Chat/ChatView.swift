@@ -23,14 +23,25 @@ struct ChatView: View {
         textFieldSection
       }
 
-      if showProfileModal {
-        Color.black.opacity(0.6)
-          .ignoresSafeArea()
-          .transition(AnyTransition.opacity.animation(.smooth))
-        ProfileModalView {}
-          .padding(40)
-          .transition(.slide)
+      ZStack {
+        if showProfileModal {
+          Color.black.opacity(0.6)
+            .ignoresSafeArea()
+            .transition(AnyTransition.opacity.animation(.smooth))
+            .onTapGesture {
+              showProfileModal = false
+            }
+
+          if let avatar {
+            ProfileModalView {
+              showProfileModal = false
+            }
+            .padding(40)
+            .transition(.slide)
+          }
+        }
       }
+      .zIndex(9999)
     }
     .animation(.bouncy, value: showProfileModal)
     .navigationTitle(avatar?.name ?? "Chat")
