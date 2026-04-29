@@ -40,11 +40,13 @@ struct ProfileView: View {
           .foregroundStyle(.secondary)
         } else {
           ForEach(myAvatars) { avatar in
-            CustomListCellView(
-              imageURL: avatar.imageURL,
-              title: avatar.name,
-              subtitle: nil
-            )
+            NavigationLink(value: avatar.avatarId) {
+              CustomListCellView(
+                imageURL: avatar.imageURL,
+                title: avatar.name,
+                subtitle: nil
+              )
+            }
           }
           .onDelete(perform: onDeleteAvatar)
         }
@@ -60,6 +62,9 @@ struct ProfileView: View {
       }
     }
     .navigationTitle("Profile")
+    .navigationDestination(for: String.self) { avatarId in
+      ChatView(avatarId: avatarId)
+    }
     .toolbar {
       ToolbarItem(placement: .primaryAction) {
         Button(

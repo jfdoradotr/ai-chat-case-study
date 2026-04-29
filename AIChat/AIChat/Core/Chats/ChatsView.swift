@@ -16,11 +16,11 @@ struct ChatsView: View {
             chat: chat,
             getAvatar: {
               try? await Task.sleep(for: .seconds(1))
-              return .preview
+              return [AvatarModel].preview.randomElement()
             },
             getLastChatMessage: {
               try? await Task.sleep(for: .seconds(1))
-              return .preview
+              return [ChatMessageModel].preview.randomElement()
             }
           )
           .listRowSeparator(.hidden)
