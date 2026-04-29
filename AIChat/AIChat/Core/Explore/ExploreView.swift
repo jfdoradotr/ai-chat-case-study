@@ -19,16 +19,21 @@ struct ExploreView: View {
     }
     .listStyle(.plain)
     .navigationTitle("Explore")
+    .navigationDestination(for: String.self) { value in
+      ChatView(avatarId: value)
+    }
   }
 
   private var featuredAvatarsSection: some View {
     Section {
       CarouselView(items: featuredAvatars) { avatar in
-        HeroCellView(
-          imageURL: Constants.randomImageURL,
-          title: avatar.name,
-          subtitle: avatar.description
-        )
+        NavigationLink(value: avatar.avatarId) {
+          HeroCellView(
+            imageURL: Constants.randomImageURL,
+            title: avatar.name,
+            subtitle: avatar.description
+          )
+        }
       }
       .frame(height: 200)
     } header: {
@@ -68,8 +73,11 @@ struct ExploreView: View {
       Text("Popular")
     }
   }
+
 }
 
 #Preview {
-  ExploreView()
+  NavigationStack {
+    ExploreView()
+  }
 }

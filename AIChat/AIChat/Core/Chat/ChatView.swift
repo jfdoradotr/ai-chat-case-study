@@ -16,6 +16,8 @@ struct ChatView: View {
 
   private let textValidator = TextValidator()
 
+  var avatarId: String = AvatarModel.preview.avatarId
+
   var body: some View {
     VStack(spacing: 0) {
       scrollViewSection

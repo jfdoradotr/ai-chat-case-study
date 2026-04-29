@@ -45,6 +45,7 @@ struct HeroCellView: View {
       .padding(16)
     }
     .clipShape(.rect(cornerRadius: 32))
+    .contentShape(.rect(cornerRadius: 32))
   }
 }
 
