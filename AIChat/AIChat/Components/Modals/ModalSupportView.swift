@@ -18,6 +18,7 @@ struct ModalSupportView<Content: View>: View {
             showModal = false
           }
         content
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
       }
     }
     .zIndex(9999)
