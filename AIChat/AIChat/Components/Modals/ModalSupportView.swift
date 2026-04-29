@@ -19,8 +19,11 @@ struct ModalSupportViewModifier<ModalContent: View>: ViewModifier {
               .onTapGesture {
                 isPresented = false
               }
+              .zIndex(1)
             modalContent
               .frame(maxWidth: .infinity, maxHeight: .infinity)
+              .ignoresSafeArea()
+              .zIndex(2)
           }
         }
         .zIndex(9999)
