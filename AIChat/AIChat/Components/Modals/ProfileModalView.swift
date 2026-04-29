@@ -57,6 +57,10 @@ struct ProfileModalView: View {
   }
 }
 
-#Preview {
+#Preview("Modal with Image") {
   ProfileModalView {}
+}
+
+#Preview("Modal No Image") {
+  ProfileModalView(imageURL: nil) {}
 }

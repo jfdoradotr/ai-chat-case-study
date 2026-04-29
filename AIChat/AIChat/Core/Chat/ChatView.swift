@@ -12,14 +12,27 @@ struct ChatView: View {
   @State private var showSettings = false
   @State private var scrollPosition: String?
   @State private var validationError: TextValidationError?
+  @State private var showProfileModal = false
 
   private let textValidator = TextValidator()
 
   var body: some View {
-    VStack(spacing: 0) {
-      scrollViewSection
-      textFieldSection
+    ZStack {
+      VStack(spacing: 0) {
+        scrollViewSection
+        textFieldSection
+      }
+
+      if showProfileModal {
+        Color.black.opacity(0.6)
+          .ignoresSafeArea()
+          .transition(AnyTransition.opacity.animation(.smooth))
+        ProfileModalView {}
+          .padding(40)
+          .transition(.slide)
+      }
     }
+    .animation(.bouncy, value: showProfileModal)
     .navigationTitle(avatar?.name ?? "Chat")
     .toolbarTitleDisplayMode(.inline)
     .toolbar {
@@ -55,7 +68,8 @@ struct ChatView: View {
           ChatBubbleViewBuilder(
             message: message,
             isCurrentUser: isCurrentUser,
-            imageURL: avatar?.imageURL
+            imageURL: avatar?.imageURL,
+            onImagePressed: onAvatarImagePressed
           )
           .id(message.id)
         }
@@ -124,6 +138,10 @@ struct ChatView: View {
   }
 
   private func onReportButtonTapped() {}
+
+  private func onAvatarImagePressed() {
+    showProfileModal = true
+  }
 }
 
 #Preview {

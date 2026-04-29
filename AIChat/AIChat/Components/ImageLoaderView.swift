@@ -19,6 +19,7 @@ struct ImageLoaderView: View {
           .allowsHitTesting(false)
       }
       .clipped()
+      .contentShape(Rectangle())
   }
 }
 

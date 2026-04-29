@@ -8,6 +8,7 @@ struct ChatBubbleViewBuilder: View {
   var message: ChatMessageModel = .preview
   var isCurrentUser = false
   var imageURL: URL?
+  var onImagePressed: (() -> Void)?
 
   var body: some View {
     ChatBubbleView(
@@ -15,7 +16,8 @@ struct ChatBubbleViewBuilder: View {
       textColor: isCurrentUser ? .white : .primary,
       backgroundColor: isCurrentUser ? .accent : Color(uiColor: .systemGray6),
       showImage: !isCurrentUser,
-      imageURL: imageURL
+      imageURL: imageURL,
+      onImagePressed: onImagePressed
     )
     .frame(maxWidth: .infinity, alignment: isCurrentUser ? .trailing : .leading)
     .padding(.leading, isCurrentUser ? 75 : 0)
