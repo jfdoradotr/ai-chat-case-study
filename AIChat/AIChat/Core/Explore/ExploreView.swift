@@ -22,6 +22,9 @@ struct ExploreView: View {
     .navigationDestination(for: String.self) { value in
       ChatView(avatarId: value)
     }
+    .navigationDestination(for: AvatarModel.Character.self) { category in
+      CategoryListView(category: category, imageURL: Constants.randomImageURL)
+    }
   }
 
   private var featuredAvatarsSection: some View {
@@ -46,11 +49,13 @@ struct ExploreView: View {
       ScrollView(.horizontal) {
         LazyHStack(spacing: 12) {
           ForEach(categories, id: \.self) { category in
-            CategoryCellView(
-              title: category.plural.capitalized,
-              imageURL: Constants.randomImageURL
-            )
-            .frame(height: 140)
+            NavigationLink(value: category) {
+              CategoryCellView(
+                title: category.plural.capitalized,
+                imageURL: Constants.randomImageURL
+              )
+              .frame(height: 140)
+            }
           }
         }
       }
@@ -73,7 +78,6 @@ struct ExploreView: View {
       Text("Popular")
     }
   }
-
 }
 
 #Preview {
