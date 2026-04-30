@@ -20,7 +20,7 @@ struct SettingsView: View {
       applicationSection
     }
     .navigationTitle("Settings")
-    .sheet(isPresented: $showCreateAccount) {
+    .sheet(isPresented: $showCreateAccount, onDismiss: setAnonymousAccountStatus) {
       CreateAccountView(presentationState: .createAccount)
         .presentationDetents([.medium])
     }
