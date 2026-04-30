@@ -20,12 +20,17 @@ struct CategoryListView: View {
       .listRowInsets(EdgeInsets())
 
       ForEach(avatars) { avatar in
-        CustomListCellView(
-          imageURL: avatar.imageURL,
-          title: avatar.name,
-          subtitle: avatar.description
-        )
+        NavigationLink(value: avatar.id) {
+          CustomListCellView(
+            imageURL: avatar.imageURL,
+            title: avatar.name,
+            subtitle: avatar.description
+          )
+        }
       }
+    }
+    .navigationDestination(for: String.self) { avatarId in
+      ChatView(avatarId: avatarId)
     }
     .listStyle(.plain)
     .ignoresSafeArea(edges: .top)

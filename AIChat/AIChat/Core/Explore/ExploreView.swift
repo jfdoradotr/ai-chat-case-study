@@ -19,16 +19,24 @@ struct ExploreView: View {
     }
     .listStyle(.plain)
     .navigationTitle("Explore")
+    .navigationDestination(for: String.self) { value in
+      ChatView(avatarId: value)
+    }
+    .navigationDestination(for: AvatarModel.Character.self) { category in
+      CategoryListView(category: category, imageURL: Constants.randomImageURL)
+    }
   }
 
   private var featuredAvatarsSection: some View {
     Section {
       CarouselView(items: featuredAvatars) { avatar in
-        HeroCellView(
-          imageURL: Constants.randomImageURL,
-          title: avatar.name,
-          subtitle: avatar.description
-        )
+        NavigationLink(value: avatar.avatarId) {
+          HeroCellView(
+            imageURL: Constants.randomImageURL,
+            title: avatar.name,
+            subtitle: avatar.description
+          )
+        }
       }
       .frame(height: 200)
     } header: {
@@ -41,11 +49,15 @@ struct ExploreView: View {
       ScrollView(.horizontal) {
         LazyHStack(spacing: 12) {
           ForEach(categories, id: \.self) { category in
-            CategoryCellView(
-              title: category.plural.capitalized,
-              imageURL: Constants.randomImageURL
-            )
-            .frame(height: 140)
+            if let imageURL = popularAvatars.first(where: { $0.character == category })?.imageURL {
+              NavigationLink(value: category) {
+                CategoryCellView(
+                  title: category.plural.capitalized,
+                  imageURL: imageURL
+                )
+                .frame(height: 140)
+              }
+            }
           }
         }
       }
@@ -58,11 +70,13 @@ struct ExploreView: View {
   private var popularSection: some View {
     Section {
       ForEach(popularAvatars) { avatar in
-        CustomListCellView(
-          imageURL: Constants.randomImageURL,
-          title: avatar.name,
-          subtitle: avatar.description
-        )
+        NavigationLink(value: avatar.avatarId) {
+          CustomListCellView(
+            imageURL: Constants.randomImageURL,
+            title: avatar.name,
+            subtitle: avatar.description
+          )
+        }
       }
     } header: {
       Text("Popular")
@@ -71,5 +85,7 @@ struct ExploreView: View {
 }
 
 #Preview {
-  ExploreView()
+  NavigationStack {
+    ExploreView()
+  }
 }

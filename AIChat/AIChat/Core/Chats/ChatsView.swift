@@ -10,23 +10,28 @@ struct ChatsView: View {
   var body: some View {
     List {
       ForEach(chats) { chat in
-        ChatRowCellViewBuilder(
-          currentUserId: nil, // FIXME: Add current user id
-          chat: chat,
-          getAvatar: {
-            try? await Task.sleep(for: .seconds(1))
-            return .preview
-          },
-          getLastChatMessage: {
-            try? await Task.sleep(for: .seconds(1))
-            return .preview
-          }
-        )
-        .listRowSeparator(.hidden)
+        NavigationLink(value: chat.avatarId) {
+          ChatRowCellViewBuilder(
+            currentUserId: nil, // FIXME: Add current user id
+            chat: chat,
+            getAvatar: {
+              try? await Task.sleep(for: .seconds(1))
+              return [AvatarModel].preview.randomElement()
+            },
+            getLastChatMessage: {
+              try? await Task.sleep(for: .seconds(1))
+              return [ChatMessageModel].preview.randomElement()
+            }
+          )
+          .listRowSeparator(.hidden)
+        }
       }
     }
     .listStyle(.plain)
     .navigationTitle("Chats")
+    .navigationDestination(for: String.self) { avatarId in
+      ChatView(avatarId: avatarId)
+    }
   }
 }
 

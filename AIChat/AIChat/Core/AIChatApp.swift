@@ -8,7 +8,7 @@ import SwiftUI
 struct AIChatApp: App {
   var body: some Scene {
     WindowGroup {
-      ChatView()
+      AppView()
     }
   }
 }
