@@ -83,7 +83,15 @@ struct CreateAccountView: View {
     Task {
       do {
         let (user, isNewUser) = try await authService.signInGoogle()
-        print("Signed in with Google — uid: \(user.uid), email: \(user.email ?? "n/a"), isNewUser: \(isNewUser), isAnonymous: \(user.isAnonymous)")
+
+        print("==============================")
+        print("Signed in with Google")
+        print("uid: \(user.uid)")
+        print("email: \(user.email ?? "n/a")")
+        print("isNewUser: \(isNewUser)")
+        print("isAnonymous: \(user.isAnonymous)")
+        print("==============================\n")
+
         appState.updateViewState(showTabBar: true)
         dismiss()
       } catch {

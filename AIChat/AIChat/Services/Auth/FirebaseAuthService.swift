@@ -85,6 +85,7 @@ struct FirebaseAuthService {
       switch self {
       case .userNotFound:
         return "Current authenticated user not found."
+
       case .unsupportedReauthentication:
         return "No supported provider available to re-authenticate this account."
       }
