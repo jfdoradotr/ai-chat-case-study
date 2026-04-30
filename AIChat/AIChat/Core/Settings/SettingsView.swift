@@ -113,15 +113,8 @@ struct SettingsView: View {
   }
 
   private func onSignOutPressed() {
-    Task {
-      do {
-        try authService.signOut()
-        dismiss()
-        try? await Task.sleep(for: .seconds(0.3))
-        appState.updateViewState(showTabBar: false)
-      } catch {
-        print("Sign out failed: \(error.localizedDescription)")
-      }
+    performAuthAction(label: "Sign out") {
+      try authService.signOut()
     }
   }
 
@@ -130,14 +123,23 @@ struct SettingsView: View {
   }
 
   private func onDeleteAccountPressed() {
+    performAuthAction(label: "Delete account") {
+      try await authService.deleteAccount()
+    }
+  }
+
+  private func performAuthAction(
+    label: String,
+    action: @escaping () async throws -> Void
+  ) {
     Task {
       do {
-        try await authService.deleteAccount()
+        try await action()
         dismiss()
         try? await Task.sleep(for: .seconds(0.3))
         appState.updateViewState(showTabBar: false)
       } catch {
-        print("Delete account failed: \(error.localizedDescription)")
+        print("\(label) failed: \(error.localizedDescription)")
       }
     }
   }
