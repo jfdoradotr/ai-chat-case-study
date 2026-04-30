@@ -45,4 +45,48 @@ struct FirebaseAuthService {
     let result = try await Auth.auth().signIn(with: credential)
     return (UserAuthInfo(user: result.user), result.additionalUserInfo?.isNewUser ?? false)
   }
+
+  func signOut() throws {
+    try Auth.auth().signOut()
+  }
+
+  func deleteAccount() async throws {
+    guard let user = Auth.auth().currentUser else {
+      throw AuthError.userNotFound
+    }
+
+    do {
+      try await user.delete()
+    } catch let error as NSError where error.code == AuthErrorCode.requiresRecentLogin.rawValue {
+      let credential = try await reauthenticationCredential(for: user)
+      try await user.reauthenticate(with: credential)
+      try await user.delete()
+    }
+  }
+
+  private func reauthenticationCredential(for user: User) async throws -> AuthCredential {
+    let providerIDs = user.providerData.map(\.providerID)
+    if providerIDs.contains("google.com") {
+      let google = try await SignInWithGoogleHelper().signIn()
+      return GoogleAuthProvider.credential(
+        withIDToken: google.idToken,
+        accessToken: google.accessToken
+      )
+    }
+    throw AuthError.unsupportedReauthentication
+  }
+
+  enum AuthError: LocalizedError {
+    case userNotFound
+    case unsupportedReauthentication
+
+    var errorDescription: String? {
+      switch self {
+      case .userNotFound:
+        return "Current authenticated user not found."
+      case .unsupportedReauthentication:
+        return "No supported provider available to re-authenticate this account."
+      }
+    }
+  }
 }

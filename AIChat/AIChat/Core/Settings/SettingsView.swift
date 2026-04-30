@@ -113,18 +113,34 @@ struct SettingsView: View {
   }
 
   private func onSignOutPressed() {
-    dismiss()
     Task {
-      try? await Task.sleep(for: .seconds(0.3))
+      do {
+        try authService.signOut()
+        dismiss()
+        try? await Task.sleep(for: .seconds(0.3))
+        appState.updateViewState(showTabBar: false)
+      } catch {
+        print("Sign out failed: \(error.localizedDescription)")
+      }
     }
-    appState.updateViewState(showTabBar: false)
   }
 
   private func onCreateAccountPressed() {
     showCreateAccount = true
   }
 
-  private func onDeleteAccountPressed() {}
+  private func onDeleteAccountPressed() {
+    Task {
+      do {
+        try await authService.deleteAccount()
+        dismiss()
+        try? await Task.sleep(for: .seconds(0.3))
+        appState.updateViewState(showTabBar: false)
+      } catch {
+        print("Delete account failed: \(error.localizedDescription)")
+      }
+    }
+  }
 
   private func onManagePressed() {}
 
