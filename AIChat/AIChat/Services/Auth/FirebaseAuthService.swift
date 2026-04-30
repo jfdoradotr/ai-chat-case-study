@@ -39,7 +39,8 @@ struct FirebaseAuthService {
         let result = try await current.link(with: credential)
         return (UserAuthInfo(user: result.user), result.additionalUserInfo?.isNewUser ?? false)
       } catch let error as NSError where error.code == AuthErrorCode.credentialAlreadyInUse.rawValue {
-        // Credential ya pertenece a otra cuenta Firebase: descartamos el anónimo y entramos como esa cuenta.
+        // Credential already belongs to another account: delete the anonymous user so it isn't orphaned, then sign in as the existing account below.
+        try? await current.delete()
       }
     }
     let result = try await Auth.auth().signIn(with: credential)
