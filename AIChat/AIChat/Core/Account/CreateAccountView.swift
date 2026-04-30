@@ -33,11 +33,14 @@ struct CreateAccountView: View {
       switch self {
       case .signIn:
         return "Sign in with Google"
+
       case .createAccount:
         return "Sign up with Google"
       }
     }
   }
+
+  @Environment(\.authService) private var authService
 
   let presentationState: PresentationState
 
@@ -77,10 +80,10 @@ struct CreateAccountView: View {
   private func onGoogleButtonPressed() {
     Task {
       do {
-        let result = try await SignInWithGoogleHelper().signIn()
-        print("Google sign-in OK — idToken: \(result.idToken.prefix(20))…, email: \(result.email ?? "n/a")")
+        let (user, isNewUser) = try await authService.signInGoogle()
+        print("Signed in with Google — uid: \(user.uid), email: \(user.email ?? "n/a"), isNewUser: \(isNewUser), isAnonymous: \(user.isAnonymous)")
       } catch {
-        print("Google sign-in failed: \(error.localizedDescription)")
+        print("Sign-in failed: \(error.localizedDescription)")
       }
     }
   }
