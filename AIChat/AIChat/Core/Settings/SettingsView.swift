@@ -12,6 +12,45 @@ struct SettingsView: View {
   @State private var isPremium = false
   @State private var isAnonymousUser = true
   @State private var showCreateAccount = false
+  @State private var pendingConfirmation: AuthAction?
+  @State private var errorMessage: String?
+
+  private enum AuthAction: Identifiable {
+    case signOut
+    case deleteAccount
+
+    var id: Self { self }
+
+    var title: String {
+      switch self {
+      case .signOut: return "Sign out?"
+      case .deleteAccount: return "Delete account?"
+      }
+    }
+
+    var message: String {
+      switch self {
+      case .signOut:
+        return "You'll need to sign in again to access your account."
+      case .deleteAccount:
+        return "This action is permanent. All your data will be deleted and cannot be recovered."
+      }
+    }
+
+    var confirmLabel: String {
+      switch self {
+      case .signOut: return "Sign out"
+      case .deleteAccount: return "Delete"
+      }
+    }
+
+    var isDestructive: Bool {
+      switch self {
+      case .signOut: return false
+      case .deleteAccount: return true
+      }
+    }
+  }
 
   var body: some View {
     List {
@@ -23,6 +62,33 @@ struct SettingsView: View {
     .sheet(isPresented: $showCreateAccount, onDismiss: setAnonymousAccountStatus) {
       CreateAccountView(presentationState: .createAccount)
         .presentationDetents([.medium])
+    }
+    .alert(
+      pendingConfirmation?.title ?? "",
+      isPresented: Binding(
+        get: { pendingConfirmation != nil },
+        set: { if !$0 { pendingConfirmation = nil } }
+      ),
+      presenting: pendingConfirmation
+    ) { action in
+      Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
+        perform(action)
+      }
+      Button("Cancel", role: .cancel) {}
+    } message: { action in
+      Text(action.message)
+    }
+    .alert(
+      "Something went wrong",
+      isPresented: Binding(
+        get: { errorMessage != nil },
+        set: { if !$0 { errorMessage = nil } }
+      ),
+      presenting: errorMessage
+    ) { _ in
+      Button("OK", role: .cancel) {}
+    } message: { message in
+      Text(message)
     }
     .onAppear {
       setAnonymousAccountStatus()
@@ -113,9 +179,7 @@ struct SettingsView: View {
   }
 
   private func onSignOutPressed() {
-    performAuthAction(label: "Sign out") {
-      try authService.signOut()
-    }
+    pendingConfirmation = .signOut
   }
 
   private func onCreateAccountPressed() {
@@ -123,8 +187,19 @@ struct SettingsView: View {
   }
 
   private func onDeleteAccountPressed() {
-    performAuthAction(label: "Delete account") {
-      try await authService.deleteAccount()
+    pendingConfirmation = .deleteAccount
+  }
+
+  private func perform(_ action: AuthAction) {
+    switch action {
+    case .signOut:
+      performAuthAction(label: "Sign out") {
+        try authService.signOut()
+      }
+    case .deleteAccount:
+      performAuthAction(label: "Delete account") {
+        try await authService.deleteAccount()
+      }
     }
   }
 
@@ -139,7 +214,7 @@ struct SettingsView: View {
         try? await Task.sleep(for: .seconds(0.3))
         appState.updateViewState(showTabBar: false)
       } catch {
-        print("\(label) failed: \(error.localizedDescription)")
+        errorMessage = "\(label) failed: \(error.localizedDescription)"
       }
     }
   }
