@@ -42,6 +42,7 @@ struct CreateAccountView: View {
 
   @Environment(\.authService) private var authService
   @Environment(\.dismiss) private var dismiss
+  @Environment(AppState.self) private var appState
 
   let presentationState: PresentationState
 
@@ -83,6 +84,7 @@ struct CreateAccountView: View {
       do {
         let (user, isNewUser) = try await authService.signInGoogle()
         print("Signed in with Google — uid: \(user.uid), email: \(user.email ?? "n/a"), isNewUser: \(isNewUser), isAnonymous: \(user.isAnonymous)")
+        appState.updateViewState(showTabBar: true)
         dismiss()
       } catch {
         print("Sign-in failed: \(error.localizedDescription)")

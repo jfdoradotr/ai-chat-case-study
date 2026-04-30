@@ -213,6 +213,7 @@ struct SettingsView: View {
         dismiss()
         try? await Task.sleep(for: .seconds(0.3))
         appState.updateViewState(showTabBar: false)
+        _ = try? await authService.signInAnonymously()
       } catch {
         errorMessage = "\(label) failed: \(error.localizedDescription)"
       }
