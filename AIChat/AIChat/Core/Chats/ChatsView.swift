@@ -11,32 +11,7 @@ struct ChatsView: View {
   var body: some View {
     List {
       if !recentAvatars.isEmpty {
-        Section {
-          ScrollView(.horizontal) {
-            LazyHStack(spacing: 8) {
-              ForEach(recentAvatars) { avatar in
-                NavigationLink(value: avatar.avatarId) {
-                  if let imageURL = avatar.imageURL {
-                    VStack(spacing: 8) {
-                      ImageLoaderView(url: imageURL)
-                        .aspectRatio(1, contentMode: .fit)
-                        .clipShape(.circle)
-
-                      Text(avatar.name ?? "")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    }
-                  }
-                }
-              }
-            }
-          }
-          .frame(height: 120)
-          .scrollIndicators(.hidden)
-        } header: {
-          Text("Recents")
-        }
-        .listRowSeparator(.hidden)
+        recentsSection
       }
       chatsSection
     }
@@ -45,6 +20,35 @@ struct ChatsView: View {
     .navigationDestination(for: String.self) { avatarId in
       ChatView(avatarId: avatarId)
     }
+  }
+
+  private var recentsSection: some View {
+    Section {
+      ScrollView(.horizontal) {
+        LazyHStack(spacing: 8) {
+          ForEach(recentAvatars) { avatar in
+            NavigationLink(value: avatar.avatarId) {
+              if let imageURL = avatar.imageURL {
+                VStack(spacing: 8) {
+                  ImageLoaderView(url: imageURL)
+                    .aspectRatio(1, contentMode: .fit)
+                    .clipShape(.circle)
+
+                  Text(avatar.name ?? "")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+              }
+            }
+          }
+        }
+      }
+      .frame(height: 120)
+      .scrollIndicators(.hidden)
+    } header: {
+      Text("Recents")
+    }
+    .listRowSeparator(.hidden)
   }
 
   private var chatsSection: some View {
