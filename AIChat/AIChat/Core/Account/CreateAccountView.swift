@@ -2,7 +2,6 @@
 //  Copyright © Juan Francisco Dorado Torres. All rights reserved.
 //
 
-import AuthenticationServices
 import SwiftUI
 
 struct CreateAccountView: View {
@@ -29,6 +28,15 @@ struct CreateAccountView: View {
         return "Don't lose your data!. Connect to an SSO provider to save your account."
       }
     }
+
+    var googleButtonTitle: String {
+      switch self {
+      case .signIn:
+        return "Sign in with Google"
+      case .createAccount:
+        return "Sign up with Google"
+      }
+    }
   }
 
   let presentationState: PresentationState
@@ -43,19 +51,22 @@ struct CreateAccountView: View {
       }
       .frame(maxWidth: .infinity, alignment: .leading)
 
-      SignInWithAppleButton(presentationState == .signIn ? .signIn : .signUp) { request in
-        request.requestedScopes = [.fullName, .email]
-      } onCompletion: { result in
-        switch result {
-        case .success(let authorization):
-          handleSignInWithApple(authorization)
-
-        case .failure(let error):
-          print("Sign in with Apple failed: \(error.localizedDescription)")
+      Button(action: onGoogleButtonPressed) {
+        HStack {
+          Image(systemName: "g.circle.fill")
+          Text(presentationState.googleButtonTitle)
+            .font(.headline)
         }
+        .foregroundStyle(.black)
+        .frame(maxWidth: .infinity)
+        .frame(height: 50)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+          RoundedRectangle(cornerRadius: 8)
+            .stroke(.gray.opacity(0.3), lineWidth: 1)
+        )
       }
-      .frame(height: 50)
-      .signInWithAppleButtonStyle(.black)
 
       Spacer()
     }
@@ -63,14 +74,14 @@ struct CreateAccountView: View {
     .padding(.top, 40)
   }
 
-  private func handleSignInWithApple(_ authorization: ASAuthorization) {
-    if let credential = authorization.credential as? ASAuthorizationAppleIDCredential {
-      let userId = credential.user
-      let fullName = credential.fullName
-      let email = credential.email
-      print("User ID: \(userId)")
-      print("Full Name: \(fullName?.givenName ?? "N/A")")
-      print("Email: \(email ?? "N/A")")
+  private func onGoogleButtonPressed() {
+    Task {
+      do {
+        let result = try await SignInWithGoogleHelper().signIn()
+        print("Google sign-in OK — idToken: \(result.idToken.prefix(20))…, email: \(result.email ?? "n/a")")
+      } catch {
+        print("Google sign-in failed: \(error.localizedDescription)")
+      }
     }
   }
 }

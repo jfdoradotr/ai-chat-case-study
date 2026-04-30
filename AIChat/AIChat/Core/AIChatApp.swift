@@ -4,6 +4,7 @@
 
 import SwiftUI
 import FirebaseCore
+import GoogleSignIn
 
 class AppDelegate: NSObject, UIApplicationDelegate {
   // swiftlint:disable discouraged_optional_collection
@@ -12,6 +13,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
     FirebaseApp.configure()
+    if let clientID = FirebaseApp.app()?.options.clientID {
+      GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+    }
     return true
   }
   // swiftlint:enable discouraged_optional_collection
@@ -25,6 +29,9 @@ struct AIChatApp: App {
   var body: some Scene {
     WindowGroup {
       AppView()
+        .onOpenURL { url in
+          _ = GIDSignIn.sharedInstance.handle(url)
+        }
     }
   }
 }

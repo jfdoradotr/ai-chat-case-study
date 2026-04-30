@@ -24,6 +24,9 @@ struct SettingsView: View {
       CreateAccountView(presentationState: .createAccount)
         .presentationDetents([.medium])
     }
+    .onAppear {
+      setAnonymousAccountStatus()
+    }
   }
 
   private var accountSection: some View {
