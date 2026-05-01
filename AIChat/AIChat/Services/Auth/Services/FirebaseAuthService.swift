@@ -5,11 +5,7 @@
 import FirebaseAuth
 import SwiftUI
 
-extension EnvironmentValues {
-  @Entry var authService = FirebaseAuthService()
-}
-
-struct FirebaseAuthService {
+struct FirebaseAuthService: AuthService {
   func getAuthenticatedUser() -> UserAuthInfo? {
     if let user = Auth.auth().currentUser {
       return UserAuthInfo(user: user)
@@ -85,6 +81,7 @@ struct FirebaseAuthService {
       switch self {
       case .userNotFound:
         return "Current authenticated user not found."
+
       case .unsupportedReauthentication:
         return "No supported provider available to re-authenticate this account."
       }

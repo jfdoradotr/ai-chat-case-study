@@ -20,6 +20,7 @@ enum SignInWithGoogleError: LocalizedError {
     switch self {
     case .noRootViewController:
       return "No active window found to present Google Sign-In."
+
     case .missingIdToken:
       return "Google Sign-In did not return an ID token."
     }
@@ -30,8 +31,8 @@ enum SignInWithGoogleError: LocalizedError {
 final class SignInWithGoogleHelper {
   func signIn() async throws -> SignInWithGoogleResult {
     guard let scene = UIApplication.shared.connectedScenes
-            .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene,
-          let rootViewController = scene.windows.first(where: \.isKeyWindow)?.rootViewController
+      .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene,
+      let rootViewController = scene.windows.first(where: \.isKeyWindow)?.rootViewController
     else {
       throw SignInWithGoogleError.noRootViewController
     }

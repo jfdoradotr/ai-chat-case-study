@@ -32,6 +32,7 @@ struct SettingsView: View {
       switch self {
       case .signOut:
         return "You'll need to sign in again to access your account."
+
       case .deleteAccount:
         return "This action is permanent. All your data will be deleted and cannot be recovered."
       }
@@ -196,6 +197,7 @@ struct SettingsView: View {
       performAuthAction(label: "Sign out") {
         try authService.signOut()
       }
+
     case .deleteAccount:
       performAuthAction(label: "Delete account") {
         try await authService.deleteAccount()
@@ -225,9 +227,26 @@ struct SettingsView: View {
   private func onContactUsPressed() {}
 }
 
-#Preview {
+#Preview("No Auth") {
   NavigationStack {
     SettingsView()
+      .environment(\.authService, MockAuthService())
+      .environment(AppState())
+  }
+}
+
+#Preview("Anonymous") {
+  NavigationStack {
+    SettingsView()
+      .environment(\.authService, MockAuthService(user: .anonymousPreview))
+      .environment(AppState())
+  }
+}
+
+#Preview("Non-Anonymous") {
+  NavigationStack {
+    SettingsView()
+      .environment(\.authService, MockAuthService(user: .preview))
       .environment(AppState())
   }
 }
