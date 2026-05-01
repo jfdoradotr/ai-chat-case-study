@@ -9,6 +9,7 @@ struct UserModel: Codable {
   let email: String?
   let isAnonymous: Bool
   let creationDate: Date?
+  let creationVersion: String?
   let lastSignInDate: Date?
   let didCompleteOnboarding: Bool
   let profileColorHex: String?
@@ -18,6 +19,7 @@ struct UserModel: Codable {
     email: String? = nil,
     isAnonymous: Bool = false,
     creationDate: Date? = nil,
+    creationVersion: String? = nil,
     lastSignInDate: Date? = nil,
     didCompleteOnboarding: Bool = false,
     profileColorHex: String? = nil
@@ -26,19 +28,32 @@ struct UserModel: Codable {
     self.email = email
     self.isAnonymous = isAnonymous
     self.creationDate = creationDate
+    self.creationVersion = creationVersion
     self.lastSignInDate = lastSignInDate
     self.didCompleteOnboarding = didCompleteOnboarding
     self.profileColorHex = profileColorHex
   }
 
-  init(auth: UserAuthInfo) {
+  init(auth: UserAuthInfo, creationVersion: String?) {
     self.init(
       userId: auth.uid,
       email: auth.email,
       isAnonymous: auth.isAnonymous,
       creationDate: auth.creationDate,
+      creationVersion: creationVersion,
       lastSignInDate: auth.lastSignInDate,
     )
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case userId = "user_id"
+    case email
+    case isAnonymous = "is_anonymous"
+    case creationDate = "creation_date"
+    case creationVersion = "creation_version"
+    case lastSignInDate = "last_sign_in_date"
+    case didCompleteOnboarding = "did_complete_onboarding"
+    case profileColorHex = "profile_color_hex"
   }
 
   var profileColor: Color {
