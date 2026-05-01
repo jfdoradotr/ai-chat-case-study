@@ -5,7 +5,11 @@
 import Foundation
 import FirebaseFirestore
 
-protocol UserService: Sendable {
+protocol LocalUserService: Sendable {
+
+}
+
+protocol RemoteUserService: Sendable {
   func saveUser(user: UserModel) async throws
   func streamUser(
     userId: String,
@@ -15,7 +19,7 @@ protocol UserService: Sendable {
   func markOnboardingCompleted(userId: String, profileColorHex: String) async throws
 }
 
-struct MockUserService: UserService {
+struct MockUserService: RemoteUserService {
   let currentUser: UserModel?
 
   init(user: UserModel? = nil) {
@@ -40,7 +44,7 @@ struct MockUserService: UserService {
   func markOnboardingCompleted(userId: String, profileColorHex: String) async throws {}
 }
 
-struct FirebaseUserService: UserService {
+struct FirebaseUserService: RemoteUserService {
   var collection: CollectionReference {
     Firestore.firestore().collection("users")
   }
@@ -89,11 +93,11 @@ struct FirebaseUserService: UserService {
 @MainActor
 @Observable
 final class UserManager {
-  private let service: any UserService
+  private let service: any RemoteUserService
   private(set) var currentUser: UserModel?
   private var currentUserListener: (any ListenerRegistration)?
 
-  init(service: any UserService) {
+  init(service: any RemoteUserService) {
     self.service = service
     self.currentUser = nil
   }
