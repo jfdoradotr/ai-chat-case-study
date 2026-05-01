@@ -115,6 +115,6 @@ struct ProfileView: View {
   NavigationStack {
     ProfileView()
       .environment(AppState())
-      .environment(UserManager(service: MockUserService(user: .preview)))
+      .environment(UserManager(services: MockUserServices(user: .preview)))
   }
 }
