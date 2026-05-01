@@ -10,7 +10,6 @@ struct SettingsView: View {
   @Environment(AppState.self) private var appState
 
   @State private var isPremium = false
-  @State private var isAnonymousUser = true
   @State private var showCreateAccount = false
   @State private var pendingConfirmation: AuthAction?
   @State private var errorMessage: String?
@@ -60,7 +59,7 @@ struct SettingsView: View {
       applicationSection
     }
     .navigationTitle("Settings")
-    .sheet(isPresented: $showCreateAccount, onDismiss: setAnonymousAccountStatus) {
+    .sheet(isPresented: $showCreateAccount) {
       CreateAccountView(presentationState: .createAccount)
         .presentationDetents([.medium])
     }
@@ -91,9 +90,10 @@ struct SettingsView: View {
     } message: { message in
       Text(message)
     }
-    .onAppear {
-      setAnonymousAccountStatus()
-    }
+  }
+
+  private var isAnonymousUser: Bool {
+    authManager.auth?.isAnonymous == true
   }
 
   private var accountSection: some View {
@@ -173,10 +173,6 @@ struct SettingsView: View {
       }
       .font(.footnote)
     }
-  }
-
-  func setAnonymousAccountStatus() {
-    isAnonymousUser = authManager.auth?.isAnonymous == true
   }
 
   private func onSignOutPressed() {

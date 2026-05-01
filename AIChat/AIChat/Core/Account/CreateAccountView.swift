@@ -41,6 +41,7 @@ struct CreateAccountView: View {
   }
 
   @Environment(AuthManager.self) private var authManager
+  @Environment(UserManager.self) private var userManager
   @Environment(\.dismiss) private var dismiss
   @Environment(AppState.self) private var appState
 
@@ -92,6 +93,7 @@ struct CreateAccountView: View {
         print("isAnonymous: \(user.isAnonymous)")
         print("==============================\n")
 
+        try await userManager.login(auth: user, isNewUser: isNewUser)
         appState.updateViewState(showTabBar: true)
         dismiss()
       } catch {

@@ -3,9 +3,20 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
-protocol UserService {
+protocol UserService: Sendable {
+  func saveUser(user: UserModel) async throws
+}
 
+struct FirebaseUserService: UserService {
+  var collection: CollectionReference {
+    Firestore.firestore().collection("users")
+  }
+
+  func saveUser(user: UserModel) async throws {
+    try collection.document(user.userId).setData(from: user, merge: true)
+  }
 }
 
 @MainActor
@@ -20,6 +31,8 @@ final class UserManager {
   }
 
   func login(auth: UserAuthInfo, isNewUser: Bool) async throws {
-
+    let creationVersion: String? = isNewUser ? Bundle.main.appVersion : nil
+    let user = UserModel(auth: auth, creationVersion: creationVersion)
+    try await service.saveUser(user: user)
   }
 }
