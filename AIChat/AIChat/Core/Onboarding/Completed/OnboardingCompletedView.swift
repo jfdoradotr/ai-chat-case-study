@@ -55,5 +55,5 @@ struct OnboardingCompletedView: View {
     OnboardingCompletedView(selectedColor: .orange)
   }
   .environment(AppState())
-  .environment(UserManager(service: MockUserService(user: .preview)))
+  .environment(UserManager(services: MockUserServices(user: .preview)))
 }

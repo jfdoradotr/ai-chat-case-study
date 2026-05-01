@@ -236,7 +236,7 @@ struct SettingsView: View {
   NavigationStack {
     SettingsView()
       .environment(AuthManager(service: MockAuthService()))
-      .environment(UserManager(service: MockUserService()))
+      .environment(UserManager(services: MockUserServices(user: .preview)))
       .environment(AppState())
   }
 }
@@ -245,7 +245,7 @@ struct SettingsView: View {
   NavigationStack {
     SettingsView()
       .environment(AuthManager(service: MockAuthService(user: .anonymousPreview)))
-      .environment(UserManager(service: MockUserService(user: .preview)))
+      .environment(UserManager(services: MockUserServices(user: .preview)))
       .environment(AppState())
   }
 }
@@ -254,7 +254,7 @@ struct SettingsView: View {
   NavigationStack {
     SettingsView()
       .environment(AuthManager(service: MockAuthService(user: .preview)))
-      .environment(UserManager(service: MockUserService(user: .preview)))
+      .environment(UserManager(services: MockUserServices(user: .preview)))
       .environment(AppState())
   }
 }

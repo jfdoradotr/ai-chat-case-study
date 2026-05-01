@@ -19,18 +19,25 @@ extension FileManager {
       switch self {
       case .documentsDirectoryUnavailable:
         return "Could not locate the user's documents directory."
+
       case .invalidKey(let key):
         return "Invalid document key: '\(key)'."
+
       case .encodingFailed(let error):
         return "Failed to encode document: \(error.localizedDescription)"
+
       case .decodingFailed(let error):
         return "Failed to decode document: \(error.localizedDescription)"
+
       case .writeFailed(let error):
         return "Failed to write document to disk: \(error.localizedDescription)"
+
       case .readFailed(let error):
         return "Failed to read document from disk: \(error.localizedDescription)"
+
       case .deleteFailed(let error):
         return "Failed to delete document: \(error.localizedDescription)"
+
       case .fileNotFound(let key):
         return "No document found for key '\(key)'."
       }
