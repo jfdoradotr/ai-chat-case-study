@@ -5,50 +5,6 @@
 import FirebaseAuth
 import SwiftUI
 
-extension EnvironmentValues {
-  @Entry var authService: any AuthService = FirebaseAuthService()
-}
-
-protocol AuthService: Sendable {
-  func getAuthenticatedUser() -> UserAuthInfo?
-  func signInAnonymously() async throws -> (user: UserAuthInfo, isNewUser: Bool)
-  func signInGoogle() async throws -> (user: UserAuthInfo, isNewUser: Bool)
-  func signOut() throws
-  func deleteAccount() async throws
-}
-
-struct MockAuthService: AuthService {
-  let currentUser: UserAuthInfo?
-  let isNewUser: Bool
-
-  init(user: UserAuthInfo? = .preview, isNewUser: Bool = false) {
-    self.currentUser = user
-    self.isNewUser = isNewUser
-  }
-
-  func getAuthenticatedUser() -> UserAuthInfo? {
-    currentUser
-  }
-
-  func signInAnonymously() async throws -> (user: UserAuthInfo, isNewUser: Bool) {
-    guard let currentUser else { throw MockError.noMockUser }
-    return (currentUser, isNewUser)
-  }
-
-  func signInGoogle() async throws -> (user: UserAuthInfo, isNewUser: Bool) {
-    guard let currentUser else { throw MockError.noMockUser }
-    return (currentUser, isNewUser)
-  }
-
-  func signOut() throws {}
-
-  func deleteAccount() async throws {}
-
-  enum MockError: Error {
-    case noMockUser
-  }
-}
-
 struct FirebaseAuthService: AuthService {
   func getAuthenticatedUser() -> UserAuthInfo? {
     if let user = Auth.auth().currentUser {
