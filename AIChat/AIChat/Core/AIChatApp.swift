@@ -7,12 +7,19 @@ import FirebaseCore
 import GoogleSignIn
 
 class AppDelegate: NSObject, UIApplicationDelegate {
+  var authManager: AuthManager! // swiftlint:disable:this implicitly_unwrapped_optional
+  var userManager: UserManager! // swiftlint:disable:this implicitly_unwrapped_optional
+
   // swiftlint:disable discouraged_optional_collection
   func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
     FirebaseApp.configure()
+
+    authManager = AuthManager(service: FirebaseAuthService())
+    userManager = UserManager(services: ProductionUserServices())
+
     if let clientID = FirebaseApp.app()?.options.clientID {
       GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
     }
@@ -28,22 +35,12 @@ struct AIChatApp: App {
 
   var body: some Scene {
     WindowGroup {
-      EnvironmentBuilderView {
-        AppView()
-      }
+      AppView()
+        .environment(delegate.userManager)
+        .environment(delegate.authManager)
+        .onOpenURL { url in
+          _ = GIDSignIn.sharedInstance.handle(url)
+        }
     }
-  }
-}
-
-struct EnvironmentBuilderView<Content: View>: View {
-  @ViewBuilder var content: () -> Content
-
-  var body: some View {
-    content()
-      .environment(AuthManager(service: FirebaseAuthService()))
-      .environment(UserManager(services: ProductionUserServices()))
-      .onOpenURL { url in
-        _ = GIDSignIn.sharedInstance.handle(url)
-      }
   }
 }
