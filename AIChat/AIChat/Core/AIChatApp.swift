@@ -28,10 +28,21 @@ struct AIChatApp: App {
 
   var body: some Scene {
     WindowGroup {
-      AppView()
-        .onOpenURL { url in
-          _ = GIDSignIn.sharedInstance.handle(url)
-        }
+      EnvironmentBuilderView {
+        AppView()
+      }
     }
+  }
+}
+
+struct EnvironmentBuilderView<Content: View>: View {
+  @ViewBuilder var content: () -> Content
+
+  var body: some View {
+    content()
+      .environment(\.authService, FirebaseAuthService())
+      .onOpenURL { url in
+        _ = GIDSignIn.sharedInstance.handle(url)
+      }
   }
 }
