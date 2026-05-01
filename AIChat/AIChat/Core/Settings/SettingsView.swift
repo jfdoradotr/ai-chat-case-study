@@ -227,9 +227,26 @@ struct SettingsView: View {
   private func onContactUsPressed() {}
 }
 
-#Preview {
+#Preview("No Auth") {
   NavigationStack {
     SettingsView()
+      .environment(\.authService, MockAuthService())
+      .environment(AppState())
+  }
+}
+
+#Preview("Anonymous") {
+  NavigationStack {
+    SettingsView()
+      .environment(\.authService, MockAuthService(user: .anonymousPreview))
+      .environment(AppState())
+  }
+}
+
+#Preview("Non-Anonymous") {
+  NavigationStack {
+    SettingsView()
+      .environment(\.authService, MockAuthService(user: .preview))
       .environment(AppState())
   }
 }
