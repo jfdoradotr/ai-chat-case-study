@@ -40,11 +40,15 @@ final class AuthManager {
   }
 
   func signInAnonymously() async throws -> (user: UserAuthInfo, isNewUser: Bool) {
-    try await service.signInAnonymously()
+    let result = try await service.signInAnonymously()
+    auth = result.user
+    return result
   }
 
   func signInGoogle() async throws -> (user: UserAuthInfo, isNewUser: Bool) {
-    try await service.signInGoogle()
+    let result = try await service.signInGoogle()
+    auth = result.user
+    return result
   }
 
   func signOut() throws {

@@ -99,9 +99,10 @@ final class UserManager {
   }
 
   func login(auth: UserAuthInfo, isNewUser: Bool) async throws {
-    let creationVersion: String? = isNewUser ? Bundle.main.appVersion : nil
-    let user = UserModel(auth: auth, creationVersion: creationVersion)
-    try await service.saveUser(user: user)
+    if isNewUser {
+      let user = UserModel(auth: auth, creationVersion: Bundle.main.appVersion)
+      try await service.saveUser(user: user)
+    }
     addCurrentUserListener(userId: auth.uid)
   }
 
