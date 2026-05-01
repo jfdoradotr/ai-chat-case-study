@@ -36,9 +36,16 @@ struct OnboardingCompletedView: View {
   private func onFinishButtonPressed() {
     isCompletingProfileSetup = true
     Task {
-      try await userManager.markOnboardingCompleteForCurrentUser(profileColorHex: selectedColor.asHex() ?? "FF5757")
-      isCompletingProfileSetup = false
-      appState.updateViewState(showTabBar: true)
+      defer { isCompletingProfileSetup = false }
+      do {
+        try await userManager.markOnboardingCompleteForCurrentUser(
+          profileColorHex: selectedColor.asHex() ?? "FF5757"
+        )
+        appState.updateViewState(showTabBar: true)
+      } catch {
+        // TODO: surface error to the user (alert)
+        print("Failed to complete onboarding: \(error)")
+      }
     }
   }
 }

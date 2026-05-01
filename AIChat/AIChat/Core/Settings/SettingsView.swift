@@ -198,8 +198,9 @@ struct SettingsView: View {
 
     case .deleteAccount:
       performAuthAction(label: "Delete account") {
-        try await authManager.deleteAccount()
         try await userManager.deleteCurrentUser()
+        try await authManager.deleteAccount()
+        userManager.signOut()
       }
     }
   }
@@ -214,7 +215,12 @@ struct SettingsView: View {
         dismiss()
         try? await Task.sleep(for: .seconds(0.3))
         appState.updateViewState(showTabBar: false)
-        _ = try? await authManager.signInAnonymously()
+        do {
+          let result = try await authManager.signInAnonymously()
+          try await userManager.login(auth: result.user, isNewUser: result.isNewUser)
+        } catch {
+          print("Anonymous sign-in after \(label) failed: \(error)")
+        }
       } catch {
         errorMessage = "\(label) failed: \(error.localizedDescription)"
       }
