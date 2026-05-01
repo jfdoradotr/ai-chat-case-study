@@ -10,6 +10,7 @@ final class AuthManager {
   private let service: any AuthService
   private(set) var auth: UserAuthInfo?
   private var listener: (any NSObjectProtocol)?
+  nonisolated private var task: Task<Void, any Error>?
 
   init(service: any AuthService) {
     self.service = service
@@ -17,12 +18,16 @@ final class AuthManager {
     self.addAuthListener()
   }
 
+  deinit {
+    task?.cancel()
+  }
+
   enum AuthError: LocalizedError {
     case notSignedIn
   }
 
   private func addAuthListener() {
-    Task {
+    task = Task {
       for await value in service.addAuthenticatedUserListener(onListenerAttached: { listener in
         self.listener = listener
       }) {

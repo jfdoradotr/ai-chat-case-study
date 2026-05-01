@@ -16,8 +16,10 @@ struct FirebaseAuthService: AuthService {
           continuation.yield(nil)
         }
       }
-
       onListenerAttached(listener)
+      continuation.onTermination = { _ in
+        Auth.auth().removeStateDidChangeListener(listener)
+      }
     }
   }
 
