@@ -6,7 +6,7 @@ import SwiftUI
 
 struct SettingsView: View {
   @Environment(\.dismiss) private var dismiss
-  @Environment(\.authService) private var authService
+  @Environment(AuthManager.self) private var authManager
   @Environment(AppState.self) private var appState
 
   @State private var isPremium = false
@@ -176,7 +176,7 @@ struct SettingsView: View {
   }
 
   func setAnonymousAccountStatus() {
-    isAnonymousUser = authService.getAuthenticatedUser()?.isAnonymous == true
+    isAnonymousUser = authManager.auth?.isAnonymous == true
   }
 
   private func onSignOutPressed() {
@@ -195,12 +195,12 @@ struct SettingsView: View {
     switch action {
     case .signOut:
       performAuthAction(label: "Sign out") {
-        try authService.signOut()
+        try authManager.signOut()
       }
 
     case .deleteAccount:
       performAuthAction(label: "Delete account") {
-        try await authService.deleteAccount()
+        try await authManager.deleteAccount()
       }
     }
   }
@@ -215,7 +215,7 @@ struct SettingsView: View {
         dismiss()
         try? await Task.sleep(for: .seconds(0.3))
         appState.updateViewState(showTabBar: false)
-        _ = try? await authService.signInAnonymously()
+        _ = try? await authManager.signInAnonymously()
       } catch {
         errorMessage = "\(label) failed: \(error.localizedDescription)"
       }
@@ -230,7 +230,7 @@ struct SettingsView: View {
 #Preview("No Auth") {
   NavigationStack {
     SettingsView()
-      .environment(\.authService, MockAuthService())
+      .environment(AuthManager(service: MockAuthService()))
       .environment(AppState())
   }
 }
@@ -238,7 +238,7 @@ struct SettingsView: View {
 #Preview("Anonymous") {
   NavigationStack {
     SettingsView()
-      .environment(\.authService, MockAuthService(user: .anonymousPreview))
+      .environment(AuthManager(service: MockAuthService(user: .anonymousPreview)))
       .environment(AppState())
   }
 }
@@ -246,7 +246,7 @@ struct SettingsView: View {
 #Preview("Non-Anonymous") {
   NavigationStack {
     SettingsView()
-      .environment(\.authService, MockAuthService(user: .preview))
+      .environment(AuthManager(service: MockAuthService(user: .preview)))
       .environment(AppState())
   }
 }
