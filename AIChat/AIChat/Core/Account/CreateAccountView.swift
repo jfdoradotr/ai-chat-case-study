@@ -40,7 +40,7 @@ struct CreateAccountView: View {
     }
   }
 
-  @Environment(\.authService) private var authService
+  @Environment(AuthManager.self) private var authManager
   @Environment(\.dismiss) private var dismiss
   @Environment(AppState.self) private var appState
 
@@ -82,7 +82,7 @@ struct CreateAccountView: View {
   private func onGoogleButtonPressed() {
     Task {
       do {
-        let (user, isNewUser) = try await authService.signInGoogle()
+        let (user, isNewUser) = try await authManager.signInGoogle()
 
         print("==============================")
         print("Signed in with Google")

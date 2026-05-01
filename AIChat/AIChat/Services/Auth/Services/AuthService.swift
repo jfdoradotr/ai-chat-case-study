@@ -9,6 +9,7 @@ extension EnvironmentValues {
 }
 
 protocol AuthService: Sendable {
+  func addAuthenticatedUserListener(onListenerAttached: (any NSObjectProtocol) -> Void) -> AsyncStream<UserAuthInfo?>
   func getAuthenticatedUser() -> UserAuthInfo?
   func signInAnonymously() async throws -> (user: UserAuthInfo, isNewUser: Bool)
   func signInGoogle() async throws -> (user: UserAuthInfo, isNewUser: Bool)
