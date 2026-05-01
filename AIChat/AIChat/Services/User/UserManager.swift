@@ -126,7 +126,7 @@ final class UserManager {
     try await service.markOnboardingCompleted(userId: uid, profileColorHex: profileColorHex)
   }
 
-  func signout() {
+  func signOut() {
     currentUserListener?.remove()
     currentUserListener = nil
     currentUser = nil

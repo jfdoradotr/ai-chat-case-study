@@ -7,6 +7,7 @@ import SwiftUI
 struct SettingsView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(AuthManager.self) private var authManager
+  @Environment(UserManager.self) private var userManager
   @Environment(AppState.self) private var appState
 
   @State private var isPremium = false
@@ -192,11 +193,13 @@ struct SettingsView: View {
     case .signOut:
       performAuthAction(label: "Sign out") {
         try authManager.signOut()
+        userManager.signOut()
       }
 
     case .deleteAccount:
       performAuthAction(label: "Delete account") {
         try await authManager.deleteAccount()
+        try await userManager.deleteCurrentUser()
       }
     }
   }
@@ -227,6 +230,7 @@ struct SettingsView: View {
   NavigationStack {
     SettingsView()
       .environment(AuthManager(service: MockAuthService()))
+      .environment(UserManager(service: MockUserService()))
       .environment(AppState())
   }
 }
@@ -235,6 +239,7 @@ struct SettingsView: View {
   NavigationStack {
     SettingsView()
       .environment(AuthManager(service: MockAuthService(user: .anonymousPreview)))
+      .environment(UserManager(service: MockUserService(user: .preview)))
       .environment(AppState())
   }
 }
@@ -243,6 +248,7 @@ struct SettingsView: View {
   NavigationStack {
     SettingsView()
       .environment(AuthManager(service: MockAuthService(user: .preview)))
+      .environment(UserManager(service: MockUserService(user: .preview)))
       .environment(AppState())
   }
 }

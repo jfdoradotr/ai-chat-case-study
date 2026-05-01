@@ -55,4 +55,6 @@ struct AppView: View {
 
 #Preview {
   AppView()
+    .environment(UserManager(service: MockUserService(user: .preview)))
+    .environment(AuthManager(service: MockAuthService(user: .preview)))
 }
