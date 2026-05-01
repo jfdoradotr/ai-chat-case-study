@@ -7,6 +7,7 @@ import SwiftUI
 struct SettingsView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(AuthManager.self) private var authManager
+  @Environment(UserManager.self) private var userManager
   @Environment(AppState.self) private var appState
 
   @State private var isPremium = false
@@ -192,11 +193,14 @@ struct SettingsView: View {
     case .signOut:
       performAuthAction(label: "Sign out") {
         try authManager.signOut()
+        userManager.signOut()
       }
 
     case .deleteAccount:
       performAuthAction(label: "Delete account") {
+        try await userManager.deleteCurrentUser()
         try await authManager.deleteAccount()
+        userManager.signOut()
       }
     }
   }
@@ -211,7 +215,12 @@ struct SettingsView: View {
         dismiss()
         try? await Task.sleep(for: .seconds(0.3))
         appState.updateViewState(showTabBar: false)
-        _ = try? await authManager.signInAnonymously()
+        do {
+          let result = try await authManager.signInAnonymously()
+          try await userManager.login(auth: result.user, isNewUser: result.isNewUser)
+        } catch {
+          print("Anonymous sign-in after \(label) failed: \(error)")
+        }
       } catch {
         errorMessage = "\(label) failed: \(error.localizedDescription)"
       }
@@ -227,6 +236,7 @@ struct SettingsView: View {
   NavigationStack {
     SettingsView()
       .environment(AuthManager(service: MockAuthService()))
+      .environment(UserManager(service: MockUserService()))
       .environment(AppState())
   }
 }
@@ -235,6 +245,7 @@ struct SettingsView: View {
   NavigationStack {
     SettingsView()
       .environment(AuthManager(service: MockAuthService(user: .anonymousPreview)))
+      .environment(UserManager(service: MockUserService(user: .preview)))
       .environment(AppState())
   }
 }
@@ -243,6 +254,7 @@ struct SettingsView: View {
   NavigationStack {
     SettingsView()
       .environment(AuthManager(service: MockAuthService(user: .preview)))
+      .environment(UserManager(service: MockUserService(user: .preview)))
       .environment(AppState())
   }
 }

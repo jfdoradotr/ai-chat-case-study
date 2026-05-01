@@ -6,6 +6,7 @@ import SwiftUI
 
 struct OnboardingCompletedView: View {
   @Environment(AppState.self) private var appState
+  @Environment(UserManager.self) private var userManager
 
   @State private var isCompletingProfileSetup = false
 
@@ -35,8 +36,16 @@ struct OnboardingCompletedView: View {
   private func onFinishButtonPressed() {
     isCompletingProfileSetup = true
     Task {
-      try? await Task.sleep(for: .seconds(3))
-      appState.updateViewState(showTabBar: true)
+      defer { isCompletingProfileSetup = false }
+      do {
+        try await userManager.markOnboardingCompleteForCurrentUser(
+          profileColorHex: selectedColor.asHex() ?? "FF5757"
+        )
+        appState.updateViewState(showTabBar: true)
+      } catch {
+        // TODO: surface error to the user (alert)
+        print("Failed to complete onboarding: \(error)")
+      }
     }
   }
 }
@@ -46,4 +55,5 @@ struct OnboardingCompletedView: View {
     OnboardingCompletedView(selectedColor: .orange)
   }
   .environment(AppState())
+  .environment(UserManager(service: MockUserService(user: .preview)))
 }

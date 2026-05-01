@@ -5,6 +5,8 @@
 import SwiftUI
 
 struct ProfileView: View {
+  @Environment(UserManager.self) private var userManager
+
   @State private var showSettingsView = false
   @State private var showCreateAvatar = false
   @State private var currentUser: UserModel? = .preview
@@ -90,6 +92,8 @@ struct ProfileView: View {
   }
 
   private func loadData() async {
+    self.currentUser = userManager.currentUser
+
     try? await Task.sleep(for: .seconds(5))
     isLoading = false
     myAvatars = .preview
@@ -111,5 +115,6 @@ struct ProfileView: View {
   NavigationStack {
     ProfileView()
       .environment(AppState())
+      .environment(UserManager(service: MockUserService(user: .preview)))
   }
 }
