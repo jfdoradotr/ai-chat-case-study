@@ -4,29 +4,20 @@
 
 import UIKit
 
-protocol AvatarService {
-
-}
-
-struct MockAvatarService: AvatarService {
-
-}
-
-struct FirebaseAvatarService: AvatarService {
-
-}
-
 @MainActor
 @Observable
 final class AvatarManager {
-  private let service: any AvatarService
+  private let remote: any RemoteAvatarService
+  private let image: any AvatarImageService
 
-  init(service: any AvatarService) {
-    self.service = service
+  init(services: any AvatarServices) {
+    self.remote = services.remote
+    self.image = services.image
   }
 
   func createAvatar(avatar: AvatarModel, image: UIImage) async throws {
-    // TODO: Upload the image
-    // TODO: Upload the avatar
+    let url = try await self.image.uploadAvatarImage(image, path: "\(avatar.avatarId).jpg")
+    let avatarWithURL = avatar.withImageURL(url)
+    try await remote.createAvatar(avatarWithURL)
   }
 }

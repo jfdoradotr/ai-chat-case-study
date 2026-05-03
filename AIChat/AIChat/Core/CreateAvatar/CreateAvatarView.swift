@@ -8,6 +8,7 @@ struct CreateAvatarView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(AIManager.self) private var aiManager
   @Environment(AuthManager.self) private var authManager
+  @Environment(AvatarManager.self) private var avatarManager
 
   @State private var name: String = ""
   @State private var option: AvatarModel.Character = .man
@@ -88,6 +89,9 @@ struct CreateAvatarView: View {
       do {
         let name = try TextValidator().validate(name)
         let uid = try authManager.getAuthId()
+        guard let generatedImage else {
+          throw CreateAvatarError.missingImage
+        }
 
         let avatar = AvatarModel(
           avatarId: UUID().uuidString,
@@ -100,13 +104,23 @@ struct CreateAvatarView: View {
           imageURL: nil
         )
 
-        // TODO: Upload avatar
+        try await avatarManager.createAvatar(avatar: avatar, image: generatedImage)
 
         dismiss()
         isCompletingCreateAvatar = false
       } catch {
         errorMessage = "Save avatar failed: \(error.localizedDescription)"
         isCompletingCreateAvatar = false
+      }
+    }
+  }
+
+  private enum CreateAvatarError: LocalizedError {
+    case missingImage
+
+    var errorDescription: String? {
+      switch self {
+      case .missingImage: return "Please generate an image before saving."
       }
     }
   }
@@ -188,5 +202,6 @@ struct CreateAvatarView: View {
     CreateAvatarView()
       .environment(AIManager(service: MockAIService()))
       .environment(AuthManager(service: MockAuthService(user: .preview)))
+      .environment(AvatarManager(services: MockAvatarServices()))
   }
 }
