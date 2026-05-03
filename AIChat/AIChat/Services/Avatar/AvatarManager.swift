@@ -1,0 +1,23 @@
+//
+//  Copyright © Juan Francisco Dorado Torres. All rights reserved.
+//
+
+import UIKit
+
+@MainActor
+@Observable
+final class AvatarManager {
+  private let remote: any RemoteAvatarService
+  private let image: any AvatarImageService
+
+  init(services: any AvatarServices) {
+    self.remote = services.remote
+    self.image = services.image
+  }
+
+  func createAvatar(avatar: AvatarModel, image: UIImage) async throws {
+    let url = try await self.image.uploadAvatarImage(image, path: "\(avatar.avatarId).jpg")
+    let avatarWithURL = avatar.withImageURL(url)
+    try await remote.createAvatar(avatarWithURL)
+  }
+}

@@ -7,6 +7,8 @@ import SwiftUI
 struct CreateAvatarView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(AIManager.self) private var aiManager
+  @Environment(AuthManager.self) private var authManager
+  @Environment(AvatarManager.self) private var avatarManager
 
   @State private var name: String = ""
   @State private var option: AvatarModel.Character = .man
@@ -16,6 +18,7 @@ struct CreateAvatarView: View {
   @State private var isGenerating = false
   @State private var generatedImage: UIImage?
   @State private var isCompletingCreateAvatar = false
+  @State private var errorMessage: String?
 
   var body: some View {
     List {
@@ -35,6 +38,18 @@ struct CreateAvatarView: View {
       .disabled(generatedImage == nil || name.isEmpty)
     }
     .navigationTitle("Create Avatar")
+    .alert(
+      "Something went wrong",
+      isPresented: Binding(
+        get: { errorMessage != nil },
+        set: { if !$0 { errorMessage = nil } }
+      ),
+      presenting: errorMessage
+    ) { _ in
+      Button("OK", role: .cancel) {}
+    } message: { message in
+      Text(message)
+    }
     .toolbar {
       ToolbarItem(placement: .cancellationAction) {
         Button(
@@ -71,9 +86,41 @@ struct CreateAvatarView: View {
   private func onSavePressed() {
     isCompletingCreateAvatar = true
     Task {
-      try? await Task.sleep(for: .seconds(3))
-      await MainActor.run {
+      do {
+        let name = try TextValidator().validate(name)
+        let uid = try authManager.getAuthId()
+        guard let generatedImage else {
+          throw CreateAvatarError.missingImage
+        }
+
+        let avatar = AvatarModel(
+          avatarId: UUID().uuidString,
+          name: name,
+          character: option,
+          action: action,
+          location: location,
+          authorId: uid,
+          dateCreated: .now,
+          imageURL: nil
+        )
+
+        try await avatarManager.createAvatar(avatar: avatar, image: generatedImage)
+
+        dismiss()
         isCompletingCreateAvatar = false
+      } catch {
+        errorMessage = "Save avatar failed: \(error.localizedDescription)"
+        isCompletingCreateAvatar = false
+      }
+    }
+  }
+
+  private enum CreateAvatarError: LocalizedError {
+    case missingImage
+
+    var errorDescription: String? {
+      switch self {
+      case .missingImage: return "Please generate an image before saving."
       }
     }
   }
@@ -154,5 +201,7 @@ struct CreateAvatarView: View {
   NavigationStack {
     CreateAvatarView()
       .environment(AIManager(service: MockAIService()))
+      .environment(AuthManager(service: MockAuthService(user: .preview)))
+      .environment(AvatarManager(services: MockAvatarServices()))
   }
 }

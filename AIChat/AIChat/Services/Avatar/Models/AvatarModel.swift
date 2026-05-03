@@ -4,7 +4,7 @@
 
 import Foundation
 
-struct AvatarModel: Identifiable {
+struct AvatarModel: Identifiable, Codable {
   let avatarId: String
   let name: String?
   let character: Character?
@@ -15,6 +15,17 @@ struct AvatarModel: Identifiable {
   let imageURL: URL?
 
   var id: String { avatarId }
+
+  enum CodingKeys: String, CodingKey {
+    case avatarId = "avatar_id"
+    case name
+    case character
+    case action
+    case location
+    case authorId = "author_id"
+    case dateCreated = "date_created"
+    case imageURL = "image_url"
+  }
 
   var description: String {
     Self.description(character: character, action: action, location: location)
@@ -51,10 +62,23 @@ struct AvatarModel: Identifiable {
     self.dateCreated = dateCreated
     self.imageURL = imageURL
   }
+
+  func withImageURL(_ imageURL: URL?) -> Self {
+    Self(
+      avatarId: avatarId,
+      name: name,
+      character: character,
+      action: action,
+      location: location,
+      authorId: authorId,
+      dateCreated: dateCreated,
+      imageURL: imageURL
+    )
+  }
 }
 
 extension AvatarModel {
-  enum Character: String, CaseIterable {
+  enum Character: String, CaseIterable, Codable {
     case man, woman, alien, dog, cat
 
     var plural: String {
@@ -73,13 +97,13 @@ extension AvatarModel {
 }
 
 extension AvatarModel {
-  enum Action: String, CaseIterable {
+  enum Action: String, CaseIterable, Codable {
     case smiling, sitting, eating, drinking, walking, shopping, studying, working, relaxing, fighting, crying
   }
 }
 
 extension AvatarModel {
-  enum Location: String, CaseIterable {
+  enum Location: String, CaseIterable, Codable {
     case park, mall, museum, city, dessert, forest, space
 
     var phrase: String {
