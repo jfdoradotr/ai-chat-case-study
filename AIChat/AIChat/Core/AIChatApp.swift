@@ -7,8 +7,7 @@ import FirebaseCore
 import GoogleSignIn
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-  var authManager: AuthManager! // swiftlint:disable:this implicitly_unwrapped_optional
-  var userManager: UserManager! // swiftlint:disable:this implicitly_unwrapped_optional
+  var dependencies: Dependencies! // swiftlint:disable:this implicitly_unwrapped_optional
 
   // swiftlint:disable discouraged_optional_collection
   func application(
@@ -17,8 +16,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
   ) -> Bool {
     FirebaseApp.configure()
 
-    authManager = AuthManager(service: FirebaseAuthService())
-    userManager = UserManager(services: ProductionUserServices())
+    dependencies = Dependencies()
 
     if let clientID = FirebaseApp.app()?.options.clientID {
       GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
@@ -36,11 +34,24 @@ struct AIChatApp: App {
   var body: some Scene {
     WindowGroup {
       AppView()
-        .environment(delegate.userManager)
-        .environment(delegate.authManager)
+        .environment(delegate.dependencies.userManager)
+        .environment(delegate.dependencies.authManager)
+        .environment(delegate.dependencies.aiManager)
         .onOpenURL { url in
           _ = GIDSignIn.sharedInstance.handle(url)
         }
     }
+  }
+}
+
+struct Dependencies {
+  let authManager: AuthManager
+  let userManager: UserManager
+  let aiManager: AIManager
+
+  init() {
+    authManager = AuthManager(service: FirebaseAuthService())
+    userManager = UserManager(services: ProductionUserServices())
+    aiManager = AIManager(service: OpenAIService())
   }
 }
