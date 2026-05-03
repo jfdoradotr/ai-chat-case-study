@@ -17,6 +17,14 @@ struct AvatarModel: Identifiable {
   var id: String { avatarId }
 
   var description: String {
+    Self.description(character: character, action: action, location: location)
+  }
+
+  static func description(
+    character: Character?,
+    action: Action?,
+    location: Location?
+  ) -> String {
     var components: [String] = []
     if let character { components.append(character.phrase) }
     if let action { components.append("that is \(action.rawValue)") }

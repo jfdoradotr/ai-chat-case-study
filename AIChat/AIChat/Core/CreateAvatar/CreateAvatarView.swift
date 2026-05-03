@@ -6,6 +6,7 @@ import SwiftUI
 
 struct CreateAvatarView: View {
   @Environment(\.dismiss) private var dismiss
+  @Environment(AIManager.self) private var aiManager
 
   @State private var name: String = ""
   @State private var option: AvatarModel.Character = .man
@@ -53,11 +54,17 @@ struct CreateAvatarView: View {
   private func onGenerateImagePressed() {
     isGenerating = true
     Task {
-      try? await Task.sleep(for: .seconds(3))
-      await MainActor.run {
-        generatedImage = UIImage(systemName: "star.fill")
-        isGenerating = false
+      let prompt = AvatarModel.description(
+        character: option,
+        action: action,
+        location: location
+      )
+      do {
+        generatedImage = try await aiManager.generateImage(input: prompt)
+      } catch {
+        print("Failed to generate image: \(error)")
       }
+      isGenerating = false
     }
   }
 
@@ -133,7 +140,6 @@ struct CreateAvatarView: View {
                 Image(uiImage: generatedImage)
                   .resizable()
                   .scaledToFill()
-                  .padding(24)
               }
             }
           )
@@ -147,5 +153,6 @@ struct CreateAvatarView: View {
 #Preview {
   NavigationStack {
     CreateAvatarView()
+      .environment(AIManager(service: MockAIService()))
   }
 }
