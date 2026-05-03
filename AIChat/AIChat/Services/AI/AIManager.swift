@@ -5,52 +5,6 @@
 import OpenAI
 import UIKit
 
-protocol AIService {
-  func generateImage(input: String) async throws -> UIImage
-}
-
-struct MockAIService: AIService {
-  func generateImage(input: String) async throws -> UIImage {
-    try await Task.sleep(for: .seconds(3))
-    guard let image = UIImage(systemName: "star.fill") else {
-      fatalError("SystemName was wrong")
-    }
-    return image
-  }
-}
-
-struct OpenAIService: AIService {
-  var openAI: OpenAI {
-    OpenAI(apiToken: Keys.OpenAI.apiToken)
-  }
-
-  func generateImage(input: String) async throws -> UIImage {
-    let query = ImagesQuery(
-      prompt: input,
-      model: .dall_e_2,
-      n: 1,
-      responseFormat: .b64_json,
-      size: ._512
-    )
-
-    let result = try await openAI.images(query: query)
-
-    guard
-      let b64json = result.data.first?.b64Json,
-      let data = Data(base64Encoded: b64json),
-      let image = UIImage(data: data)
-    else {
-      throw OpenAIError.invalidResponse
-    }
-
-    return image
-  }
-
-  enum OpenAIError: LocalizedError {
-    case invalidResponse
-  }
-}
-
 @MainActor
 @Observable
 final class AIManager {
