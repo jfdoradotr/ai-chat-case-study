@@ -134,3 +134,6 @@ iOSInjectionProject/
 
 # Firebase
 GoogleService-Info.plist
+
+# Secrets                                                                                                                 
+AIChat/AIChat/Utilities/Keys.swift
