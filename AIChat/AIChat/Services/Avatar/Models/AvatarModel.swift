@@ -51,6 +51,19 @@ struct AvatarModel: Identifiable {
     self.dateCreated = dateCreated
     self.imageURL = imageURL
   }
+
+  func withImageURL(_ imageURL: URL?) -> AvatarModel {
+    AvatarModel(
+      avatarId: avatarId,
+      name: name,
+      character: character,
+      action: action,
+      location: location,
+      authorId: authorId,
+      dateCreated: dateCreated,
+      imageURL: imageURL
+    )
+  }
 }
 
 extension AvatarModel {
