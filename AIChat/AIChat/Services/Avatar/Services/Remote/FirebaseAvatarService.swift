@@ -7,6 +7,7 @@ import FirebaseFirestore
 struct FirebaseAvatarService: RemoteAvatarService {
   private static let featuredLimit = 50
   private static let popularLimit = 200
+  private static let categoryLimit = 200
 
   var collection: CollectionReference {
     Firestore.firestore().collection("avatars")
@@ -22,6 +23,15 @@ struct FirebaseAvatarService: RemoteAvatarService {
 
   func getPopularAvatars() async throws -> [AvatarModel] {
     try await fetchAvatars(limit: Self.popularLimit)
+  }
+
+  func getAvatars(forCategory category: AvatarModel.Character) async throws -> [AvatarModel] {
+    let snapshot = try await collection
+      .whereField(AvatarModel.CodingKeys.character.rawValue, isEqualTo: category.rawValue)
+      .order(by: AvatarModel.CodingKeys.dateCreated.rawValue, descending: true)
+      .limit(to: Self.categoryLimit)
+      .getDocuments()
+    return snapshot.documents.compactMap { try? $0.data(as: AvatarModel.self) }
   }
 
   private func fetchAvatars(limit: Int) async throws -> [AvatarModel] {
