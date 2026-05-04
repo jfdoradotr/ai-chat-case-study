@@ -20,4 +20,12 @@ final class AvatarManager {
     let avatarWithURL = avatar.withImageURL(url)
     try await remote.createAvatar(avatarWithURL)
   }
+
+  func getFeaturedAvatars() async throws -> [AvatarModel] {
+    try await remote.getFeaturedAvatars()
+  }
+
+  func getPopularAvatars() async throws -> [AvatarModel] {
+    try await remote.getPopularAvatars()
+  }
 }
