@@ -15,11 +15,24 @@ struct ExploreView: View {
 
   var body: some View {
     List {
-      featuredAvatarsSection
-        .listRowSeparator(.hidden)
-      categoriesSection
-        .listRowSeparator(.hidden)
-      popularSection
+      if featuredAvatars.isEmpty && popularAvatars.isEmpty {
+        ProgressView()
+          .padding(40)
+          .controlSize(.large)
+          .frame(maxWidth: .infinity)
+          .listRowSeparator(.hidden)
+      }
+
+      if !featuredAvatars.isEmpty {
+        featuredAvatarsSection
+          .listRowSeparator(.hidden)
+      }
+
+      if !popularAvatars.isEmpty {
+        categoriesSection
+          .listRowSeparator(.hidden)
+        popularSection
+      }
     }
     .listStyle(.plain)
     .navigationTitle("Explore")
