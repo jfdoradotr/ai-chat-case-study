@@ -6,12 +6,14 @@ import SwiftUI
 
 struct ProfileView: View {
   @Environment(UserManager.self) private var userManager
+  @Environment(AvatarManager.self) private var avatarManager
 
   @State private var showSettingsView = false
   @State private var showCreateAvatar = false
   @State private var currentUser: UserModel? = .preview
   @State private var myAvatars: [AvatarModel] = []
   @State private var isLoading = true
+  @State private var errorMessage: String?
 
   var body: some View {
     List {
@@ -89,14 +91,34 @@ struct ProfileView: View {
     .task {
       await loadData()
     }
+    .alert(
+      "Something went wrong",
+      isPresented: Binding(
+        get: { errorMessage != nil },
+        set: { if !$0 { errorMessage = nil } }
+      ),
+      presenting: errorMessage
+    ) { _ in
+      Button("OK", role: .cancel) {}
+    } message: { message in
+      Text(message)
+    }
   }
 
   private func loadData() async {
     self.currentUser = userManager.currentUser
 
-    try? await Task.sleep(for: .seconds(5))
+    guard let userId = currentUser?.userId else {
+      isLoading = false
+      return
+    }
+
+    do {
+      myAvatars = try await avatarManager.getAvatars(forAuthorId: userId)
+    } catch {
+      errorMessage = "Failed to load your avatars: \(error.localizedDescription)"
+    }
     isLoading = false
-    myAvatars = .preview
   }
 
   private func onSettingsButtonPressed() {
@@ -116,5 +138,6 @@ struct ProfileView: View {
     ProfileView()
       .environment(AppState())
       .environment(UserManager(services: MockUserServices(user: .preview)))
+      .environment(AvatarManager(services: MockAvatarServices()))
   }
 }

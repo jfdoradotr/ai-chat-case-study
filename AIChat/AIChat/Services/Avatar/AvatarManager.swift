@@ -32,4 +32,8 @@ final class AvatarManager {
   func getAvatars(forCategory category: AvatarModel.Character) async throws -> [AvatarModel] {
     try await remote.getAvatars(forCategory: category)
   }
+
+  func getAvatars(forAuthorId authorId: String) async throws -> [AvatarModel] {
+    try await remote.getAvatars(forAuthorId: authorId)
+  }
 }

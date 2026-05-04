@@ -8,6 +8,7 @@ struct FirebaseAvatarService: RemoteAvatarService {
   private static let featuredLimit = 50
   private static let popularLimit = 200
   private static let categoryLimit = 200
+  private static let authorLimit = 200
 
   var collection: CollectionReference {
     Firestore.firestore().collection("avatars")
@@ -30,6 +31,15 @@ struct FirebaseAvatarService: RemoteAvatarService {
       .whereField(AvatarModel.CodingKeys.character.rawValue, isEqualTo: category.rawValue)
       .order(by: AvatarModel.CodingKeys.dateCreated.rawValue, descending: true)
       .limit(to: Self.categoryLimit)
+      .getDocuments()
+    return snapshot.documents.compactMap { try? $0.data(as: AvatarModel.self) }
+  }
+
+  func getAvatars(forAuthorId authorId: String) async throws -> [AvatarModel] {
+    let snapshot = try await collection
+      .whereField(AvatarModel.CodingKeys.authorId.rawValue, isEqualTo: authorId)
+      .order(by: AvatarModel.CodingKeys.dateCreated.rawValue, descending: true)
+      .limit(to: Self.authorLimit)
       .getDocuments()
     return snapshot.documents.compactMap { try? $0.data(as: AvatarModel.self) }
   }

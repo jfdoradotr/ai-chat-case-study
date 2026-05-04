@@ -21,4 +21,9 @@ struct MockAvatarService: RemoteAvatarService {
     try await Task.sleep(for: .seconds(3))
     return [AvatarModel].preview.filter { $0.character == category }
   }
+
+  func getAvatars(forAuthorId authorId: String) async throws -> [AvatarModel] {
+    try await Task.sleep(for: .seconds(3))
+    return [AvatarModel].preview.filter { $0.authorId == authorId }
+  }
 }
