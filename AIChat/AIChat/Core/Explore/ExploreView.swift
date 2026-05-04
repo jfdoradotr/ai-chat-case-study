@@ -5,20 +5,54 @@
 import SwiftUI
 
 struct ExploreView: View {
-  let featuredAvatars: [AvatarModel] = .preview
+  @Environment(AvatarManager.self) private var avatarManager
+
+  @State private var featuredAvatars: [AvatarModel] = []
+  @State private var popularAvatars: [AvatarModel] = []
+  @State private var errorMessage: String?
+
   let categories: [AvatarModel.Character] = AvatarModel.Character.allCases
-  let popularAvatars: [AvatarModel] = .preview
 
   var body: some View {
     List {
-      featuredAvatarsSection
-        .listRowSeparator(.hidden)
-      categoriesSection
-        .listRowSeparator(.hidden)
-      popularSection
+      if featuredAvatars.isEmpty && popularAvatars.isEmpty {
+        ProgressView()
+          .padding(40)
+          .controlSize(.large)
+          .frame(maxWidth: .infinity)
+          .listRowSeparator(.hidden)
+      }
+
+      if !featuredAvatars.isEmpty {
+        featuredAvatarsSection
+          .listRowSeparator(.hidden)
+      }
+
+      if !popularAvatars.isEmpty {
+        categoriesSection
+          .listRowSeparator(.hidden)
+        popularSection
+      }
     }
     .listStyle(.plain)
     .navigationTitle("Explore")
+    .task {
+      async let featured: () = loadFeaturedAvatars()
+      async let popular: () = loadPopularAvatars()
+      _ = await (featured, popular)
+    }
+    .alert(
+      "Something went wrong",
+      isPresented: Binding(
+        get: { errorMessage != nil },
+        set: { if !$0 { errorMessage = nil } }
+      ),
+      presenting: errorMessage
+    ) { _ in
+      Button("OK", role: .cancel) {}
+    } message: { message in
+      Text(message)
+    }
     .navigationDestination(for: String.self) { value in
       ChatView(avatarId: value)
     }
@@ -27,12 +61,28 @@ struct ExploreView: View {
     }
   }
 
+  private func loadFeaturedAvatars() async {
+    do {
+      featuredAvatars = try await avatarManager.getFeaturedAvatars()
+    } catch {
+      errorMessage = "Failed to load featured avatars: \(error.localizedDescription)"
+    }
+  }
+
+  private func loadPopularAvatars() async {
+    do {
+      popularAvatars = try await avatarManager.getPopularAvatars()
+    } catch {
+      errorMessage = "Failed to load popular avatars: \(error.localizedDescription)"
+    }
+  }
+
   private var featuredAvatarsSection: some View {
     Section {
       CarouselView(items: featuredAvatars) { avatar in
         NavigationLink(value: avatar.avatarId) {
           HeroCellView(
-            imageURL: Constants.randomImageURL,
+            imageURL: avatar.imageURL,
             title: avatar.name,
             subtitle: avatar.description
           )
@@ -72,7 +122,7 @@ struct ExploreView: View {
       ForEach(popularAvatars) { avatar in
         NavigationLink(value: avatar.avatarId) {
           CustomListCellView(
-            imageURL: Constants.randomImageURL,
+            imageURL: avatar.imageURL,
             title: avatar.name,
             subtitle: avatar.description
           )
@@ -87,5 +137,6 @@ struct ExploreView: View {
 #Preview {
   NavigationStack {
     ExploreView()
+      .environment(AvatarManager(services: MockAvatarServices()))
   }
 }
