@@ -1,0 +1,62 @@
+//
+//  Copyright © Juan Francisco Dorado Torres. All rights reserved.
+//
+
+import UIKit
+
+@MainActor
+@Observable
+final class AvatarManager {
+  private let remote: any RemoteAvatarService
+  private let image: any AvatarImageService
+  private let local: any LocalAvatarPersistence
+
+  init(services: any AvatarServices) {
+    self.remote = services.remote
+    self.image = services.image
+    self.local = services.local
+  }
+
+  func createAvatar(avatar: AvatarModel, image: UIImage) async throws {
+    let url = try await self.image.uploadAvatarImage(image, path: "\(avatar.avatarId).jpg")
+    let avatarWithURL = avatar.withImageURL(url)
+    try await remote.createAvatar(avatarWithURL)
+  }
+
+  func getAvatar(id: String) async throws -> AvatarModel {
+    try await remote.getAvatar(id: id)
+  }
+
+  func getFeaturedAvatars() async throws -> [AvatarModel] {
+    try await remote.getFeaturedAvatars()
+  }
+
+  func getPopularAvatars() async throws -> [AvatarModel] {
+    try await remote.getPopularAvatars()
+  }
+
+  func getAvatars(forCategory category: AvatarModel.Character) async throws -> [AvatarModel] {
+    try await remote.getAvatars(forCategory: category)
+  }
+
+  func getAvatars(forAuthorId authorId: String) async throws -> [AvatarModel] {
+    try await remote.getAvatars(forAuthorId: authorId)
+  }
+
+  func addRecentAvatar(_ avatar: AvatarModel) async throws {
+    try await remote.incrementClickCount(forAvatarId: avatar.avatarId)
+    try await local.addRecentAvatar(avatar)
+  }
+
+  func getRecentAvatars() async throws -> [AvatarModel] {
+    try await local.getRecentAvatars()
+  }
+
+  func removeAuthorIdFromAvatar(avatarId: String) async throws {
+    try await remote.removeAuthorIdFromAvatar(avatarId: avatarId)
+  }
+
+  func removeAuthorIdFromAllUserAvatars(userId: String) async throws {
+    try await remote.removeAuthorIdFromAllUserAvatars(userId: userId)
+  }
+}
