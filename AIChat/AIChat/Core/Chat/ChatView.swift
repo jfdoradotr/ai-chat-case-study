@@ -156,13 +156,10 @@ struct ChatView: View {
       validationError = error
       return
     } catch { return }
-    let message = ChatMessageModel(
-      id: UUID().uuidString,
+    let message = ChatMessageModel.newUserMessage(
       chatId: UUID().uuidString,
-      authorId: currentUser.userId,
-      content: content,
-      seenByIds: [],
-      dateCreated: .now
+      userId: currentUser.userId,
+      content: content
     )
     chatMesages.append(message)
     scrollPosition = message.id
@@ -181,13 +178,10 @@ struct ChatView: View {
     let prompt = buildAIMessages(avatar: avatar)
     do {
       let reply = try await aiManager.generateText(messages: prompt)
-      let response = ChatMessageModel(
-        id: UUID().uuidString,
+      let response = ChatMessageModel.newAIMessage(
         chatId: UUID().uuidString,
-        authorId: avatar.avatarId,
-        content: reply,
-        seenByIds: [],
-        dateCreated: .now
+        avatarId: avatar.avatarId,
+        content: reply
       )
       chatMesages.append(response)
       scrollPosition = response.id

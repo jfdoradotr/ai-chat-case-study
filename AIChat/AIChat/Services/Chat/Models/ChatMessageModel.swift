@@ -32,6 +32,28 @@ struct ChatMessageModel: Identifiable {
     guard seenByIds.isEmpty else { return false }
     return seenByIds.contains(userId)
   }
+
+  static func newUserMessage(chatId: String, userId: String, content: String) -> ChatMessageModel {
+    ChatMessageModel(
+      id: UUID().uuidString,
+      chatId: chatId,
+      authorId: userId,
+      content: content,
+      seenByIds: [],
+      dateCreated: .now
+    )
+  }
+
+  static func newAIMessage(chatId: String, avatarId: String, content: String) -> ChatMessageModel {
+    ChatMessageModel(
+      id: UUID().uuidString,
+      chatId: chatId,
+      authorId: avatarId,
+      content: content,
+      seenByIds: [],
+      dateCreated: .now
+    )
+  }
 }
 
 extension ChatMessageModel {
