@@ -5,8 +5,10 @@
 import SwiftUI
 
 struct ChatsView: View {
+  @Environment(AvatarManager.self) private var avatarManager
+
   @State private var chats: [ChatModel] = .preview
-  @State private var recentAvatars: [AvatarModel] = .preview
+  @State private var recentAvatars: [AvatarModel] = []
 
   var body: some View {
     List {
@@ -19,6 +21,17 @@ struct ChatsView: View {
     .navigationTitle("Chats")
     .navigationDestination(for: String.self) { avatarId in
       ChatView(avatarId: avatarId)
+    }
+    .task {
+      await loadRecentAvatars()
+    }
+  }
+
+  private func loadRecentAvatars() async {
+    do {
+      recentAvatars = try await avatarManager.getRecentAvatars()
+    } catch {
+      print("Failed to load recent avatars: \(error)")
     }
   }
 
@@ -89,5 +102,6 @@ struct ChatsView: View {
 #Preview {
   NavigationStack {
     ChatsView()
+      .environment(AvatarManager(services: MockAvatarServices()))
   }
 }
