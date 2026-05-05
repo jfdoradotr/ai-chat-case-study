@@ -16,6 +16,7 @@ final class AvatarEntity {
   var authorId: String?
   var dateCreated: Date?
   var imageURLString: String?
+  var clickCount: Int?
   var dateAdded: Date
 
   init(from avatar: AvatarModel) {
@@ -27,6 +28,7 @@ final class AvatarEntity {
     self.authorId = avatar.authorId
     self.dateCreated = avatar.dateCreated
     self.imageURLString = avatar.imageURL?.absoluteString
+    self.clickCount = avatar.clickCount
     self.dateAdded = .now
   }
 
@@ -39,7 +41,8 @@ final class AvatarEntity {
       location: locationRaw.flatMap(AvatarModel.Location.init(rawValue:)),
       authorId: authorId,
       dateCreated: dateCreated,
-      imageURL: imageURLString.flatMap(URL.init(string:))
+      imageURL: imageURLString.flatMap(URL.init(string:)),
+      clickCount: clickCount
     )
   }
 }

@@ -48,6 +48,12 @@ struct FirebaseAvatarService: RemoteAvatarService {
     return snapshot.documents.compactMap { try? $0.data(as: AvatarModel.self) }
   }
 
+  func incrementClickCount(forAvatarId avatarId: String) async throws {
+    try await collection.document(avatarId).updateData([
+      AvatarModel.CodingKeys.clickCount.rawValue: FieldValue.increment(Int64(1))
+    ])
+  }
+
   private func fetchAvatars(limit: Int) async throws -> [AvatarModel] {
     let snapshot = try await collection
       .order(by: AvatarModel.CodingKeys.dateCreated.rawValue, descending: true)
