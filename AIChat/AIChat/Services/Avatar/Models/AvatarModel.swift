@@ -87,8 +87,8 @@ struct AvatarModel: Identifiable, Codable {
     action: Action,
     location: Location,
     authorId: String
-  ) -> AvatarModel {
-    AvatarModel(
+  ) -> Self {
+    Self(
       avatarId: UUID().uuidString,
       name: name,
       character: character,

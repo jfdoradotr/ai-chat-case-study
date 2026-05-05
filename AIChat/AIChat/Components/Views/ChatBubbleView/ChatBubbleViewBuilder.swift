@@ -7,6 +7,7 @@ import SwiftUI
 struct ChatBubbleViewBuilder: View {
   var message: ChatMessageModel = .preview
   var isCurrentUser = false
+  var currentUserColor: Color = .accent
   var imageURL: URL?
   var onImagePressed: (() -> Void)?
 
@@ -14,7 +15,7 @@ struct ChatBubbleViewBuilder: View {
     ChatBubbleView(
       text: message.content ?? "",
       textColor: isCurrentUser ? .white : .primary,
-      backgroundColor: isCurrentUser ? .accent : Color(uiColor: .systemGray6),
+      backgroundColor: isCurrentUser ? currentUserColor : Color(uiColor: .systemGray6),
       showImage: !isCurrentUser,
       imageURL: imageURL,
       onImagePressed: onImagePressed

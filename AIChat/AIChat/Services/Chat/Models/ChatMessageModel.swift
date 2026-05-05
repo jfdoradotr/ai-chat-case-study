@@ -42,8 +42,8 @@ struct ChatMessageModel: Identifiable, Codable {
     return seenByIds.contains(userId)
   }
 
-  static func newUserMessage(chatId: String, userId: String, content: String) -> ChatMessageModel {
-    ChatMessageModel(
+  static func newUserMessage(chatId: String, userId: String, content: String) -> Self {
+    Self(
       id: UUID().uuidString,
       chatId: chatId,
       authorId: userId,
@@ -53,8 +53,8 @@ struct ChatMessageModel: Identifiable, Codable {
     )
   }
 
-  static func newAIMessage(chatId: String, avatarId: String, content: String) -> ChatMessageModel {
-    ChatMessageModel(
+  static func newAIMessage(chatId: String, avatarId: String, content: String) -> Self {
+    Self(
       id: UUID().uuidString,
       chatId: chatId,
       authorId: avatarId,

@@ -111,6 +111,7 @@ struct ChatView: View {
           ChatBubbleViewBuilder(
             message: message,
             isCurrentUser: isCurrentUser,
+            currentUserColor: currentUser?.profileColor ?? .accent,
             imageURL: avatar?.imageURL,
             onImagePressed: onAvatarImagePressed
           )
