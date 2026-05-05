@@ -86,7 +86,7 @@ struct ChatView: View {
     do {
       let loaded = try await avatarManager.getAvatar(id: avatarId)
       self.avatar = loaded
-      try await avatarManager.addRecentAvatar(loaded)
+      try? await avatarManager.addRecentAvatar(loaded)
     } catch {
       errorMessage = "Failed to load avatar: \(error.localizedDescription)"
     }

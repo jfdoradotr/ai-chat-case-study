@@ -13,6 +13,7 @@ struct AvatarModel: Identifiable, Codable {
   let authorId: String?
   let dateCreated: Date?
   let imageURL: URL?
+  let clickCount: Int?
 
   var id: String { avatarId }
 
@@ -25,6 +26,7 @@ struct AvatarModel: Identifiable, Codable {
     case authorId = "author_id"
     case dateCreated = "date_created"
     case imageURL = "image_url"
+    case clickCount = "click_count"
   }
 
   var description: String {
@@ -51,7 +53,8 @@ struct AvatarModel: Identifiable, Codable {
     location: Location? = nil,
     authorId: String? = nil,
     dateCreated: Date? = nil,
-    imageURL: URL? = nil
+    imageURL: URL? = nil,
+    clickCount: Int? = nil
   ) {
     self.avatarId = avatarId
     self.name = name
@@ -61,6 +64,7 @@ struct AvatarModel: Identifiable, Codable {
     self.authorId = authorId
     self.dateCreated = dateCreated
     self.imageURL = imageURL
+    self.clickCount = clickCount
   }
 
   func withImageURL(_ imageURL: URL?) -> Self {
@@ -72,7 +76,8 @@ struct AvatarModel: Identifiable, Codable {
       location: location,
       authorId: authorId,
       dateCreated: dateCreated,
-      imageURL: imageURL
+      imageURL: imageURL,
+      clickCount: clickCount
     )
   }
 }

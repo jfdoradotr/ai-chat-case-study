@@ -83,7 +83,9 @@ struct ProfileView: View {
         SettingsView()
       }
     }
-    .fullScreenCover(isPresented: $showCreateAvatar) {
+    .fullScreenCover(isPresented: $showCreateAvatar, onDismiss: {
+      Task { await loadAvatars() }
+    }) {
       NavigationStack {
         CreateAvatarView()
       }
@@ -107,8 +109,11 @@ struct ProfileView: View {
 
   private func loadData() async {
     self.currentUser = userManager.currentUser
+    await loadAvatars()
+  }
 
-    guard let userId = currentUser?.userId else {
+  private func loadAvatars() async {
+    guard let userId = currentUser?.userId ?? userManager.currentUser?.userId else {
       isLoading = false
       return
     }
