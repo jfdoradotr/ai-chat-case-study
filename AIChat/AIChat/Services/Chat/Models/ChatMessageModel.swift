@@ -4,13 +4,22 @@
 
 import Foundation
 
-struct ChatMessageModel: Identifiable {
+struct ChatMessageModel: Identifiable, Codable {
   let id: String
   let chatId: String
   let authorId: String?
   let content: String?
   let seenByIds: [String]
   let dateCreated: Date?
+
+  enum CodingKeys: String, CodingKey {
+    case id
+    case chatId = "chat_id"
+    case authorId = "author_id"
+    case content
+    case seenByIds = "seen_by_ids"
+    case dateCreated = "date_created"
+  }
 
   init(
     id: String,

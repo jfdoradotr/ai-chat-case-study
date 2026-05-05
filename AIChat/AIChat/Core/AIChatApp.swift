@@ -38,6 +38,7 @@ struct AIChatApp: App {
         .environment(delegate.dependencies.authManager)
         .environment(delegate.dependencies.aiManager)
         .environment(delegate.dependencies.avatarManager)
+        .environment(delegate.dependencies.chatManager)
         .onOpenURL { url in
           _ = GIDSignIn.sharedInstance.handle(url)
         }
@@ -50,11 +51,13 @@ struct Dependencies {
   let userManager: UserManager
   let aiManager: AIManager
   let avatarManager: AvatarManager
+  let chatManager: ChatManager
 
   init() {
     authManager = AuthManager(service: FirebaseAuthService())
     userManager = UserManager(services: ProductionUserServices())
     aiManager = AIManager(service: OpenAIService())
     avatarManager = AvatarManager(services: ProductionAvatarServices())
+    chatManager = ChatManager(services: ProductionChatServices())
   }
 }
