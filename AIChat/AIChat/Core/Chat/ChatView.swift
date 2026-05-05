@@ -6,6 +6,7 @@ import SwiftUI
 
 struct ChatView: View {
   @Environment(AvatarManager.self) private var avatarManager
+  @Environment(AIManager.self) private var aiManager
 
   @State private var chatMesages: [ChatMessageModel] = .preview
   @State private var avatar: AvatarModel?
@@ -16,6 +17,7 @@ struct ChatView: View {
   @State private var validationError: TextValidationError?
   @State private var showProfileModal = false
   @State private var errorMessage: String?
+  @State private var isGenerating = false
 
   private let textValidator = TextValidator()
 
@@ -127,7 +129,9 @@ struct ChatView: View {
           Label("Send Message", systemImage: "arrow.up.circle.fill")
             .labelStyle(.iconOnly)
             .font(.largeTitle)
-        }.padding(.trailing, 4),
+        }
+        .padding(.trailing, 4)
+        .disabled(isGenerating),
         alignment: .trailing
       )
       .background(
@@ -163,6 +167,46 @@ struct ChatView: View {
     chatMesages.append(message)
     scrollPosition = message.id
     messageText = ""
+
+    Task {
+      await generateAvatarResponse()
+    }
+  }
+
+  private func generateAvatarResponse() async {
+    guard let avatar else { return }
+    isGenerating = true
+    defer { isGenerating = false }
+
+    let prompt = buildAIMessages(avatar: avatar)
+    do {
+      let reply = try await aiManager.generateText(messages: prompt)
+      let response = ChatMessageModel(
+        id: UUID().uuidString,
+        chatId: UUID().uuidString,
+        authorId: avatar.avatarId,
+        content: reply,
+        seenByIds: [],
+        dateCreated: .now
+      )
+      chatMesages.append(response)
+      scrollPosition = response.id
+    } catch {
+      errorMessage = "Failed to generate response: \(error.localizedDescription)"
+    }
+  }
+
+  private func buildAIMessages(avatar: AvatarModel) -> [AIChatMessage] {
+    let personaName = avatar.name ?? "an AI avatar"
+    let persona = "You are \(personaName). \(avatar.description). Stay in character and keep replies concise and conversational."
+
+    var messages: [AIChatMessage] = [.init(role: .system, content: persona)]
+    for chat in chatMesages {
+      guard let content = chat.content else { continue }
+      let role: AIChatMessage.Role = (chat.authorId == currentUser?.userId) ? .user : .assistant
+      messages.append(.init(role: role, content: content))
+    }
+    return messages
   }
 
   private func onSettingsButtonTapped() {
