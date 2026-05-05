@@ -18,6 +18,10 @@ struct FirebaseAvatarService: RemoteAvatarService {
     try collection.document(avatar.avatarId).setData(from: avatar, merge: true)
   }
 
+  func getAvatar(id: String) async throws -> AvatarModel {
+    try await collection.document(id).getDocument(as: AvatarModel.self)
+  }
+
   func getFeaturedAvatars() async throws -> [AvatarModel] {
     try await fetchAvatars(limit: Self.featuredLimit)
   }

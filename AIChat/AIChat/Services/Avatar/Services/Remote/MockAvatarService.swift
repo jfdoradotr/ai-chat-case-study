@@ -7,6 +7,14 @@ import Foundation
 struct MockAvatarService: RemoteAvatarService {
   func createAvatar(_ avatar: AvatarModel) async throws {}
 
+  func getAvatar(id: String) async throws -> AvatarModel {
+    try await Task.sleep(for: .seconds(1))
+    guard let avatar = [AvatarModel].preview.first(where: { $0.avatarId == id }) else {
+      return .preview
+    }
+    return avatar
+  }
+
   func getFeaturedAvatars() async throws -> [AvatarModel] {
     try await Task.sleep(for: .seconds(3))
     return .preview

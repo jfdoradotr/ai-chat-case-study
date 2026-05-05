@@ -21,6 +21,10 @@ final class AvatarManager {
     try await remote.createAvatar(avatarWithURL)
   }
 
+  func getAvatar(id: String) async throws -> AvatarModel {
+    try await remote.getAvatar(id: id)
+  }
+
   func getFeaturedAvatars() async throws -> [AvatarModel] {
     try await remote.getFeaturedAvatars()
   }

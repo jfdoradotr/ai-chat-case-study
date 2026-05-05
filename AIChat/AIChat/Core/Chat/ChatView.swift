@@ -5,14 +5,17 @@
 import SwiftUI
 
 struct ChatView: View {
+  @Environment(AvatarManager.self) private var avatarManager
+
   @State private var chatMesages: [ChatMessageModel] = .preview
-  @State private var avatar: AvatarModel? = .preview
+  @State private var avatar: AvatarModel?
   @State private var currentUser: UserModel? = .preview
   @State private var messageText: String = ""
   @State private var showSettings = false
   @State private var scrollPosition: String?
   @State private var validationError: TextValidationError?
   @State private var showProfileModal = false
+  @State private var errorMessage: String?
 
   private let textValidator = TextValidator()
 
@@ -61,6 +64,29 @@ struct ChatView: View {
       Button("Cancel", role: .cancel, action: {})
     } message: {
       Text("What would you like to do?")
+    }
+    .alert(
+      "Something went wrong",
+      isPresented: Binding(
+        get: { errorMessage != nil },
+        set: { if !$0 { errorMessage = nil } }
+      ),
+      presenting: errorMessage
+    ) { _ in
+      Button("OK", role: .cancel) {}
+    } message: { message in
+      Text(message)
+    }
+    .task {
+      await loadAvatar()
+    }
+  }
+
+  private func loadAvatar() async {
+    do {
+      avatar = try await avatarManager.getAvatar(id: avatarId)
+    } catch {
+      errorMessage = "Failed to load avatar: \(error.localizedDescription)"
     }
   }
 
@@ -151,5 +177,6 @@ struct ChatView: View {
 #Preview {
   NavigationStack {
     ChatView()
+      .environment(AvatarManager(services: MockAvatarServices()))
   }
 }
