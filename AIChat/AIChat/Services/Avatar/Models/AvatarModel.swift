@@ -80,6 +80,26 @@ struct AvatarModel: Identifiable, Codable {
       clickCount: clickCount
     )
   }
+
+  static func newAvatar(
+    name: String,
+    character: Character,
+    action: Action,
+    location: Location,
+    authorId: String
+  ) -> AvatarModel {
+    AvatarModel(
+      avatarId: UUID().uuidString,
+      name: name,
+      character: character,
+      action: action,
+      location: location,
+      authorId: authorId,
+      dateCreated: .now,
+      imageURL: nil,
+      clickCount: 0
+    )
+  }
 }
 
 extension AvatarModel {
