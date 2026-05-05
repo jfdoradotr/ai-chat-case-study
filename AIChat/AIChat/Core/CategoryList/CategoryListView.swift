@@ -11,7 +11,8 @@ struct CategoryListView: View {
   var imageURL: URL? = Constants.randomImageURL
 
   @State private var avatars: [AvatarModel] = []
-  @State private var errorMessage: String?
+  @State private var isLoading = false
+  @State private var loadError: String?
 
   var body: some View {
     List {
@@ -24,10 +25,7 @@ struct CategoryListView: View {
       .listRowInsets(EdgeInsets())
 
       if avatars.isEmpty {
-        ProgressView()
-          .padding(40)
-          .controlSize(.large)
-          .frame(maxWidth: .infinity)
+        stateContent
           .listRowSeparator(.hidden)
       } else {
         ForEach(avatars) { avatar in
@@ -49,30 +47,78 @@ struct CategoryListView: View {
     .task {
       await loadAvatars()
     }
-    .alert(
-      "Something went wrong",
-      isPresented: Binding(
-        get: { errorMessage != nil },
-        set: { if !$0 { errorMessage = nil } }
-      ),
-      presenting: errorMessage
-    ) { _ in
-      Button("OK", role: .cancel) {}
-    } message: { message in
-      Text(message)
+  }
+
+  @ViewBuilder private var stateContent: some View {
+    if isLoading {
+      ProgressView()
+        .padding(40)
+        .controlSize(.large)
+        .frame(maxWidth: .infinity)
+    } else if let loadError {
+      ContentUnavailableView {
+        Label("Couldn't load avatars", systemImage: "exclamationmark.triangle.fill")
+      } description: {
+        Text(loadError)
+      } actions: {
+        Button {
+          Task { await loadAvatars() }
+        } label: {
+          Text("Try Again")
+        }
+        .buttonStyle(.borderedProminent)
+      }
+    } else {
+      ContentUnavailableView {
+        Label("No \(category.plural.lowercased()) yet", systemImage: "face.dashed")
+      } description: {
+        Text("Check back later — there's nothing in this category right now.")
+      }
     }
   }
 
   private func loadAvatars() async {
+    isLoading = true
+    loadError = nil
     do {
       avatars = try await avatarManager.getAvatars(forCategory: category)
     } catch {
-      errorMessage = "Failed to load avatars: \(error.localizedDescription)"
+      loadError = "Failed to load avatars: \(error.localizedDescription)"
     }
+    isLoading = false
   }
 }
 
-#Preview {
-  CategoryListView()
-    .environment(AvatarManager(services: MockAvatarServices()))
+#Preview("Has Data") {
+  NavigationStack {
+    CategoryListView()
+      .environment(AvatarManager(services: MockAvatarServices()))
+  }
+}
+
+#Preview("Loading") {
+  NavigationStack {
+    CategoryListView()
+      .environment(
+        AvatarManager(services: MockAvatarServices(remote: MockAvatarService(delay: 60)))
+      )
+  }
+}
+
+#Preview("Empty") {
+  NavigationStack {
+    CategoryListView()
+      .environment(
+        AvatarManager(services: MockAvatarServices(remote: MockAvatarService(avatars: [], delay: 0)))
+      )
+  }
+}
+
+#Preview("Error") {
+  NavigationStack {
+    CategoryListView()
+      .environment(
+        AvatarManager(services: MockAvatarServices(remote: MockAvatarService(delay: 0, shouldThrow: true)))
+      )
+  }
 }
