@@ -54,6 +54,29 @@ struct FirebaseAvatarService: RemoteAvatarService {
     ])
   }
 
+  func removeAuthorIdFromAvatar(avatarId: String) async throws {
+    try await collection.document(avatarId).updateData([
+      AvatarModel.CodingKeys.authorId.rawValue: FieldValue.delete()
+    ])
+  }
+
+  func removeAuthorIdFromAllUserAvatars(userId: String) async throws {
+    let snapshot = try await collection
+      .whereField(AvatarModel.CodingKeys.authorId.rawValue, isEqualTo: userId)
+      .getDocuments()
+
+    guard !snapshot.documents.isEmpty else { return }
+
+    let batch = Firestore.firestore().batch()
+    for doc in snapshot.documents {
+      batch.updateData(
+        [AvatarModel.CodingKeys.authorId.rawValue: FieldValue.delete()],
+        forDocument: doc.reference
+      )
+    }
+    try await batch.commit()
+  }
+
   private func fetchAvatars(limit: Int, orderBy field: String) async throws -> [AvatarModel] {
     let snapshot = try await collection
       .order(by: field, descending: true)

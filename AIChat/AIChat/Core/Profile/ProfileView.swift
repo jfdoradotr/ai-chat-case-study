@@ -138,7 +138,17 @@ struct ProfileView: View {
     showCreateAvatar = true
   }
   private func onDeleteAvatar(_ indexSet: IndexSet) {
+    let removed = indexSet.map { myAvatars[$0] }
     myAvatars.remove(atOffsets: indexSet)
+    Task {
+      for avatar in removed {
+        do {
+          try await avatarManager.removeAuthorIdFromAvatar(avatarId: avatar.avatarId)
+        } catch {
+          errorMessage = "Failed to remove avatar: \(error.localizedDescription)"
+        }
+      }
+    }
   }
 }
 
