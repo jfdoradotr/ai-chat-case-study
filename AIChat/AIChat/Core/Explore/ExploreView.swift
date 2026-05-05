@@ -152,33 +152,27 @@ struct ExploreView: View {
 #Preview("Has Data") {
   NavigationStack {
     ExploreView()
-      .environment(AvatarManager(services: MockAvatarServices()))
+      .previewEnvironment()
   }
 }
 
 #Preview("Loading") {
   NavigationStack {
     ExploreView()
-      .environment(
-        AvatarManager(services: MockAvatarServices(remote: MockAvatarService(delay: 60)))
-      )
+      .previewEnvironment(avatarRemote: MockAvatarService(delay: 60))
   }
 }
 
 #Preview("Empty") {
   NavigationStack {
     ExploreView()
-      .environment(
-        AvatarManager(services: MockAvatarServices(remote: MockAvatarService(avatars: [], delay: 0)))
-      )
+      .previewEnvironment(avatarRemote: MockAvatarService(avatars: [], delay: 0))
   }
 }
 
 #Preview("Error") {
   NavigationStack {
     ExploreView()
-      .environment(
-        AvatarManager(services: MockAvatarServices(remote: MockAvatarService(delay: 0, shouldThrow: true)))
-      )
+      .previewEnvironment(avatarRemote: MockAvatarService(delay: 0, shouldThrow: true))
   }
 }

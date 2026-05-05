@@ -179,6 +179,6 @@ struct ChatView: View {
 #Preview {
   NavigationStack {
     ChatView()
-      .environment(AvatarManager(services: MockAvatarServices()))
+      .previewEnvironment()
   }
 }

@@ -83,13 +83,17 @@ struct ProfileView: View {
         SettingsView()
       }
     }
-    .fullScreenCover(isPresented: $showCreateAvatar, onDismiss: {
-      Task { await loadAvatars() }
-    }) {
-      NavigationStack {
-        CreateAvatarView()
+    .fullScreenCover(
+      isPresented: $showCreateAvatar,
+      onDismiss: {
+        Task { await loadAvatars() }
+      },
+      content: {
+        NavigationStack {
+          CreateAvatarView()
+        }
       }
-    }
+    )
     .task {
       await loadData()
     }
@@ -138,11 +142,16 @@ struct ProfileView: View {
   }
 }
 
-#Preview {
+#Preview("Signed In") {
   NavigationStack {
     ProfileView()
-      .environment(AppState())
-      .environment(UserManager(services: MockUserServices(user: .preview)))
-      .environment(AvatarManager(services: MockAvatarServices()))
+      .previewEnvironment()
+  }
+}
+
+#Preview("Signed Out") {
+  NavigationStack {
+    ProfileView()
+      .previewEnvironment(isSignedIn: false)
   }
 }
