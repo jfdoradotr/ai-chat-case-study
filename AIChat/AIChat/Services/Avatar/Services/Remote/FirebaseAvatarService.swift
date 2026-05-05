@@ -23,11 +23,11 @@ struct FirebaseAvatarService: RemoteAvatarService {
   }
 
   func getFeaturedAvatars() async throws -> [AvatarModel] {
-    try await fetchAvatars(limit: Self.featuredLimit)
+    try await fetchAvatars(limit: Self.featuredLimit, orderBy: AvatarModel.CodingKeys.dateCreated.rawValue)
   }
 
   func getPopularAvatars() async throws -> [AvatarModel] {
-    try await fetchAvatars(limit: Self.popularLimit)
+    try await fetchAvatars(limit: Self.popularLimit, orderBy: AvatarModel.CodingKeys.clickCount.rawValue)
   }
 
   func getAvatars(forCategory category: AvatarModel.Character) async throws -> [AvatarModel] {
@@ -54,9 +54,9 @@ struct FirebaseAvatarService: RemoteAvatarService {
     ])
   }
 
-  private func fetchAvatars(limit: Int) async throws -> [AvatarModel] {
+  private func fetchAvatars(limit: Int, orderBy field: String) async throws -> [AvatarModel] {
     let snapshot = try await collection
-      .order(by: AvatarModel.CodingKeys.dateCreated.rawValue, descending: true)
+      .order(by: field, descending: true)
       .limit(to: limit)
       .getDocuments()
     return snapshot.documents.compactMap { try? $0.data(as: AvatarModel.self) }
