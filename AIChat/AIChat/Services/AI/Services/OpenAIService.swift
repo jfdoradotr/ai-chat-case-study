@@ -32,6 +32,26 @@ struct OpenAIService: AIService {
     return image
   }
 
+  func generateText(messages: [AIChatMessage]) async throws -> String {
+    let chatMessages = messages.compactMap { message -> ChatQuery.ChatCompletionMessageParam? in
+      let role: ChatQuery.ChatCompletionMessageParam.Role
+      switch message.role {
+      case .system: role = .system
+      case .user: role = .user
+      case .assistant: role = .assistant
+      }
+      return ChatQuery.ChatCompletionMessageParam(role: role, content: message.content)
+    }
+
+    let query = ChatQuery(messages: chatMessages, model: .gpt4_o_mini)
+    let result = try await openAI.chats(query: query)
+
+    guard let content = result.choices.first?.message.content else {
+      throw OpenAIError.invalidResponse
+    }
+    return content
+  }
+
   enum OpenAIError: LocalizedError {
     case invalidResponse
   }
