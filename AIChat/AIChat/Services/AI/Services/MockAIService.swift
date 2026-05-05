@@ -12,4 +12,9 @@ struct MockAIService: AIService {
     }
     return image
   }
+
+  func generateText(messages: [AIChatMessage]) async throws -> String {
+    try await Task.sleep(for: .seconds(1))
+    return "This is a mock response from the AI."
+  }
 }
