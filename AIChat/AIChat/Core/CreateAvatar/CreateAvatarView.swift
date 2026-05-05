@@ -201,8 +201,6 @@ struct CreateAvatarView: View {
 #Preview {
   NavigationStack {
     CreateAvatarView()
-      .environment(AIManager(service: MockAIService()))
-      .environment(AuthManager(service: MockAuthService(user: .preview)))
-      .environment(AvatarManager(services: MockAvatarServices()))
+      .previewEnvironment()
   }
 }
