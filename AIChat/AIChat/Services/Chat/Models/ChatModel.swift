@@ -19,7 +19,7 @@ struct ChatModel: Identifiable, Codable {
     case dateModified = "date_modified"
   }
 
-  static func newChat(userId: String, avatarId: String) -> ChatModel {
+  static func new(userId: String, avatarId: String) -> ChatModel {
     let now = Date.now
     return ChatModel(
       id: UUID().uuidString,
