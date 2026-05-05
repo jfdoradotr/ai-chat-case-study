@@ -8,6 +8,7 @@ struct SettingsView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(AuthManager.self) private var authManager
   @Environment(UserManager.self) private var userManager
+  @Environment(AvatarManager.self) private var avatarManager
   @Environment(AppState.self) private var appState
 
   @State private var isPremium = false
@@ -198,6 +199,8 @@ struct SettingsView: View {
 
     case .deleteAccount:
       performAuthAction(label: "Delete account") {
+        let uid = try authManager.getAuthId()
+        try await avatarManager.removeAuthorIdFromAllUserAvatars(userId: uid)
         try await userManager.deleteCurrentUser()
         try await authManager.deleteAccount()
         userManager.signOut()
@@ -232,29 +235,16 @@ struct SettingsView: View {
   private func onContactUsPressed() {}
 }
 
-#Preview("No Auth") {
+#Preview("Signed Out") {
   NavigationStack {
     SettingsView()
-      .environment(AuthManager(service: MockAuthService()))
-      .environment(UserManager(services: MockUserServices(user: .preview)))
-      .environment(AppState())
+      .previewEnvironment(isSignedIn: false)
   }
 }
 
-#Preview("Anonymous") {
+#Preview("Signed In") {
   NavigationStack {
     SettingsView()
-      .environment(AuthManager(service: MockAuthService(user: .anonymousPreview)))
-      .environment(UserManager(services: MockUserServices(user: .preview)))
-      .environment(AppState())
-  }
-}
-
-#Preview("Non-Anonymous") {
-  NavigationStack {
-    SettingsView()
-      .environment(AuthManager(service: MockAuthService(user: .preview)))
-      .environment(UserManager(services: MockUserServices(user: .preview)))
-      .environment(AppState())
+      .previewEnvironment()
   }
 }
