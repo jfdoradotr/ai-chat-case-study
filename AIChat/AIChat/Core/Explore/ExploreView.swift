@@ -9,17 +9,21 @@ struct ExploreView: View {
 
   @State private var featuredAvatars: [AvatarModel] = []
   @State private var popularAvatars: [AvatarModel] = []
-  @State private var errorMessage: String?
+  @State private var isLoading = false
+  @State private var loadError: String?
 
   let categories: [AvatarModel.Character] = AvatarModel.Character.allCases
 
   var body: some View {
     List {
-      if featuredAvatars.isEmpty && popularAvatars.isEmpty {
+      if isLoading && featuredAvatars.isEmpty && popularAvatars.isEmpty {
         ProgressView()
           .padding(40)
           .controlSize(.large)
           .frame(maxWidth: .infinity)
+          .listRowSeparator(.hidden)
+      } else if let loadError, featuredAvatars.isEmpty && popularAvatars.isEmpty {
+        errorView(message: loadError)
           .listRowSeparator(.hidden)
       }
 
@@ -37,21 +41,7 @@ struct ExploreView: View {
     .listStyle(.plain)
     .navigationTitle("Explore")
     .task {
-      async let featured: () = loadFeaturedAvatars()
-      async let popular: () = loadPopularAvatars()
-      _ = await (featured, popular)
-    }
-    .alert(
-      "Something went wrong",
-      isPresented: Binding(
-        get: { errorMessage != nil },
-        set: { if !$0 { errorMessage = nil } }
-      ),
-      presenting: errorMessage
-    ) { _ in
-      Button("OK", role: .cancel) {}
-    } message: { message in
-      Text(message)
+      await loadAll()
     }
     .navigationDestination(for: String.self) { value in
       ChatView(avatarId: value)
@@ -61,11 +51,20 @@ struct ExploreView: View {
     }
   }
 
+  private func loadAll() async {
+    isLoading = true
+    loadError = nil
+    async let featured: () = loadFeaturedAvatars()
+    async let popular: () = loadPopularAvatars()
+    _ = await (featured, popular)
+    isLoading = false
+  }
+
   private func loadFeaturedAvatars() async {
     do {
       featuredAvatars = try await avatarManager.getFeaturedAvatars()
     } catch {
-      errorMessage = "Failed to load featured avatars: \(error.localizedDescription)"
+      loadError = "Couldn't load avatars: \(error.localizedDescription)"
     }
   }
 
@@ -73,8 +72,24 @@ struct ExploreView: View {
     do {
       popularAvatars = try await avatarManager.getPopularAvatars()
     } catch {
-      errorMessage = "Failed to load popular avatars: \(error.localizedDescription)"
+      loadError = "Couldn't load avatars: \(error.localizedDescription)"
     }
+  }
+
+  private func errorView(message: String) -> some View {
+    ContentUnavailableView {
+      Label("Something went wrong", systemImage: "exclamationmark.triangle.fill")
+    } description: {
+      Text(message)
+    } actions: {
+      Button {
+        Task { await loadAll() }
+      } label: {
+        Text("Try Again")
+      }
+      .buttonStyle(.borderedProminent)
+    }
+    .frame(maxWidth: .infinity)
   }
 
   private var featuredAvatarsSection: some View {
@@ -134,9 +149,36 @@ struct ExploreView: View {
   }
 }
 
-#Preview {
+#Preview("Has Data") {
   NavigationStack {
     ExploreView()
       .environment(AvatarManager(services: MockAvatarServices()))
+  }
+}
+
+#Preview("Loading") {
+  NavigationStack {
+    ExploreView()
+      .environment(
+        AvatarManager(services: MockAvatarServices(remote: MockAvatarService(delay: 60)))
+      )
+  }
+}
+
+#Preview("Empty") {
+  NavigationStack {
+    ExploreView()
+      .environment(
+        AvatarManager(services: MockAvatarServices(remote: MockAvatarService(avatars: [], delay: 0)))
+      )
+  }
+}
+
+#Preview("Error") {
+  NavigationStack {
+    ExploreView()
+      .environment(
+        AvatarManager(services: MockAvatarServices(remote: MockAvatarService(delay: 0, shouldThrow: true)))
+      )
   }
 }

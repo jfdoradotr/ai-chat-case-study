@@ -10,9 +10,19 @@ protocol AvatarServices {
 
 @MainActor
 struct MockAvatarServices: AvatarServices {
-  let remote: any RemoteAvatarService = MockAvatarService()
-  let image: any AvatarImageService = MockAvatarImageService()
-  let local: any LocalAvatarPersistence = MockAvatarLocalPersistence()
+  let remote: any RemoteAvatarService
+  let image: any AvatarImageService
+  let local: any LocalAvatarPersistence
+
+  init(
+    remote: any RemoteAvatarService = MockAvatarService(),
+    image: any AvatarImageService = MockAvatarImageService(),
+    local: any LocalAvatarPersistence = MockAvatarLocalPersistence()
+  ) {
+    self.remote = remote
+    self.image = image
+    self.local = local
+  }
 }
 
 @MainActor
