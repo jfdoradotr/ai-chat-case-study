@@ -14,12 +14,10 @@ struct FirebaseChatService: RemoteChatService {
   }
 
   func getChat(userId: String, avatarId: String) async throws -> ChatModel? {
-    let snapshot = try await collection
-      .whereField(ChatModel.CodingKeys.userId.rawValue, isEqualTo: userId)
-      .whereField(ChatModel.CodingKeys.avatarId.rawValue, isEqualTo: avatarId)
-      .limit(to: 1)
-      .getDocuments()
-    return snapshot.documents.first.flatMap { try? $0.data(as: ChatModel.self) }
+    let id = ChatModel.chatId(userId: userId, avatarId: avatarId)
+    let document = try await collection.document(id).getDocument()
+    guard document.exists else { return nil }
+    return try document.data(as: ChatModel.self)
   }
 
   func createChat(_ chat: ChatModel) async throws {
@@ -28,5 +26,38 @@ struct FirebaseChatService: RemoteChatService {
 
   func addMessage(_ message: ChatMessageModel, chatId: String) async throws {
     try messagesCollection(for: chatId).document(message.id).setData(from: message, merge: true)
+  }
+
+  func getMessages(forChatId chatId: String) async throws -> [ChatMessageModel] {
+    let snapshot = try await messagesCollection(for: chatId)
+      .order(by: ChatMessageModel.CodingKeys.dateCreated.rawValue, descending: false)
+      .getDocuments()
+    return snapshot.documents.compactMap { try? $0.data(as: ChatMessageModel.self) }
+  }
+
+  func streamMessages(
+    forChatId chatId: String,
+    onListenerConfigured: (any ListenerRegistration) -> Void
+  ) -> AsyncThrowingStream<[ChatMessageModel], any Error> {
+    AsyncThrowingStream { continuation in
+      let listener = messagesCollection(for: chatId)
+        .order(by: ChatMessageModel.CodingKeys.dateCreated.rawValue, descending: false)
+        .addSnapshotListener { snapshot, error in
+          if let error {
+            continuation.finish(throwing: error)
+            return
+          }
+          guard let snapshot else {
+            continuation.yield([])
+            return
+          }
+          let messages = snapshot.documents.compactMap { try? $0.data(as: ChatMessageModel.self) }
+          continuation.yield(messages)
+        }
+      onListenerConfigured(listener)
+      continuation.onTermination = { _ in
+        listener.remove()
+      }
+    }
   }
 }

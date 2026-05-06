@@ -2,6 +2,7 @@
 //  Copyright © Juan Francisco Dorado Torres. All rights reserved.
 //
 
+import FirebaseFirestore
 import Foundation
 
 struct MockChatService: RemoteChatService {
@@ -31,5 +32,19 @@ struct MockChatService: RemoteChatService {
 
   func addMessage(_ message: ChatMessageModel, chatId: String) async throws {
     try await simulate()
+  }
+
+  func getMessages(forChatId chatId: String) async throws -> [ChatMessageModel] {
+    try await simulate()
+    return []
+  }
+
+  func streamMessages(
+    forChatId chatId: String,
+    onListenerConfigured: (any ListenerRegistration) -> Void
+  ) -> AsyncThrowingStream<[ChatMessageModel], any Error> {
+    AsyncThrowingStream { continuation in
+      continuation.yield([])
+    }
   }
 }

@@ -24,4 +24,12 @@ final class ChatManager {
   func addMessage(_ message: ChatMessageModel, chatId: String) async throws {
     try await remote.addMessage(message, chatId: chatId)
   }
+
+  func getMessages(forChatId chatId: String) async throws -> [ChatMessageModel] {
+    try await remote.getMessages(forChatId: chatId)
+  }
+
+  func streamMessages(forChatId chatId: String) -> AsyncThrowingStream<[ChatMessageModel], any Error> {
+    remote.streamMessages(forChatId: chatId, onListenerConfigured: { _ in })
+  }
 }

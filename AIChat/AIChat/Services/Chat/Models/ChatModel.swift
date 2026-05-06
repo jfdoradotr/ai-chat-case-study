@@ -19,10 +19,14 @@ struct ChatModel: Identifiable, Codable {
     case dateModified = "date_modified"
   }
 
+  static func chatId(userId: String, avatarId: String) -> String {
+    "\(userId)_\(avatarId)"
+  }
+
   static func new(userId: String, avatarId: String) -> Self {
     let now = Date.now
     return Self(
-      id: UUID().uuidString,
+      id: chatId(userId: userId, avatarId: avatarId),
       userId: userId,
       avatarId: avatarId,
       dateCreated: now,
