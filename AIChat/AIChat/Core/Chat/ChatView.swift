@@ -214,6 +214,8 @@ struct ChatView: View {
         userId: currentUser.userId,
         content: content
       )
+      chatMesages.append(message)
+      scrollPosition = message.id
       try await chatManager.addMessage(message, chatId: chat.id)
       await generateAvatarResponse(chatId: chat.id)
     } catch {
@@ -239,6 +241,8 @@ struct ChatView: View {
         avatarId: avatar.avatarId,
         content: reply
       )
+      chatMesages.append(response)
+      scrollPosition = response.id
       try? await chatManager.addMessage(response, chatId: chatId)
     } catch {
       errorMessage = "Failed to generate response: \(error.localizedDescription)"
