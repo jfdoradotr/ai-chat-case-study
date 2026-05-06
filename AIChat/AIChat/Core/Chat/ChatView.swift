@@ -9,7 +9,7 @@ struct ChatView: View {
   @Environment(AIManager.self) private var aiManager
   @Environment(ChatManager.self) private var chatManager
 
-  @State private var chatMesages: [ChatMessageModel] = .preview
+  @State private var chatMesages: [ChatMessageModel] = []
   @State private var chat: ChatModel?
   @State private var avatar: AvatarModel?
   @State private var currentUser: UserModel? = .preview
@@ -100,7 +100,15 @@ struct ChatView: View {
 
   private func loadExistingChat() async {
     guard let userId = currentUser?.userId else { return }
-    chat = try? await chatManager.getChat(userId: userId, avatarId: avatarId)
+    do {
+      guard let existing = try await chatManager.getChat(userId: userId, avatarId: avatarId) else {
+        return
+      }
+      self.chat = existing
+      self.chatMesages = try await chatManager.getMessages(forChatId: existing.id)
+    } catch {
+      errorMessage = "Failed to load chat: \(error.localizedDescription)"
+    }
   }
 
   private var scrollViewSection: some View {

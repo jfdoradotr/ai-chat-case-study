@@ -32,4 +32,9 @@ struct MockChatService: RemoteChatService {
   func addMessage(_ message: ChatMessageModel, chatId: String) async throws {
     try await simulate()
   }
+
+  func getMessages(forChatId chatId: String) async throws -> [ChatMessageModel] {
+    try await simulate()
+    return []
+  }
 }
