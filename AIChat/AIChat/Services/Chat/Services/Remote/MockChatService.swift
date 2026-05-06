@@ -26,6 +26,11 @@ struct MockChatService: RemoteChatService {
     return chats.first(where: { $0.userId == userId && $0.avatarId == avatarId })
   }
 
+  func getAllChats(userId: String) async throws -> [ChatModel] {
+    try await simulate()
+    return chats.filter { $0.userId == userId }
+  }
+
   func createChat(_ chat: ChatModel) async throws {
     try await simulate()
   }

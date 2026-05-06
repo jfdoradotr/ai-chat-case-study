@@ -20,6 +20,14 @@ struct FirebaseChatService: RemoteChatService {
     return try document.data(as: ChatModel.self)
   }
 
+  func getAllChats(userId: String) async throws -> [ChatModel] {
+    let snapshot = try await collection
+      .whereField(ChatModel.CodingKeys.userId.rawValue, isEqualTo: userId)
+      .order(by: ChatModel.CodingKeys.dateModified.rawValue, descending: true)
+      .getDocuments()
+    return snapshot.documents.compactMap { try? $0.data(as: ChatModel.self) }
+  }
+
   func createChat(_ chat: ChatModel) async throws {
     try collection.document(chat.id).setData(from: chat, merge: true)
   }

@@ -17,6 +17,10 @@ final class ChatManager {
     try await remote.getChat(userId: userId, avatarId: avatarId)
   }
 
+  func getAllChats(userId: String) async throws -> [ChatModel] {
+    try await remote.getAllChats(userId: userId)
+  }
+
   func createChat(_ chat: ChatModel) async throws {
     try await remote.createChat(chat)
   }
