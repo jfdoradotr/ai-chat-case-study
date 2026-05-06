@@ -117,6 +117,12 @@ struct ChatView: View {
           )
           .id(message.id)
         }
+
+        if isGenerating {
+          TypingIndicatorView(imageURL: avatar?.imageURL)
+            .id("typing-indicator")
+            .transition(.opacity)
+        }
       }
       .scrollTargetLayout()
       .frame(maxWidth: .infinity)
@@ -126,6 +132,7 @@ struct ChatView: View {
     .scrollPosition(id: $scrollPosition, anchor: .center)
     .animation(.default, value: chatMesages.count)
     .animation(.default, value: scrollPosition)
+    .animation(.default, value: isGenerating)
   }
 
   private var textFieldSection: some View {
