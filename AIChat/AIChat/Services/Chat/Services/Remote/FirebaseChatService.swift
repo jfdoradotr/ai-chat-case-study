@@ -34,4 +34,30 @@ struct FirebaseChatService: RemoteChatService {
       .getDocuments()
     return snapshot.documents.compactMap { try? $0.data(as: ChatMessageModel.self) }
   }
+
+  func streamMessages(
+    forChatId chatId: String,
+    onListenerConfigured: (any ListenerRegistration) -> Void
+  ) -> AsyncThrowingStream<[ChatMessageModel], any Error> {
+    AsyncThrowingStream { continuation in
+      let listener = messagesCollection(for: chatId)
+        .order(by: ChatMessageModel.CodingKeys.dateCreated.rawValue, descending: false)
+        .addSnapshotListener { snapshot, error in
+          if let error {
+            continuation.finish(throwing: error)
+            return
+          }
+          guard let snapshot else {
+            continuation.yield([])
+            return
+          }
+          let messages = snapshot.documents.compactMap { try? $0.data(as: ChatMessageModel.self) }
+          continuation.yield(messages)
+        }
+      onListenerConfigured(listener)
+      continuation.onTermination = { _ in
+        listener.remove()
+      }
+    }
+  }
 }

@@ -86,6 +86,10 @@ struct ChatView: View {
       async let chatTask: () = loadExistingChat()
       _ = await (avatarTask, chatTask)
     }
+    .task(id: chat?.id) {
+      guard let chatId = chat?.id else { return }
+      await listenToMessages(chatId: chatId)
+    }
   }
 
   private func loadAvatar() async {
@@ -105,9 +109,18 @@ struct ChatView: View {
         return
       }
       self.chat = existing
-      self.chatMesages = try await chatManager.getMessages(forChatId: existing.id)
     } catch {
       errorMessage = "Failed to load chat: \(error.localizedDescription)"
+    }
+  }
+
+  private func listenToMessages(chatId: String) async {
+    do {
+      for try await messages in chatManager.streamMessages(forChatId: chatId) {
+        self.chatMesages = messages
+      }
+    } catch {
+      errorMessage = "Lost connection to chat: \(error.localizedDescription)"
     }
   }
 
@@ -199,9 +212,6 @@ struct ChatView: View {
         userId: currentUser.userId,
         content: content
       )
-      chatMesages.append(message)
-      scrollPosition = message.id
-
       try await chatManager.addMessage(message, chatId: chat.id)
       await generateAvatarResponse(chatId: chat.id)
     } catch {
@@ -227,8 +237,6 @@ struct ChatView: View {
         avatarId: avatar.avatarId,
         content: reply
       )
-      chatMesages.append(response)
-      scrollPosition = response.id
       try? await chatManager.addMessage(response, chatId: chatId)
     } catch {
       errorMessage = "Failed to generate response: \(error.localizedDescription)"
