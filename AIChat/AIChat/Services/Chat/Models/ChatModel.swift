@@ -4,12 +4,31 @@
 
 import Foundation
 
-struct ChatModel: Identifiable {
+struct ChatModel: Identifiable, Codable {
   let id: String
   let userId: String
   let avatarId: String
   let dateCreated: Date
   let dateModified: Date
+
+  enum CodingKeys: String, CodingKey {
+    case id
+    case userId = "user_id"
+    case avatarId = "avatar_id"
+    case dateCreated = "date_created"
+    case dateModified = "date_modified"
+  }
+
+  static func new(userId: String, avatarId: String) -> Self {
+    let now = Date.now
+    return Self(
+      id: UUID().uuidString,
+      userId: userId,
+      avatarId: avatarId,
+      dateCreated: now,
+      dateModified: now
+    )
+  }
 }
 
 extension ChatModel {

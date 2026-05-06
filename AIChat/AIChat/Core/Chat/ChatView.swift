@@ -7,8 +7,10 @@ import SwiftUI
 struct ChatView: View {
   @Environment(AvatarManager.self) private var avatarManager
   @Environment(AIManager.self) private var aiManager
+  @Environment(ChatManager.self) private var chatManager
 
   @State private var chatMesages: [ChatMessageModel] = .preview
+  @State private var chat: ChatModel?
   @State private var avatar: AvatarModel?
   @State private var currentUser: UserModel? = .preview
   @State private var messageText: String = ""
@@ -80,7 +82,9 @@ struct ChatView: View {
       Text(message)
     }
     .task {
-      await loadAvatar()
+      async let avatarTask: () = loadAvatar()
+      async let chatTask: () = loadExistingChat()
+      _ = await (avatarTask, chatTask)
     }
   }
 
@@ -94,6 +98,11 @@ struct ChatView: View {
     }
   }
 
+  private func loadExistingChat() async {
+    guard let userId = currentUser?.userId else { return }
+    chat = try? await chatManager.getChat(userId: userId, avatarId: avatarId)
+  }
+
   private var scrollViewSection: some View {
     ScrollView {
       LazyVStack(spacing: 24) {
@@ -102,6 +111,7 @@ struct ChatView: View {
           ChatBubbleViewBuilder(
             message: message,
             isCurrentUser: isCurrentUser,
+            currentUserColor: currentUser?.profileColor ?? .accent,
             imageURL: avatar?.imageURL,
             onImagePressed: onAvatarImagePressed
           )
@@ -156,41 +166,55 @@ struct ChatView: View {
       validationError = error
       return
     } catch { return }
-    let message = ChatMessageModel(
-      id: UUID().uuidString,
-      chatId: UUID().uuidString,
-      authorId: currentUser.userId,
-      content: content,
-      seenByIds: [],
-      dateCreated: .now
-    )
-    chatMesages.append(message)
-    scrollPosition = message.id
-    messageText = ""
 
+    messageText = ""
     Task {
-      await generateAvatarResponse()
+      await sendMessage(content: content, by: currentUser)
     }
   }
 
-  private func generateAvatarResponse() async {
-    guard let avatar else { return }
+  private func sendMessage(content: String, by currentUser: UserModel) async {
     isGenerating = true
     defer { isGenerating = false }
 
+    do {
+      let chat = try await getOrCreateChat(userId: currentUser.userId)
+      let message = ChatMessageModel.newUserMessage(
+        chatId: chat.id,
+        userId: currentUser.userId,
+        content: content
+      )
+      chatMesages.append(message)
+      scrollPosition = message.id
+
+      try await chatManager.addMessage(message, chatId: chat.id)
+      await generateAvatarResponse(chatId: chat.id)
+    } catch {
+      errorMessage = "Failed to send: \(error.localizedDescription)"
+    }
+  }
+
+  private func getOrCreateChat(userId: String) async throws -> ChatModel {
+    if let chat { return chat }
+    let new = ChatModel.new(userId: userId, avatarId: avatarId)
+    try await chatManager.createChat(new)
+    self.chat = new
+    return new
+  }
+
+  private func generateAvatarResponse(chatId: String) async {
+    guard let avatar else { return }
     let prompt = buildAIMessages(avatar: avatar)
     do {
       let reply = try await aiManager.generateText(messages: prompt)
-      let response = ChatMessageModel(
-        id: UUID().uuidString,
-        chatId: UUID().uuidString,
-        authorId: avatar.avatarId,
-        content: reply,
-        seenByIds: [],
-        dateCreated: .now
+      let response = ChatMessageModel.newAIMessage(
+        chatId: chatId,
+        avatarId: avatar.avatarId,
+        content: reply
       )
       chatMesages.append(response)
       scrollPosition = response.id
+      try? await chatManager.addMessage(response, chatId: chatId)
     } catch {
       errorMessage = "Failed to generate response: \(error.localizedDescription)"
     }

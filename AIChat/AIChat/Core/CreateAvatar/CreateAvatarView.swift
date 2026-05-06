@@ -93,16 +93,12 @@ struct CreateAvatarView: View {
           throw CreateAvatarError.missingImage
         }
 
-        let avatar = AvatarModel(
-          avatarId: UUID().uuidString,
+        let avatar = AvatarModel.newAvatar(
           name: name,
           character: option,
           action: action,
           location: location,
-          authorId: uid,
-          dateCreated: .now,
-          imageURL: nil,
-          clickCount: 0
+          authorId: uid
         )
 
         try await avatarManager.createAvatar(avatar: avatar, image: generatedImage)

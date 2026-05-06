@@ -4,13 +4,22 @@
 
 import Foundation
 
-struct ChatMessageModel: Identifiable {
+struct ChatMessageModel: Identifiable, Codable {
   let id: String
   let chatId: String
   let authorId: String?
   let content: String?
   let seenByIds: [String]
   let dateCreated: Date?
+
+  enum CodingKeys: String, CodingKey {
+    case id
+    case chatId = "chat_id"
+    case authorId = "author_id"
+    case content
+    case seenByIds = "seen_by_ids"
+    case dateCreated = "date_created"
+  }
 
   init(
     id: String,
@@ -31,6 +40,28 @@ struct ChatMessageModel: Identifiable {
   func hasBeenSeenByCurrentUser(userId: String) -> Bool {
     guard seenByIds.isEmpty else { return false }
     return seenByIds.contains(userId)
+  }
+
+  static func newUserMessage(chatId: String, userId: String, content: String) -> Self {
+    Self(
+      id: UUID().uuidString,
+      chatId: chatId,
+      authorId: userId,
+      content: content,
+      seenByIds: [],
+      dateCreated: .now
+    )
+  }
+
+  static func newAIMessage(chatId: String, avatarId: String, content: String) -> Self {
+    Self(
+      id: UUID().uuidString,
+      chatId: chatId,
+      authorId: avatarId,
+      content: content,
+      seenByIds: [],
+      dateCreated: .now
+    )
   }
 }
 
