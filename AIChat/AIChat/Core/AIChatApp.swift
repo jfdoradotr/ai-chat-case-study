@@ -54,10 +54,24 @@ struct Dependencies {
   let chatManager: ChatManager
 
   init() {
+    #if MOCK
+    authManager = AuthManager(service: MockAuthService())
+    userManager = UserManager(services: MockUserServices())
+    aiManager = AIManager(service: MockAIService())
+    avatarManager = AvatarManager(services: MockAvatarServices())
+    chatManager = ChatManager(services: MockChatServices())
+    #elseif DEV
     authManager = AuthManager(service: FirebaseAuthService())
     userManager = UserManager(services: ProductionUserServices())
     aiManager = AIManager(service: OpenAIService())
     avatarManager = AvatarManager(services: ProductionAvatarServices())
     chatManager = ChatManager(services: ProductionChatServices())
+    #else
+    authManager = AuthManager(service: FirebaseAuthService())
+    userManager = UserManager(services: ProductionUserServices())
+    aiManager = AIManager(service: OpenAIService())
+    avatarManager = AvatarManager(services: ProductionAvatarServices())
+    chatManager = ChatManager(services: ProductionChatServices())
+    #endif
   }
 }
