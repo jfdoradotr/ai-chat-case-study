@@ -8,11 +8,11 @@ struct ChatView: View {
   @Environment(AvatarManager.self) private var avatarManager
   @Environment(AIManager.self) private var aiManager
   @Environment(ChatManager.self) private var chatManager
+  @Environment(UserManager.self) private var userManager
 
   @State private var chatMesages: [ChatMessageModel] = []
   @State private var chat: ChatModel?
   @State private var avatar: AvatarModel?
-  @State private var currentUser: UserModel? = .preview
   @State private var messageText: String = ""
   @State private var showSettings = false
   @State private var scrollPosition: String?
@@ -22,6 +22,8 @@ struct ChatView: View {
   @State private var isGenerating = false
 
   private let textValidator = TextValidator()
+
+  private var currentUser: UserModel? { userManager.currentUser }
 
   var avatarId: String = AvatarModel.preview.avatarId
 
@@ -212,6 +214,8 @@ struct ChatView: View {
         userId: currentUser.userId,
         content: content
       )
+      chatMesages.append(message)
+      scrollPosition = message.id
       try await chatManager.addMessage(message, chatId: chat.id)
       await generateAvatarResponse(chatId: chat.id)
     } catch {
@@ -237,6 +241,8 @@ struct ChatView: View {
         avatarId: avatar.avatarId,
         content: reply
       )
+      chatMesages.append(response)
+      scrollPosition = response.id
       try? await chatManager.addMessage(response, chatId: chatId)
     } catch {
       errorMessage = "Failed to generate response: \(error.localizedDescription)"
