@@ -25,9 +25,10 @@ struct ChatsView: View {
       ChatView(avatarId: avatarId)
     }
     .task {
-      async let recents: () = loadRecentAvatars()
-      async let chatsTask: () = loadChats()
-      _ = await (recents, chatsTask)
+      await loadRecentAvatars()
+    }
+    .task(id: userManager.currentUser?.userId) {
+      await listenToChats()
     }
   }
 
@@ -39,12 +40,14 @@ struct ChatsView: View {
     }
   }
 
-  private func loadChats() async {
+  private func listenToChats() async {
     guard let userId = userManager.currentUser?.userId else { return }
     do {
-      chats = try await chatManager.getAllChats(userId: userId)
+      for try await updated in chatManager.streamAllChats(userId: userId) {
+        chats = updated
+      }
     } catch {
-      print("Failed to load chats: \(error)")
+      print("Failed to stream chats: \(error)")
     }
   }
 
@@ -97,8 +100,7 @@ struct ChatsView: View {
                 try? await avatarManager.getAvatar(id: chat.avatarId)
               },
               getLastChatMessage: {
-                try? await Task.sleep(for: .seconds(1))
-                return [ChatMessageModel].preview.randomElement()
+                try? await chatManager.getLastMessage(forChatId: chat.id)
               }
             )
             .listRowSeparator(.hidden)

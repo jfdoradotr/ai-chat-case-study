@@ -44,12 +44,26 @@ struct MockChatService: RemoteChatService {
     return []
   }
 
+  func getLastMessage(forChatId chatId: String) async throws -> ChatMessageModel? {
+    try await simulate()
+    return nil
+  }
+
   func streamMessages(
     forChatId chatId: String,
     onListenerConfigured: (any ListenerRegistration) -> Void
   ) -> AsyncThrowingStream<[ChatMessageModel], any Error> {
     AsyncThrowingStream { continuation in
       continuation.yield([])
+    }
+  }
+
+  func streamAllChats(
+    userId: String,
+    onListenerConfigured: (any ListenerRegistration) -> Void
+  ) -> AsyncThrowingStream<[ChatModel], any Error> {
+    AsyncThrowingStream { continuation in
+      continuation.yield(chats.filter { $0.userId == userId })
     }
   }
 }

@@ -10,8 +10,13 @@ protocol RemoteChatService: Sendable {
   func createChat(_ chat: ChatModel) async throws
   func addMessage(_ message: ChatMessageModel, chatId: String) async throws
   func getMessages(forChatId chatId: String) async throws -> [ChatMessageModel]
+  func getLastMessage(forChatId chatId: String) async throws -> ChatMessageModel?
   func streamMessages(
     forChatId chatId: String,
     onListenerConfigured: (any ListenerRegistration) -> Void
   ) -> AsyncThrowingStream<[ChatMessageModel], any Error>
+  func streamAllChats(
+    userId: String,
+    onListenerConfigured: (any ListenerRegistration) -> Void
+  ) -> AsyncThrowingStream<[ChatModel], any Error>
 }

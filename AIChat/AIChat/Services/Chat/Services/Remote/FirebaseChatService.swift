@@ -34,6 +34,9 @@ struct FirebaseChatService: RemoteChatService {
 
   func addMessage(_ message: ChatMessageModel, chatId: String) async throws {
     try messagesCollection(for: chatId).document(message.id).setData(from: message, merge: true)
+    try await collection.document(chatId).updateData([
+      ChatModel.CodingKeys.dateModified.rawValue: FieldValue.serverTimestamp()
+    ])
   }
 
   func getMessages(forChatId chatId: String) async throws -> [ChatMessageModel] {
@@ -41,6 +44,14 @@ struct FirebaseChatService: RemoteChatService {
       .order(by: ChatMessageModel.CodingKeys.dateCreated.rawValue, descending: false)
       .getDocuments()
     return snapshot.documents.compactMap { try? $0.data(as: ChatMessageModel.self) }
+  }
+
+  func getLastMessage(forChatId chatId: String) async throws -> ChatMessageModel? {
+    let snapshot = try await messagesCollection(for: chatId)
+      .order(by: ChatMessageModel.CodingKeys.dateCreated.rawValue, descending: true)
+      .limit(to: 1)
+      .getDocuments()
+    return snapshot.documents.first.flatMap { try? $0.data(as: ChatMessageModel.self) }
   }
 
   func streamMessages(
@@ -61,6 +72,33 @@ struct FirebaseChatService: RemoteChatService {
           }
           let messages = snapshot.documents.compactMap { try? $0.data(as: ChatMessageModel.self) }
           continuation.yield(messages)
+        }
+      onListenerConfigured(listener)
+      continuation.onTermination = { _ in
+        listener.remove()
+      }
+    }
+  }
+
+  func streamAllChats(
+    userId: String,
+    onListenerConfigured: (any ListenerRegistration) -> Void
+  ) -> AsyncThrowingStream<[ChatModel], any Error> {
+    AsyncThrowingStream { continuation in
+      let listener = collection
+        .whereField(ChatModel.CodingKeys.userId.rawValue, isEqualTo: userId)
+        .order(by: ChatModel.CodingKeys.dateModified.rawValue, descending: true)
+        .addSnapshotListener { snapshot, error in
+          if let error {
+            continuation.finish(throwing: error)
+            return
+          }
+          guard let snapshot else {
+            continuation.yield([])
+            return
+          }
+          let chats = snapshot.documents.compactMap { try? $0.data(as: ChatModel.self) }
+          continuation.yield(chats)
         }
       onListenerConfigured(listener)
       continuation.onTermination = { _ in
