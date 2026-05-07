@@ -25,6 +25,10 @@ final class ChatManager {
     try await remote.createChat(chat)
   }
 
+  func deleteChat(chatId: String) async throws {
+    try await remote.deleteChat(chatId: chatId)
+  }
+
   func addMessage(_ message: ChatMessageModel, chatId: String) async throws {
     try await remote.addMessage(message, chatId: chatId)
   }

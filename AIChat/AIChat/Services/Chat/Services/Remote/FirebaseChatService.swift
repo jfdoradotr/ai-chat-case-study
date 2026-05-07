@@ -32,6 +32,16 @@ struct FirebaseChatService: RemoteChatService {
     try collection.document(chat.id).setData(from: chat, merge: true)
   }
 
+  func deleteChat(chatId: String) async throws {
+    let messagesSnapshot = try await messagesCollection(for: chatId).getDocuments()
+    let batch = Firestore.firestore().batch()
+    for doc in messagesSnapshot.documents {
+      batch.deleteDocument(doc.reference)
+    }
+    batch.deleteDocument(collection.document(chatId))
+    try await batch.commit()
+  }
+
   func addMessage(_ message: ChatMessageModel, chatId: String) async throws {
     try messagesCollection(for: chatId).document(message.id).setData(from: message, merge: true)
     try await collection.document(chatId).updateData([

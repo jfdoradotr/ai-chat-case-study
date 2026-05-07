@@ -5,6 +5,7 @@
 import SwiftUI
 
 struct ChatView: View {
+  @Environment(\.dismiss) private var dismiss
   @Environment(AvatarManager.self) private var avatarManager
   @Environment(AIManager.self) private var aiManager
   @Environment(ChatManager.self) private var chatManager
@@ -65,8 +66,8 @@ struct ChatView: View {
       Text(validationError?.localizedDescription ?? "")
     }
     .confirmationDialog("What would you like to do?", isPresented: $showSettings) {
-      Button("Report User/Chat", role: .destructive, action: onReportButtonTapped)
-      Button("Delete Chat", role: .destructive, action: onReportButtonTapped)
+      Button("View Avatar Profile", action: onAvatarImagePressed)
+      Button("Delete Chat", role: .destructive, action: onDeleteChatPressed)
       Button("Cancel", role: .cancel, action: {})
     } message: {
       Text("What would you like to do?")
@@ -266,7 +267,20 @@ struct ChatView: View {
     showSettings = true
   }
 
-  private func onReportButtonTapped() {}
+  private func onDeleteChatPressed() {
+    guard let chat else {
+      dismiss()
+      return
+    }
+    Task {
+      do {
+        try await chatManager.deleteChat(chatId: chat.id)
+        dismiss()
+      } catch {
+        errorMessage = "Failed to delete chat: \(error.localizedDescription)"
+      }
+    }
+  }
 
   private func onAvatarImagePressed() {
     showProfileModal = true
