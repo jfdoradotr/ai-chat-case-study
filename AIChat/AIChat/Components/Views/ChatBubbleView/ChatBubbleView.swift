@@ -10,6 +10,7 @@ struct ChatBubbleView: View {
   var backgroundColor: Color = .gray
   var showImage: Bool = true
   var imageURL: URL?
+  var timestamp: String?
   var onImagePressed: (() -> Void)?
 
   private let offset: CGFloat = 14
@@ -32,13 +33,20 @@ struct ChatBubbleView: View {
         .clipShape(.circle)
         .offset(y: offset)
       }
-      Text(text)
-        .font(.body)
-        .foregroundStyle(textColor)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(backgroundColor)
-        .clipShape(.rect(cornerRadius: 16))
+      VStack(alignment: .trailing, spacing: 2) {
+        Text(text)
+          .font(.body)
+          .foregroundStyle(textColor)
+        if let timestamp {
+          Text(timestamp)
+            .font(.caption2)
+            .foregroundStyle(textColor.opacity(0.6))
+        }
+      }
+      .padding(.horizontal, 16)
+      .padding(.vertical, 10)
+      .background(backgroundColor)
+      .clipShape(.rect(cornerRadius: 16))
     }
     .padding(.bottom, showImage ? offset : 0)
   }

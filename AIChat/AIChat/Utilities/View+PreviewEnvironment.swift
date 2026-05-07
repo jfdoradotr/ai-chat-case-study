@@ -21,5 +21,6 @@ extension View {
       .environment(UserManager(services: MockUserServices(user: user)))
       .environment(AvatarManager(services: avatarServices))
       .environment(AIManager(service: MockAIService()))
+      .environment(ChatManager(services: MockChatServices()))
   }
 }

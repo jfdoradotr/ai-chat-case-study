@@ -6,8 +6,10 @@ import SwiftUI
 
 struct ChatsView: View {
   @Environment(AvatarManager.self) private var avatarManager
+  @Environment(ChatManager.self) private var chatManager
+  @Environment(UserManager.self) private var userManager
 
-  @State private var chats: [ChatModel] = .preview
+  @State private var chats: [ChatModel] = []
   @State private var recentAvatars: [AvatarModel] = []
 
   var body: some View {
@@ -25,6 +27,9 @@ struct ChatsView: View {
     .task {
       await loadRecentAvatars()
     }
+    .task(id: userManager.currentUser?.userId) {
+      await listenToChats()
+    }
   }
 
   private func loadRecentAvatars() async {
@@ -32,6 +37,17 @@ struct ChatsView: View {
       recentAvatars = try await avatarManager.getRecentAvatars()
     } catch {
       print("Failed to load recent avatars: \(error)")
+    }
+  }
+
+  private func listenToChats() async {
+    guard let userId = userManager.currentUser?.userId else { return }
+    do {
+      for try await updated in chatManager.streamAllChats(userId: userId) {
+        chats = updated
+      }
+    } catch {
+      print("Failed to stream chats: \(error)")
     }
   }
 
@@ -78,15 +94,12 @@ struct ChatsView: View {
         ForEach(chats) { chat in
           NavigationLink(value: chat.avatarId) {
             ChatRowCellViewBuilder(
-              currentUserId: nil, // FIXME: Add current user id
               chat: chat,
               getAvatar: {
-                try? await Task.sleep(for: .seconds(1))
-                return [AvatarModel].preview.randomElement()
+                try? await avatarManager.getAvatar(id: chat.avatarId)
               },
               getLastChatMessage: {
-                try? await Task.sleep(for: .seconds(1))
-                return [ChatMessageModel].preview.randomElement()
+                try? await chatManager.getLastMessage(forChatId: chat.id)
               }
             )
             .listRowSeparator(.hidden)

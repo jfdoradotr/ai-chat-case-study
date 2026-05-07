@@ -5,19 +5,26 @@
 import SwiftUI
 
 struct ChatView: View {
+  @Environment(\.dismiss) private var dismiss
   @Environment(AvatarManager.self) private var avatarManager
+  @Environment(AIManager.self) private var aiManager
+  @Environment(ChatManager.self) private var chatManager
+  @Environment(UserManager.self) private var userManager
 
-  @State private var chatMesages: [ChatMessageModel] = .preview
+  @State private var chatMesages: [ChatMessageModel] = []
+  @State private var chat: ChatModel?
   @State private var avatar: AvatarModel?
-  @State private var currentUser: UserModel? = .preview
   @State private var messageText: String = ""
   @State private var showSettings = false
   @State private var scrollPosition: String?
   @State private var validationError: TextValidationError?
   @State private var showProfileModal = false
   @State private var errorMessage: String?
+  @State private var isGenerating = false
 
   private let textValidator = TextValidator()
+
+  private var currentUser: UserModel? { userManager.currentUser }
 
   var avatarId: String = AvatarModel.preview.avatarId
 
@@ -59,8 +66,8 @@ struct ChatView: View {
       Text(validationError?.localizedDescription ?? "")
     }
     .confirmationDialog("What would you like to do?", isPresented: $showSettings) {
-      Button("Report User/Chat", role: .destructive, action: onReportButtonTapped)
-      Button("Delete Chat", role: .destructive, action: onReportButtonTapped)
+      Button("View Avatar Profile", action: onAvatarImagePressed)
+      Button("Delete Chat", role: .destructive, action: onDeleteChatPressed)
       Button("Cancel", role: .cancel, action: {})
     } message: {
       Text("What would you like to do?")
@@ -78,7 +85,13 @@ struct ChatView: View {
       Text(message)
     }
     .task {
-      await loadAvatar()
+      async let avatarTask: () = loadAvatar()
+      async let chatTask: () = loadExistingChat()
+      _ = await (avatarTask, chatTask)
+    }
+    .task(id: chat?.id) {
+      guard let chatId = chat?.id else { return }
+      await listenToMessages(chatId: chatId)
     }
   }
 
@@ -92,18 +105,51 @@ struct ChatView: View {
     }
   }
 
+  private func loadExistingChat() async {
+    guard let userId = currentUser?.userId else { return }
+    do {
+      guard let existing = try await chatManager.getChat(userId: userId, avatarId: avatarId) else {
+        return
+      }
+      self.chat = existing
+    } catch {
+      errorMessage = "Failed to load chat: \(error.localizedDescription)"
+    }
+  }
+
+  private func listenToMessages(chatId: String) async {
+    do {
+      for try await messages in chatManager.streamMessages(forChatId: chatId) {
+        self.chatMesages = messages
+      }
+    } catch {
+      errorMessage = "Lost connection to chat: \(error.localizedDescription)"
+    }
+  }
+
   private var scrollViewSection: some View {
     ScrollView {
       LazyVStack(spacing: 24) {
-        ForEach(chatMesages) { message in
-          let isCurrentUser = message.authorId == currentUser?.userId
-          ChatBubbleViewBuilder(
-            message: message,
-            isCurrentUser: isCurrentUser,
-            imageURL: avatar?.imageURL,
-            onImagePressed: onAvatarImagePressed
-          )
-          .id(message.id)
+        ForEach(groupedMessages, id: \.day) { group in
+          ChatDayHeaderView(date: group.day)
+            .padding(.top, 8)
+          ForEach(group.messages) { message in
+            let isCurrentUser = message.authorId == currentUser?.userId
+            ChatBubbleViewBuilder(
+              message: message,
+              isCurrentUser: isCurrentUser,
+              currentUserColor: currentUser?.profileColor ?? .accent,
+              imageURL: avatar?.imageURL,
+              onImagePressed: onAvatarImagePressed
+            )
+            .id(message.id)
+          }
+        }
+
+        if isGenerating {
+          TypingIndicatorView(imageURL: avatar?.imageURL)
+            .id("typing-indicator")
+            .transition(.opacity)
         }
       }
       .scrollTargetLayout()
@@ -114,6 +160,22 @@ struct ChatView: View {
     .scrollPosition(id: $scrollPosition, anchor: .center)
     .animation(.default, value: chatMesages.count)
     .animation(.default, value: scrollPosition)
+    .animation(.default, value: isGenerating)
+  }
+
+  private var groupedMessages: [(day: Date, messages: [ChatMessageModel])] {
+    let calendar = Calendar.current
+    var groups: [(day: Date, messages: [ChatMessageModel])] = []
+    for message in chatMesages {
+      let date = message.dateCreated ?? .now
+      let day = calendar.startOfDay(for: date)
+      if let last = groups.last, calendar.isDate(last.day, inSameDayAs: day) {
+        groups[groups.count - 1].messages.append(message)
+      } else {
+        groups.append((day: day, messages: [message]))
+      }
+    }
+    return groups
   }
 
   private var textFieldSection: some View {
@@ -127,7 +189,9 @@ struct ChatView: View {
           Label("Send Message", systemImage: "arrow.up.circle.fill")
             .labelStyle(.iconOnly)
             .font(.largeTitle)
-        }.padding(.trailing, 4),
+        }
+        .padding(.trailing, 4)
+        .disabled(isGenerating),
         alignment: .trailing
       )
       .background(
@@ -152,24 +216,90 @@ struct ChatView: View {
       validationError = error
       return
     } catch { return }
-    let message = ChatMessageModel(
-      id: UUID().uuidString,
-      chatId: UUID().uuidString,
-      authorId: currentUser.userId,
-      content: content,
-      seenByIds: [],
-      dateCreated: .now
-    )
-    chatMesages.append(message)
-    scrollPosition = message.id
+
     messageText = ""
+    Task {
+      await sendMessage(content: content, by: currentUser)
+    }
+  }
+
+  private func sendMessage(content: String, by currentUser: UserModel) async {
+    isGenerating = true
+    defer { isGenerating = false }
+
+    do {
+      let chat = try await getOrCreateChat(userId: currentUser.userId)
+      let message = ChatMessageModel.newUserMessage(
+        chatId: chat.id,
+        userId: currentUser.userId,
+        content: content
+      )
+      chatMesages.append(message)
+      scrollPosition = message.id
+      try await chatManager.addMessage(message, chatId: chat.id)
+      await generateAvatarResponse(chatId: chat.id)
+    } catch {
+      errorMessage = "Failed to send: \(error.localizedDescription)"
+    }
+  }
+
+  private func getOrCreateChat(userId: String) async throws -> ChatModel {
+    if let chat { return chat }
+    let new = ChatModel.new(userId: userId, avatarId: avatarId)
+    try await chatManager.createChat(new)
+    self.chat = new
+    return new
+  }
+
+  private func generateAvatarResponse(chatId: String) async {
+    guard let avatar else { return }
+    let prompt = buildAIMessages(avatar: avatar)
+    do {
+      let reply = try await aiManager.generateText(messages: prompt)
+      let response = ChatMessageModel.newAIMessage(
+        chatId: chatId,
+        avatarId: avatar.avatarId,
+        content: reply
+      )
+      chatMesages.append(response)
+      scrollPosition = response.id
+      try? await chatManager.addMessage(response, chatId: chatId)
+    } catch {
+      errorMessage = "Failed to generate response: \(error.localizedDescription)"
+    }
+  }
+
+  private func buildAIMessages(avatar: AvatarModel) -> [AIChatMessage] {
+    let personaName = avatar.name ?? "an AI avatar"
+    let persona = "You are \(personaName). \(avatar.description). Stay in character and keep replies concise and conversational."
+
+    var messages: [AIChatMessage] = [.init(role: .system, content: persona)]
+    for chat in chatMesages {
+      guard let content = chat.content else { continue }
+      let role: AIChatMessage.Role = (chat.authorId == currentUser?.userId) ? .user : .assistant
+      messages.append(.init(role: role, content: content))
+    }
+    return messages
   }
 
   private func onSettingsButtonTapped() {
     showSettings = true
   }
 
-  private func onReportButtonTapped() {}
+  private func onDeleteChatPressed() {
+    guard let chat else {
+      dismiss()
+      return
+    }
+    Task {
+      do {
+        try await chatManager.deleteChat(chatId: chat.id)
+        dismiss()
+      } catch {
+        errorMessage = "Failed to delete chat: \(error.localizedDescription)"
+      }
+    }
+  }
 
   private func onAvatarImagePressed() {
     showProfileModal = true

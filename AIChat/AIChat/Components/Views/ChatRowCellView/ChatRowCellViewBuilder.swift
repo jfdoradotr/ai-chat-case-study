@@ -10,7 +10,6 @@ struct ChatRowCellViewBuilder: View {
   @State private var didLoadAvatar = false
   @State private var didLoadChatMessage = false
 
-  var currentUserId: String? = ""
   var chat: ChatModel = .preview
   var getAvatar: () async -> AvatarModel?
   var getLastChatMessage: () async -> ChatMessageModel?
@@ -39,7 +38,7 @@ struct ChatRowCellViewBuilder: View {
       imageURL: avatar?.imageURL,
       headline: isLoading ? "xxxx xxxx" : avatar?.name,
       subheadline: subheadline,
-      hasNewChat: isLoading ? false : hasNewChat
+      hasNewChat: false
     )
     .redacted(reason: isLoading ? .placeholder : [])
     .task {
@@ -50,11 +49,6 @@ struct ChatRowCellViewBuilder: View {
       lastChatMessage = await getLastChatMessage()
       didLoadChatMessage = true
     }
-  }
-
-  private var hasNewChat: Bool {
-    guard let lastChatMessage, let currentUserId else { return false }
-    return lastChatMessage.hasBeenSeenByCurrentUser(userId: currentUserId)
   }
 }
 
