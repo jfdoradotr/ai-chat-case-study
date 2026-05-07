@@ -6,6 +6,20 @@ import SwiftUI
 import FirebaseCore
 import GoogleSignIn
 
+enum BuildConfiguration {
+  case mock, dev, prod
+
+  static var current: BuildConfiguration {
+    #if MOCK
+    return .mock
+    #elseif DEV
+    return .dev
+    #else
+    return .prod
+    #endif
+  }
+}
+
 class AppDelegate: NSObject, UIApplicationDelegate {
   var dependencies: Dependencies! // swiftlint:disable:this implicitly_unwrapped_optional
 
@@ -16,7 +30,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
   ) -> Bool {
     FirebaseApp.configure()
 
-    dependencies = Dependencies()
+    dependencies = Dependencies(config: .current)
 
     if let clientID = FirebaseApp.app()?.options.clientID {
       GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
@@ -53,25 +67,26 @@ struct Dependencies {
   let avatarManager: AvatarManager
   let chatManager: ChatManager
 
-  init() {
-    #if MOCK
-    authManager = AuthManager(service: MockAuthService())
-    userManager = UserManager(services: MockUserServices())
-    aiManager = AIManager(service: MockAIService())
-    avatarManager = AvatarManager(services: MockAvatarServices())
-    chatManager = ChatManager(services: MockChatServices())
-    #elseif DEV
-    authManager = AuthManager(service: FirebaseAuthService())
-    userManager = UserManager(services: ProductionUserServices())
-    aiManager = AIManager(service: OpenAIService())
-    avatarManager = AvatarManager(services: ProductionAvatarServices())
-    chatManager = ChatManager(services: ProductionChatServices())
-    #else
-    authManager = AuthManager(service: FirebaseAuthService())
-    userManager = UserManager(services: ProductionUserServices())
-    aiManager = AIManager(service: OpenAIService())
-    avatarManager = AvatarManager(services: ProductionAvatarServices())
-    chatManager = ChatManager(services: ProductionChatServices())
-    #endif
+  init(config: BuildConfiguration) {
+    switch config {
+    case .mock:
+      authManager = AuthManager(service: MockAuthService())
+      userManager = UserManager(services: MockUserServices())
+      aiManager = AIManager(service: MockAIService())
+      avatarManager = AvatarManager(services: MockAvatarServices())
+      chatManager = ChatManager(services: MockChatServices())
+    case .dev:
+      authManager = AuthManager(service: FirebaseAuthService())
+      userManager = UserManager(services: ProductionUserServices())
+      aiManager = AIManager(service: OpenAIService())
+      avatarManager = AvatarManager(services: ProductionAvatarServices())
+      chatManager = ChatManager(services: ProductionChatServices())
+    case .prod:
+      authManager = AuthManager(service: FirebaseAuthService())
+      userManager = UserManager(services: ProductionUserServices())
+      aiManager = AIManager(service: OpenAIService())
+      avatarManager = AvatarManager(services: ProductionAvatarServices())
+      chatManager = ChatManager(services: ProductionChatServices())
+    }
   }
 }
