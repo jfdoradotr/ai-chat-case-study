@@ -94,7 +94,6 @@ struct ChatsView: View {
         ForEach(chats) { chat in
           NavigationLink(value: chat.avatarId) {
             ChatRowCellViewBuilder(
-              currentUserId: userManager.currentUser?.userId,
               chat: chat,
               getAvatar: {
                 try? await avatarManager.getAvatar(id: chat.avatarId)

@@ -9,7 +9,6 @@ struct ChatMessageModel: Identifiable, Codable {
   let chatId: String
   let authorId: String?
   let content: String?
-  let seenByIds: [String]
   let dateCreated: Date?
 
   enum CodingKeys: String, CodingKey {
@@ -17,7 +16,6 @@ struct ChatMessageModel: Identifiable, Codable {
     case chatId = "chat_id"
     case authorId = "author_id"
     case content
-    case seenByIds = "seen_by_ids"
     case dateCreated = "date_created"
   }
 
@@ -26,20 +24,13 @@ struct ChatMessageModel: Identifiable, Codable {
     chatId: String,
     authorId: String? = nil,
     content: String? = nil,
-    seenByIds: [String] = [],
     dateCreated: Date? = nil
   ) {
     self.id = id
     self.chatId = chatId
     self.authorId = authorId
     self.content = content
-    self.seenByIds = seenByIds
     self.dateCreated = dateCreated
-  }
-
-  func hasBeenSeenByCurrentUser(userId: String) -> Bool {
-    guard seenByIds.isEmpty else { return false }
-    return seenByIds.contains(userId)
   }
 
   static func newUserMessage(chatId: String, userId: String, content: String) -> Self {
@@ -48,7 +39,6 @@ struct ChatMessageModel: Identifiable, Codable {
       chatId: chatId,
       authorId: userId,
       content: content,
-      seenByIds: [],
       dateCreated: .now
     )
   }
@@ -59,7 +49,6 @@ struct ChatMessageModel: Identifiable, Codable {
       chatId: chatId,
       authorId: avatarId,
       content: content,
-      seenByIds: [],
       dateCreated: .now
     )
   }
@@ -80,7 +69,6 @@ extension [ChatMessageModel] {
         chatId: "chat_001",
         authorId: "user_001",
         content: "Hey! How are you doing today?",
-        seenByIds: ["user_001", "user_002"],
         dateCreated: now.adding(hours: -3)
       ),
       ChatMessageModel(
@@ -88,7 +76,6 @@ extension [ChatMessageModel] {
         chatId: "chat_001",
         authorId: "user_002",
         content: "I'm great, thanks for asking! Just working on some SwiftUI stuff.",
-        seenByIds: ["user_001", "user_002"],
         dateCreated: now.adding(hours: -2, minutes: -45)
       ),
       ChatMessageModel(
@@ -96,7 +83,6 @@ extension [ChatMessageModel] {
         chatId: "chat_001",
         authorId: "user_001",
         content: "That sounds cool! What are you building?",
-        seenByIds: ["user_002"],
         dateCreated: now.adding(hours: -2)
       ),
       ChatMessageModel(
@@ -104,7 +90,6 @@ extension [ChatMessageModel] {
         chatId: "chat_001",
         authorId: "user_002",
         content: "An AI chat app with custom avatars. It's been a fun challenge!",
-        seenByIds: ["user_001"],
         dateCreated: now.adding(minutes: -30)
       )
     ]

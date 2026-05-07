@@ -18,6 +18,7 @@ struct ChatBubbleViewBuilder: View {
       backgroundColor: isCurrentUser ? currentUserColor : Color(uiColor: .systemGray6),
       showImage: !isCurrentUser,
       imageURL: imageURL,
+      timestamp: message.dateCreated?.chatHourLabel(),
       onImagePressed: onImagePressed
     )
     .frame(maxWidth: .infinity, alignment: isCurrentUser ? .trailing : .leading)
