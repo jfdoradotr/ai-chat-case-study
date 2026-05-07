@@ -35,6 +35,10 @@ struct MockChatService: RemoteChatService {
     try await simulate()
   }
 
+  func deleteChat(chatId: String) async throws {
+    try await simulate()
+  }
+
   func addMessage(_ message: ChatMessageModel, chatId: String) async throws {
     try await simulate()
   }
