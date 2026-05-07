@@ -130,16 +130,20 @@ struct ChatView: View {
   private var scrollViewSection: some View {
     ScrollView {
       LazyVStack(spacing: 24) {
-        ForEach(chatMesages) { message in
-          let isCurrentUser = message.authorId == currentUser?.userId
-          ChatBubbleViewBuilder(
-            message: message,
-            isCurrentUser: isCurrentUser,
-            currentUserColor: currentUser?.profileColor ?? .accent,
-            imageURL: avatar?.imageURL,
-            onImagePressed: onAvatarImagePressed
-          )
-          .id(message.id)
+        ForEach(groupedMessages, id: \.day) { group in
+          ChatDayHeaderView(date: group.day)
+            .padding(.top, 8)
+          ForEach(group.messages) { message in
+            let isCurrentUser = message.authorId == currentUser?.userId
+            ChatBubbleViewBuilder(
+              message: message,
+              isCurrentUser: isCurrentUser,
+              currentUserColor: currentUser?.profileColor ?? .accent,
+              imageURL: avatar?.imageURL,
+              onImagePressed: onAvatarImagePressed
+            )
+            .id(message.id)
+          }
         }
 
         if isGenerating {
@@ -157,6 +161,21 @@ struct ChatView: View {
     .animation(.default, value: chatMesages.count)
     .animation(.default, value: scrollPosition)
     .animation(.default, value: isGenerating)
+  }
+
+  private var groupedMessages: [(day: Date, messages: [ChatMessageModel])] {
+    let calendar = Calendar.current
+    var groups: [(day: Date, messages: [ChatMessageModel])] = []
+    for message in chatMesages {
+      let date = message.dateCreated ?? .now
+      let day = calendar.startOfDay(for: date)
+      if let last = groups.last, calendar.isDate(last.day, inSameDayAs: day) {
+        groups[groups.count - 1].messages.append(message)
+      } else {
+        groups.append((day: day, messages: [message]))
+      }
+    }
+    return groups
   }
 
   private var textFieldSection: some View {
