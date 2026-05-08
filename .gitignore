@@ -133,7 +133,7 @@ iOSInjectionProject/
 # End of https://www.toptal.com/developers/gitignore/api/swift,xcode,macos
 
 # Firebase
-GoogleService-Info.plist
+GoogleService-Info*.plist
 
 # Secrets                                                                                                                 
 AIChat/AIChat/Utilities/Keys.swift
