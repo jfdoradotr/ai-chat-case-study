@@ -26,6 +26,14 @@ enum BuildConfiguration {
     case .prod: return "GoogleService-Info-Prod"
     }
   }
+
+  var displayName: String {
+    switch self {
+    case .mock: return "Mock"
+    case .dev: return "Development"
+    case .prod: return "Production"
+    }
+  }
 }
 
 class AppDelegate: NSObject, UIApplicationDelegate {

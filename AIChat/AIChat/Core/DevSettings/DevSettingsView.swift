@@ -11,6 +11,7 @@ struct DevSettingsView: View {
 
   var body: some View {
     List {
+      environmentSection
       userSection
       profileSection
       deviceSection
@@ -21,6 +22,12 @@ struct DevSettingsView: View {
       ToolbarItem(placement: .confirmationAction) {
         Button("Done") { dismiss() }
       }
+    }
+  }
+
+  @ViewBuilder private var environmentSection: some View {
+    Section("Environment") {
+      LabeledContent("Configuration", value: BuildConfiguration.current.displayName)
     }
   }
 

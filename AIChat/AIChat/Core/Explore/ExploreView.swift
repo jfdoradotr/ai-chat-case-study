@@ -42,7 +42,7 @@ struct ExploreView: View {
     .listStyle(.plain)
     .navigationTitle("Explore")
     .toolbar {
-      if BuildConfiguration.current == .dev {
+      if BuildConfiguration.current != .prod {
         ToolbarItem(placement: .topBarTrailing) {
           devToolbarButton
         }
@@ -154,7 +154,7 @@ struct ExploreView: View {
     .symbolRenderingMode(.hierarchical)
     .tint(.orange)
     .symbolEffect(.bounce, value: isDevSettingsPresented)
-    .accessibilityHint("Opens developer-only settings. Visible in DEV builds only.")
+    .accessibilityHint("Opens developer-only settings. Hidden in production builds.")
   }
 
   private var popularSection: some View {
