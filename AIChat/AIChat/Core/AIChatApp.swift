@@ -18,6 +18,14 @@ enum BuildConfiguration {
     return .prod
     #endif
   }
+
+  var firebasePlistName: String? {
+    switch self {
+    case .mock: return nil
+    case .dev: return "GoogleService-Info-Dev"
+    case .prod: return "GoogleService-Info-Prod"
+    }
+  }
 }
 
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -28,16 +36,28 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
-    FirebaseApp.configure()
+    let config = BuildConfiguration.current
+    configureFirebase(for: config)
+    dependencies = Dependencies(config: config)
+    return true
+  }
+  // swiftlint:enable discouraged_optional_collection
 
-    dependencies = Dependencies(config: .current)
+  private func configureFirebase(for config: BuildConfiguration) {
+    guard let plistName = config.firebasePlistName else { return }
+    guard
+      let path = Bundle.main.path(forResource: plistName, ofType: "plist"),
+      let options = FirebaseOptions(contentsOfFile: path)
+    else {
+      assertionFailure("Missing Firebase plist: \(plistName).plist")
+      return
+    }
+    FirebaseApp.configure(options: options)
 
     if let clientID = FirebaseApp.app()?.options.clientID {
       GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
     }
-    return true
   }
-  // swiftlint:enable discouraged_optional_collection
 }
 
 @main
@@ -75,12 +95,14 @@ struct Dependencies {
       aiManager = AIManager(service: MockAIService())
       avatarManager = AvatarManager(services: MockAvatarServices())
       chatManager = ChatManager(services: MockChatServices())
+
     case .dev:
       authManager = AuthManager(service: FirebaseAuthService())
       userManager = UserManager(services: ProductionUserServices())
       aiManager = AIManager(service: OpenAIService())
       avatarManager = AvatarManager(services: ProductionAvatarServices())
       chatManager = ChatManager(services: ProductionChatServices())
+
     case .prod:
       authManager = AuthManager(service: FirebaseAuthService())
       userManager = UserManager(services: ProductionUserServices())
