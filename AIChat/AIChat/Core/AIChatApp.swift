@@ -9,7 +9,7 @@ import GoogleSignIn
 enum BuildConfiguration {
   case mock, dev, prod
 
-  static var current: BuildConfiguration {
+  static var current: Self {
     #if MOCK
     return .mock
     #elseif DEV
