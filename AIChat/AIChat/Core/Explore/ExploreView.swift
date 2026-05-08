@@ -11,6 +11,7 @@ struct ExploreView: View {
   @State private var popularAvatars: [AvatarModel] = []
   @State private var isLoading = false
   @State private var loadError: String?
+  @State private var isDevSettingsPresented = false
 
   let categories: [AvatarModel.Character] = AvatarModel.Character.allCases
 
@@ -40,6 +41,18 @@ struct ExploreView: View {
     }
     .listStyle(.plain)
     .navigationTitle("Explore")
+    .toolbar {
+      if BuildConfiguration.current == .dev {
+        ToolbarItem(placement: .topBarTrailing) {
+          devToolbarButton
+        }
+      }
+    }
+    .sheet(isPresented: $isDevSettingsPresented) {
+      NavigationStack {
+        DevSettingsView()
+      }
+    }
     .task {
       await loadAll()
     }
@@ -130,6 +143,18 @@ struct ExploreView: View {
     } header: {
       Text("Categories")
     }
+  }
+
+  private var devToolbarButton: some View {
+    Button {
+      isDevSettingsPresented = true
+    } label: {
+      Label("Developer Settings", systemImage: "hammer.fill")
+    }
+    .symbolRenderingMode(.hierarchical)
+    .tint(.orange)
+    .symbolEffect(.bounce, value: isDevSettingsPresented)
+    .accessibilityHint("Opens developer-only settings. Visible in DEV builds only.")
   }
 
   private var popularSection: some View {
