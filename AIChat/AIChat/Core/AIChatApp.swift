@@ -100,8 +100,8 @@ struct Dependencies {
   init(config: BuildConfiguration) {
     switch config {
     case .mock:
-      authManager = AuthManager(service: MockAuthService())
-      userManager = UserManager(services: MockUserServices())
+      authManager = AuthManager(service: MockAuthService(user: .preview))
+      userManager = UserManager(services: MockUserServices(user: .preview))
       aiManager = AIManager(service: MockAIService())
       avatarManager = AvatarManager(services: MockAvatarServices())
       chatManager = ChatManager(services: MockChatServices())
