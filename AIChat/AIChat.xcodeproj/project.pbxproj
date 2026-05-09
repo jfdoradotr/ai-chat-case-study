@@ -10,6 +10,7 @@
 		A904DA172FA4852300C1CF63 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = A904DA162FA4852300C1CF63 /* FirebaseFirestore */; };
 		A904DB512FA5384800C1CF63 /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = A904DB502FA5384800C1CF63 /* OpenAI */; };
 		A904DDE72FA7E9B500C1CF63 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = A904DDE62FA7E9B500C1CF63 /* Storage */; };
+		A904E2392FAEC1F600C1CF63 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = A904E2382FAEC1F600C1CF63 /* FirebaseAnalytics */; };
 		A93136302F92EA35002B0B82 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = A931362F2F92EA35002B0B82 /* SDWebImageSwiftUI */; };
 		A9A4D3322FA3057F005A8FF1 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A9A4D3312FA3057F005A8FF1 /* FirebaseAuth */; };
 		A9A4D4292FA3BB50005A8FF1 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = A9A4D4282FA3BB50005A8FF1 /* GoogleSignIn */; };
@@ -45,6 +46,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A904E2392FAEC1F600C1CF63 /* FirebaseAnalytics in Frameworks */,
 				A904DDE72FA7E9B500C1CF63 /* Storage in Frameworks */,
 				A904DB512FA5384800C1CF63 /* OpenAI in Frameworks */,
 				A93136302F92EA35002B0B82 /* SDWebImageSwiftUI in Frameworks */,
@@ -108,6 +110,7 @@
 				A904DA162FA4852300C1CF63 /* FirebaseFirestore */,
 				A904DB502FA5384800C1CF63 /* OpenAI */,
 				A904DDE62FA7E9B500C1CF63 /* Storage */,
+				A904E2382FAEC1F600C1CF63 /* FirebaseAnalytics */,
 			);
 			productName = AIChat;
 			productReference = A9C338282F91B91100A16E17 /* AIChat.app */;
@@ -598,6 +601,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A904DDE52FA7E9B500C1CF63 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Storage;
+		};
+		A904E2382FAEC1F600C1CF63 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A9A4D3302FA3057F005A8FF1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
 		};
 		A926E9E12F91C22A00509F3F /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
