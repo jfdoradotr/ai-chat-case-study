@@ -12,6 +12,7 @@
 		A904DDE72FA7E9B500C1CF63 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = A904DDE62FA7E9B500C1CF63 /* Storage */; };
 		A904E2392FAEC1F600C1CF63 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = A904E2382FAEC1F600C1CF63 /* FirebaseAnalytics */; };
 		A904E4022FAEC68A00C1CF63 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = A904E4012FAEC68A00C1CF63 /* Mixpanel */; };
+		A904E4EC2FAF1EEE00C1CF63 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = A904E4EB2FAF1EEE00C1CF63 /* FirebaseCrashlytics */; };
 		A93136302F92EA35002B0B82 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = A931362F2F92EA35002B0B82 /* SDWebImageSwiftUI */; };
 		A9A4D3322FA3057F005A8FF1 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A9A4D3312FA3057F005A8FF1 /* FirebaseAuth */; };
 		A9A4D4292FA3BB50005A8FF1 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = A9A4D4282FA3BB50005A8FF1 /* GoogleSignIn */; };
@@ -53,6 +54,7 @@
 				A93136302F92EA35002B0B82 /* SDWebImageSwiftUI in Frameworks */,
 				A904DA172FA4852300C1CF63 /* FirebaseFirestore in Frameworks */,
 				A9A4D3322FA3057F005A8FF1 /* FirebaseAuth in Frameworks */,
+				A904E4EC2FAF1EEE00C1CF63 /* FirebaseCrashlytics in Frameworks */,
 				A904E4022FAEC68A00C1CF63 /* Mixpanel in Frameworks */,
 				A9A4D4292FA3BB50005A8FF1 /* GoogleSignIn in Frameworks */,
 			);
@@ -95,6 +97,7 @@
 				A9C338242F91B91100A16E17 /* Sources */,
 				A9C338252F91B91100A16E17 /* Frameworks */,
 				A9C338262F91B91100A16E17 /* Resources */,
+				A904E4ED2FAF201800C1CF63 /* dSYM Upload Script */,
 			);
 			buildRules = (
 			);
@@ -114,6 +117,7 @@
 				A904DDE62FA7E9B500C1CF63 /* Storage */,
 				A904E2382FAEC1F600C1CF63 /* FirebaseAnalytics */,
 				A904E4012FAEC68A00C1CF63 /* Mixpanel */,
+				A904E4EB2FAF1EEE00C1CF63 /* FirebaseCrashlytics */,
 			);
 			productName = AIChat;
 			productReference = A9C338282F91B91100A16E17 /* AIChat.app */;
@@ -171,6 +175,33 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A904E4ED2FAF201800C1CF63 /* dSYM Upload Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
+				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+				"$(PROJECT_DIR)/AIChat/GoogleServicePlists/GoogleService-Info-Dev.plist",
+				"$(PROJECT_DIR)/AIChat/GoogleServicePlists/GoogleService-Info-Prod.plist",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}.debug.dylib",
+			);
+			name = "dSYM Upload Script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "case \"${CONFIGURATION}\" in \n  Debug)   PLIST_NAME=\"GoogleService-Info-Dev.plist\"  ;;\n  Release) PLIST_NAME=\"GoogleService-Info-Prod.plist\" ;;\n  Mock)    echo \"Skipping Crashlytics dSYM upload for Mock\"; exit 0 ;;\n  *)       echo \"Unknown configuration: ${CONFIGURATION}\"; exit 0 ;;\nesac                                                                                                                        \n\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\" \\\n-gsp \"${PROJECT_DIR}/AIChat/GoogleServicePlists/${PLIST_NAME}\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A9C338242F91B91100A16E17 /* Sources */ = {
@@ -429,6 +460,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
@@ -623,6 +655,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A904E4002FAEC68A00C1CF63 /* XCRemoteSwiftPackageReference "mixpanel-swift" */;
 			productName = Mixpanel;
+		};
+		A904E4EB2FAF1EEE00C1CF63 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A9A4D3302FA3057F005A8FF1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
 		};
 		A926E9E12F91C22A00509F3F /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
