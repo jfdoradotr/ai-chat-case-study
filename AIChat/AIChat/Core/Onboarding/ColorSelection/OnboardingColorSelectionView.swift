@@ -19,6 +19,7 @@ struct OnboardingColorSelectionView: View {
       bottomBar
     }
     .animation(.bouncy, value: selectedColor)
+    .trackScreen(ScreenEvent.onboardingColorSelection)
   }
 
   private var colorGrid: some View {

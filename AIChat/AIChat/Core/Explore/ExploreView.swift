@@ -62,6 +62,7 @@ struct ExploreView: View {
     .navigationDestination(for: AvatarModel.Character.self) { category in
       CategoryListView(category: category, imageURL: Constants.randomImageURL)
     }
+    .trackScreen(ScreenEvent.explore)
   }
 
   private func loadAll() async {

@@ -41,6 +41,7 @@ struct WelcomeView: View {
       CreateAccountView(presentationState: .signIn)
         .presentationDetents([.medium])
     }
+    .trackScreen(ScreenEvent.welcome)
   }
 
   private func onSignInPressed() {
