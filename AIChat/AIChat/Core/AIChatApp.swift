@@ -5,6 +5,7 @@
 import SwiftUI
 import FirebaseCore
 import GoogleSignIn
+import Mixpanel
 
 enum BuildConfiguration {
   case mock, dev, prod
@@ -27,6 +28,14 @@ enum BuildConfiguration {
     }
   }
 
+  var mixpanelToken: String? {
+    switch self {
+    case .mock: return nil
+    case .dev: return Keys.Mixpanel.devToken
+    case .prod: return Keys.Mixpanel.prodToken
+    }
+  }
+
   var displayName: String {
     switch self {
     case .mock: return "Mock"
@@ -46,10 +55,20 @@ class AppDelegate: NSObject, UIApplicationDelegate {
   ) -> Bool {
     let config = BuildConfiguration.current
     configureFirebase(for: config)
+    configureMixpanel(for: config)
     dependencies = Dependencies(config: config)
     return true
   }
   // swiftlint:enable discouraged_optional_collection
+
+  private func configureMixpanel(for config: BuildConfiguration) {
+    guard let token = config.mixpanelToken else { return }
+    Mixpanel.initialize(token: token, trackAutomaticEvents: false)
+    if config == .dev {
+      Mixpanel.mainInstance().flushInterval = 1
+      Mixpanel.mainInstance().loggingEnabled = true
+    }
+  }
 
   private func configureFirebase(for config: BuildConfiguration) {
     guard let plistName = config.firebasePlistName else { return }
@@ -113,7 +132,7 @@ struct Dependencies {
       aiManager = AIManager(service: OpenAIService())
       avatarManager = AvatarManager(services: ProductionAvatarServices())
       chatManager = ChatManager(services: ProductionChatServices())
-      logManager = LogManager(services: [ConsoleLogService(), FirebaseLogService()])
+      logManager = LogManager(services: [ConsoleLogService(), FirebaseLogService(), MixpanelLogService()])
 
     case .prod:
       authManager = AuthManager(service: FirebaseAuthService())
@@ -121,7 +140,7 @@ struct Dependencies {
       aiManager = AIManager(service: OpenAIService())
       avatarManager = AvatarManager(services: ProductionAvatarServices())
       chatManager = ChatManager(services: ProductionChatServices())
-      logManager = LogManager(services: [FirebaseLogService()])
+      logManager = LogManager(services: [FirebaseLogService(), MixpanelLogService()])
     }
   }
 }
