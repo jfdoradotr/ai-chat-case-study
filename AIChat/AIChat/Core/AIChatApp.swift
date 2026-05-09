@@ -81,6 +81,7 @@ struct AIChatApp: App {
         .environment(delegate.dependencies.aiManager)
         .environment(delegate.dependencies.avatarManager)
         .environment(delegate.dependencies.chatManager)
+        .environment(delegate.dependencies.logManager)
         .onOpenURL { url in
           _ = GIDSignIn.sharedInstance.handle(url)
         }
@@ -94,15 +95,17 @@ struct Dependencies {
   let aiManager: AIManager
   let avatarManager: AvatarManager
   let chatManager: ChatManager
+  let logManager: LogManager
 
   init(config: BuildConfiguration) {
     switch config {
     case .mock:
-      authManager = AuthManager(service: MockAuthService())
-      userManager = UserManager(services: MockUserServices())
+      authManager = AuthManager(service: MockAuthService(user: .preview))
+      userManager = UserManager(services: MockUserServices(user: .preview))
       aiManager = AIManager(service: MockAIService())
       avatarManager = AvatarManager(services: MockAvatarServices())
       chatManager = ChatManager(services: MockChatServices())
+      logManager = LogManager(services: [ConsoleLogService()])
 
     case .dev:
       authManager = AuthManager(service: FirebaseAuthService())
@@ -110,6 +113,7 @@ struct Dependencies {
       aiManager = AIManager(service: OpenAIService())
       avatarManager = AvatarManager(services: ProductionAvatarServices())
       chatManager = ChatManager(services: ProductionChatServices())
+      logManager = LogManager(services: [ConsoleLogService()])
 
     case .prod:
       authManager = AuthManager(service: FirebaseAuthService())
@@ -117,6 +121,7 @@ struct Dependencies {
       aiManager = AIManager(service: OpenAIService())
       avatarManager = AvatarManager(services: ProductionAvatarServices())
       chatManager = ChatManager(services: ProductionChatServices())
+      logManager = LogManager(services: [])
     }
   }
 }

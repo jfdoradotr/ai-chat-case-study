@@ -22,5 +22,6 @@ extension View {
       .environment(AvatarManager(services: avatarServices))
       .environment(AIManager(service: MockAIService()))
       .environment(ChatManager(services: MockChatServices()))
+      .environment(LogManager(services: [ConsoleLogService()]))
   }
 }
