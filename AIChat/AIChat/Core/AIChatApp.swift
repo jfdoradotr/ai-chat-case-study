@@ -64,6 +64,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
   private func configureMixpanel(for config: BuildConfiguration) {
     guard let token = config.mixpanelToken else { return }
     Mixpanel.initialize(token: token, trackAutomaticEvents: false)
+    if config == .dev {
+      Mixpanel.mainInstance().flushInterval = 1
+      Mixpanel.mainInstance().loggingEnabled = true
+    }
   }
 
   private func configureFirebase(for config: BuildConfiguration) {
