@@ -109,6 +109,7 @@ struct ProfileView: View {
     } message: { message in
       Text(message)
     }
+    .trackScreen(ScreenEvent.profile)
   }
 
   private func loadData() async {

@@ -93,6 +93,7 @@ struct ChatView: View {
       guard let chatId = chat?.id else { return }
       await listenToMessages(chatId: chatId)
     }
+    .trackScreen(ScreenEvent.chat)
   }
 
   private func loadAvatar() async {

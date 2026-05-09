@@ -6,6 +6,7 @@ import SwiftUI
 
 struct ExploreView: View {
   @Environment(AvatarManager.self) private var avatarManager
+  @Environment(LogManager.self) private var logManager
 
   @State private var featuredAvatars: [AvatarModel] = []
   @State private var popularAvatars: [AvatarModel] = []
@@ -62,6 +63,7 @@ struct ExploreView: View {
     .navigationDestination(for: AvatarModel.Character.self) { category in
       CategoryListView(category: category, imageURL: Constants.randomImageURL)
     }
+    .trackScreen(ScreenEvent.explore)
   }
 
   private func loadAll() async {
@@ -74,18 +76,24 @@ struct ExploreView: View {
   }
 
   private func loadFeaturedAvatars() async {
+    logManager.trackEvent(event: ExploreEvent.loadFeaturedStart)
     do {
       featuredAvatars = try await avatarManager.getFeaturedAvatars()
+      logManager.trackEvent(event: ExploreEvent.loadFeaturedSuccess(count: featuredAvatars.count))
     } catch {
       loadError = "Couldn't load avatars: \(error.localizedDescription)"
+      logManager.trackEvent(event: ExploreEvent.loadFeaturedFailure(error: error))
     }
   }
 
   private func loadPopularAvatars() async {
+    logManager.trackEvent(event: ExploreEvent.loadPopularStart)
     do {
       popularAvatars = try await avatarManager.getPopularAvatars()
+      logManager.trackEvent(event: ExploreEvent.loadPopularSuccess(count: popularAvatars.count))
     } catch {
       loadError = "Couldn't load avatars: \(error.localizedDescription)"
+      logManager.trackEvent(event: ExploreEvent.loadPopularFailure(error: error))
     }
   }
 

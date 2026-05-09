@@ -92,6 +92,7 @@ struct SettingsView: View {
     } message: { message in
       Text(message)
     }
+    .trackScreen(ScreenEvent.settings)
   }
 
   private var isAnonymousUser: Bool {

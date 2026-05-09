@@ -30,6 +30,7 @@ struct ChatsView: View {
     .task(id: userManager.currentUser?.userId) {
       await listenToChats()
     }
+    .trackScreen(ScreenEvent.chats)
   }
 
   private func loadRecentAvatars() async {

@@ -23,6 +23,7 @@ struct DevSettingsView: View {
         Button("Done") { dismiss() }
       }
     }
+    .trackScreen(ScreenEvent.devSettings)
   }
 
   @ViewBuilder private var environmentSection: some View {

@@ -31,6 +31,7 @@ struct OnboardingCompletedView: View {
       )
     }
     .padding(24)
+    .trackScreen(ScreenEvent.onboardingCompleted)
   }
 
   private func onFinishButtonPressed() {

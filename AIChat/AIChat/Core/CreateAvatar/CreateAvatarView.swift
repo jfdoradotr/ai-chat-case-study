@@ -60,6 +60,7 @@ struct CreateAvatarView: View {
         )
       }
     }
+    .trackScreen(ScreenEvent.createAvatar)
   }
 
   private func onClosePressed() {
