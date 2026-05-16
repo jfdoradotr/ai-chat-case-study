@@ -7,10 +7,10 @@ import Foundation
 enum ExploreEvent: LoggableEvent {
   case loadFeaturedStart
   case loadFeaturedSuccess(count: Int)
-  case loadFeaturedFailure(error: Error)
+  case loadFeaturedFailure(error: any Error)
   case loadPopularStart
   case loadPopularSuccess(count: Int)
-  case loadPopularFailure(error: Error)
+  case loadPopularFailure(error: any Error)
 
   var eventName: String {
     switch self {
@@ -23,12 +23,14 @@ enum ExploreEvent: LoggableEvent {
     }
   }
 
-  var parameters: [String: Any]? {
+  var parameters: [String: Any] {
     switch self {
     case .loadFeaturedStart, .loadPopularStart:
-      return nil
+      return [:]
+
     case .loadFeaturedSuccess(let count), .loadPopularSuccess(let count):
       return ["count": count, "is_empty": count == 0]
+
     case .loadFeaturedFailure(let error), .loadPopularFailure(let error):
       return ["error_type": String(describing: type(of: error)), "error": error.localizedDescription]
     }

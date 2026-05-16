@@ -36,8 +36,8 @@ struct FirebaseCrashlyticsLogService: LogService {
     Crashlytics.crashlytics().log(formatBreadcrumb(name: "screen:\(event.eventName)", parameters: event.parameters))
   }
 
-  private func formatBreadcrumb(name: String, parameters: [String: Any]?) -> String {
-    guard let parameters, !parameters.isEmpty else { return name }
+  private func formatBreadcrumb(name: String, parameters: [String: Any]) -> String {
+    guard !parameters.isEmpty else { return name }
     let pairs = parameters
       .map { "\($0.key)=\($0.value)" }
       .sorted()

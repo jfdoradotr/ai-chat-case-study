@@ -25,7 +25,7 @@ struct ConsoleLogService: LogService {
   }
 
   func deleteUserProfile() {
-    log(level: .default, emoji: "🗑️", title: "Delete User Profile", parameters: nil)
+    log(level: .default, emoji: "🗑️", title: "Delete User Profile", parameters: [:])
   }
 
   func trackEvent(event: any LoggableEvent) {
@@ -36,9 +36,9 @@ struct ConsoleLogService: LogService {
     log(level: .info, emoji: "📱", title: event.eventName, parameters: event.parameters)
   }
 
-  private func log(level: OSLogType, emoji: String, title: String, parameters: [String: Any]?) {
+  private func log(level: OSLogType, emoji: String, title: String, parameters: [String: Any]) {
     var message = "\(emoji) \(title)"
-    if let parameters, !parameters.isEmpty {
+    if !parameters.isEmpty {
       for key in parameters.keys.sorted() {
         let value = parameters[key] ?? ""
         message += "\n   \(key): \(value)"

@@ -37,5 +37,5 @@ enum ScreenEvent: LoggableEvent {
     }
   }
 
-  var parameters: [String: Any]? { nil }
+  var parameters: [String: Any] { [:] }
 }

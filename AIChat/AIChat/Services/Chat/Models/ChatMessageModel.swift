@@ -52,6 +52,18 @@ struct ChatMessageModel: Identifiable, Codable {
       dateCreated: .now
     )
   }
+
+  var eventParameters: [String: Any] {
+    var params: [String: Any] = [
+      "message_id": id,
+      "message_chat_id": chatId,
+      "message_content_length": content?.count ?? 0
+    ]
+    if let dateCreated {
+      params["message_date_created"] = dateCreated
+    }
+    return params
+  }
 }
 
 extension ChatMessageModel {
