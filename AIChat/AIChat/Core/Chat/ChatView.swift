@@ -10,6 +10,7 @@ struct ChatView: View {
   @Environment(AIManager.self) private var aiManager
   @Environment(ChatManager.self) private var chatManager
   @Environment(UserManager.self) private var userManager
+  @Environment(LogManager.self) private var logManager
 
   @State private var chatMesages: [ChatMessageModel] = []
   @State private var chat: ChatModel?
@@ -23,9 +24,7 @@ struct ChatView: View {
   @State private var isGenerating = false
 
   private let textValidator = TextValidator()
-
   private var currentUser: UserModel? { userManager.currentUser }
-
   var avatarId: String = AvatarModel.preview.avatarId
 
   var body: some View {
@@ -95,40 +94,51 @@ struct ChatView: View {
     }
     .trackScreen(ScreenEvent.chat)
   }
+}
 
-  private func loadAvatar() async {
+private extension ChatView {
+  func loadAvatar() async {
+    logManager.trackEvent(event: ChatEvent.loadAvatarStart)
     do {
       let loaded = try await avatarManager.getAvatar(id: avatarId)
       self.avatar = loaded
+      logManager.trackEvent(event: ChatEvent.loadAvatarSuccess(avatarId: loaded.avatarId))
       try? await avatarManager.addRecentAvatar(loaded)
     } catch {
       errorMessage = "Failed to load avatar: \(error.localizedDescription)"
+      logManager.trackEvent(event: ChatEvent.loadAvatarFailure(error: error))
     }
   }
 
-  private func loadExistingChat() async {
+  func loadExistingChat() async {
     guard let userId = currentUser?.userId else { return }
+    logManager.trackEvent(event: ChatEvent.loadChatStart)
     do {
       guard let existing = try await chatManager.getChat(userId: userId, avatarId: avatarId) else {
+        logManager.trackEvent(event: ChatEvent.loadChatSuccess(chat: nil))
         return
       }
       self.chat = existing
+      logManager.trackEvent(event: ChatEvent.loadChatSuccess(chat: existing))
     } catch {
       errorMessage = "Failed to load chat: \(error.localizedDescription)"
+      logManager.trackEvent(event: ChatEvent.loadChatFailure(error: error))
     }
   }
 
-  private func listenToMessages(chatId: String) async {
+  func listenToMessages(chatId: String) async {
+    logManager.trackEvent(event: ChatEvent.messagesListenStart(chatId: chatId))
     do {
       for try await messages in chatManager.streamMessages(forChatId: chatId) {
         self.chatMesages = messages
       }
     } catch {
       errorMessage = "Lost connection to chat: \(error.localizedDescription)"
+      logManager.trackEvent(event: ChatEvent.messagesListenFailure(error: error))
     }
   }
 
-  private var scrollViewSection: some View {
+  var scrollViewSection: some View {
     ScrollView {
       LazyVStack(spacing: 24) {
         ForEach(groupedMessages, id: \.day) { group in
@@ -164,7 +174,7 @@ struct ChatView: View {
     .animation(.default, value: isGenerating)
   }
 
-  private var groupedMessages: [(day: Date, messages: [ChatMessageModel])] {
+  var groupedMessages: [(day: Date, messages: [ChatMessageModel])] {
     let calendar = Calendar.current
     var groups: [(day: Date, messages: [ChatMessageModel])] = []
     for message in chatMesages {
@@ -179,7 +189,7 @@ struct ChatView: View {
     return groups
   }
 
-  private var textFieldSection: some View {
+  var textFieldSection: some View {
     TextField("Say something...", text: $messageText)
       .keyboardType(.alphabet)
       .autocorrectionDisabled()
@@ -191,8 +201,8 @@ struct ChatView: View {
             .labelStyle(.iconOnly)
             .font(.largeTitle)
         }
-        .padding(.trailing, 4)
-        .disabled(isGenerating),
+          .padding(.trailing, 4)
+          .disabled(isGenerating),
         alignment: .trailing
       )
       .background(
@@ -208,15 +218,20 @@ struct ChatView: View {
       .background(Color(.secondarySystemBackground))
   }
 
-  private func onSendButtonTapped() {
+  func onSendButtonTapped() {
+    logManager.trackEvent(event: ChatEvent.sendMessagePressed)
     guard let currentUser else { return }
     let content: String
     do {
       content = try textValidator.validate(messageText)
     } catch let error as TextValidationError {
       validationError = error
+      logManager.trackEvent(event: ChatEvent.sendMessageValidationFailure(error: error))
       return
-    } catch { return }
+    } catch {
+      logManager.trackEvent(event: ChatEvent.sendMessageValidationFailure(error: error))
+      return
+    }
 
     messageText = ""
     Task {
@@ -224,7 +239,7 @@ struct ChatView: View {
     }
   }
 
-  private func sendMessage(content: String, by currentUser: UserModel) async {
+  func sendMessage(content: String, by currentUser: UserModel) async {
     isGenerating = true
     defer { isGenerating = false }
 
@@ -235,16 +250,19 @@ struct ChatView: View {
         userId: currentUser.userId,
         content: content
       )
+      logManager.trackEvent(event: ChatEvent.sendMessageStart(chat: chat, message: message))
       chatMesages.append(message)
       scrollPosition = message.id
       try await chatManager.addMessage(message, chatId: chat.id)
-      await generateAvatarResponse(chatId: chat.id)
+      logManager.trackEvent(event: ChatEvent.sendMessageSuccess(chat: chat, message: message))
+      await generateAvatarResponse(chat: chat)
     } catch {
       errorMessage = "Failed to send: \(error.localizedDescription)"
+      logManager.trackEvent(event: ChatEvent.sendMessageFailure(error: error))
     }
   }
 
-  private func getOrCreateChat(userId: String) async throws -> ChatModel {
+  func getOrCreateChat(userId: String) async throws -> ChatModel {
     if let chat { return chat }
     let new = ChatModel.new(userId: userId, avatarId: avatarId)
     try await chatManager.createChat(new)
@@ -252,25 +270,28 @@ struct ChatView: View {
     return new
   }
 
-  private func generateAvatarResponse(chatId: String) async {
+  func generateAvatarResponse(chat: ChatModel) async {
     guard let avatar else { return }
     let prompt = buildAIMessages(avatar: avatar)
+    logManager.trackEvent(event: ChatEvent.generateResponseStart(chat: chat))
     do {
       let reply = try await aiManager.generateText(messages: prompt)
       let response = ChatMessageModel.newAIMessage(
-        chatId: chatId,
+        chatId: chat.id,
         avatarId: avatar.avatarId,
         content: reply
       )
       chatMesages.append(response)
       scrollPosition = response.id
-      try? await chatManager.addMessage(response, chatId: chatId)
+      try? await chatManager.addMessage(response, chatId: chat.id)
+      logManager.trackEvent(event: ChatEvent.generateResponseSuccess(chat: chat, message: response))
     } catch {
       errorMessage = "Failed to generate response: \(error.localizedDescription)"
+      logManager.trackEvent(event: ChatEvent.generateResponseFailure(error: error))
     }
   }
 
-  private func buildAIMessages(avatar: AvatarModel) -> [AIChatMessage] {
+  func buildAIMessages(avatar: AvatarModel) -> [AIChatMessage] {
     let personaName = avatar.name ?? "an AI avatar"
     let persona = "You are \(personaName). \(avatar.description). Stay in character and keep replies concise and conversational."
 
@@ -283,11 +304,12 @@ struct ChatView: View {
     return messages
   }
 
-  private func onSettingsButtonTapped() {
+  func onSettingsButtonTapped() {
     showSettings = true
   }
 
-  private func onDeleteChatPressed() {
+  func onDeleteChatPressed() {
+    logManager.trackEvent(event: ChatEvent.deleteChatPressed(chat: chat))
     guard let chat else {
       dismiss()
       return
@@ -295,16 +317,20 @@ struct ChatView: View {
     Task {
       do {
         try await chatManager.deleteChat(chatId: chat.id)
+        logManager.trackEvent(event: ChatEvent.deleteChatSuccess(chat: chat))
         dismiss()
       } catch {
         errorMessage = "Failed to delete chat: \(error.localizedDescription)"
+        logManager.trackEvent(event: ChatEvent.deleteChatFailure(error: error))
       }
     }
   }
 
-  private func onAvatarImagePressed() {
+  func onAvatarImagePressed() {
+    logManager.trackEvent(event: ChatEvent.avatarImagePressed(avatarId: avatar?.avatarId))
     showProfileModal = true
   }
+
 }
 
 #Preview {

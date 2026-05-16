@@ -40,11 +40,11 @@ struct MixpanelLogService: LogService {
     Mixpanel.mainInstance().track(event: "Screen Viewed", properties: properties)
   }
 
-  private func convert(_ dict: [String: Any]?) -> Properties? {
-    guard let dict else { return nil }
+  private func convert(_ dict: [String: Any]) -> Properties? {
+    guard !dict.isEmpty else { return nil }
     var result: Properties = [:]
     for (key, value) in dict {
-      if let value = value as? MixpanelType {
+      if let value = value as? any MixpanelType {
         result[key] = value
       } else {
         result[key] = String(describing: value)

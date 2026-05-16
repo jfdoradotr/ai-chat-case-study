@@ -14,5 +14,5 @@ protocol LogService: Sendable {
 
 protocol LoggableEvent {
   var eventName: String { get }
-  var parameters: [String: Any]? { get }
+  var parameters: [String: Any] { get }
 }

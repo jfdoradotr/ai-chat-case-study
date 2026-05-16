@@ -7,9 +7,9 @@ import Foundation
 enum AppEvent: LoggableEvent {
   case checkUserStatusStarted
   case existingUserLoginSuccess(isAnonymous: Bool)
-  case existingUserLoginFailure(error: Error)
+  case existingUserLoginFailure(error: any Error)
   case anonymousSignInSuccess(isNewUser: Bool)
-  case anonymousSignInFailure(error: Error)
+  case anonymousSignInFailure(error: any Error)
 
   var eventName: String {
     switch self {
@@ -21,16 +21,20 @@ enum AppEvent: LoggableEvent {
     }
   }
 
-  var parameters: [String: Any]? {
+  var parameters: [String: Any] {
     switch self {
     case .checkUserStatusStarted:
-      return nil
+      return [:]
+
     case .existingUserLoginSuccess(let isAnonymous):
       return ["is_anonymous": isAnonymous]
+
     case .existingUserLoginFailure(let error):
       return ["error_type": String(describing: type(of: error)), "error": error.localizedDescription]
+
     case .anonymousSignInSuccess(let isNewUser):
       return ["is_new_user": isNewUser]
+
     case .anonymousSignInFailure(let error):
       return ["error_type": String(describing: type(of: error)), "error": error.localizedDescription]
     }
