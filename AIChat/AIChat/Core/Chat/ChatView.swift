@@ -330,7 +330,6 @@ private extension ChatView {
     logManager.trackEvent(event: ChatEvent.avatarImagePressed(avatarId: avatar?.avatarId))
     showProfileModal = true
   }
-
 }
 
 #Preview {
