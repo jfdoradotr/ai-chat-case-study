@@ -34,6 +34,7 @@ struct ChatRowCellView: View {
           Text(subheadline)
             .font(.subheadline)
             .foregroundStyle(.secondary)
+            .lineLimit(2)
         }
       }
       .frame(maxWidth: .infinity, alignment: .leading)
