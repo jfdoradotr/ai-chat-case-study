@@ -10,13 +10,15 @@ import FirebaseFirestore
 final class UserManager {
   private let remote: any RemoteUserService
   private let local: any LocalUserPersistence
+  private let logManager: LogManager?
 
   private(set) var currentUser: UserModel?
   private var currentUserListener: (any ListenerRegistration)?
 
-  init(services: any UserServices) {
+  init(services: any UserServices, logManager: LogManager? = nil) {
     self.remote = services.remote
     self.local = services.local
+    self.logManager = logManager
     self.currentUser = local.getCurrentUser()
     print("LOADED CURRENT USER ON LAUNCH: \(String(describing: currentUser?.userId))")
   }
@@ -25,6 +27,7 @@ final class UserManager {
     if isNewUser {
       let user = UserModel(auth: auth, creationVersion: Bundle.main.appVersion)
       try await remote.saveUser(user: user)
+      logManager?.trackEvent(event: UserManagerEvent.newUserCreated(user: user))
     }
     addCurrentUserListener(userId: auth.uid)
   }
@@ -41,6 +44,7 @@ final class UserManager {
           print("successfully listened to user: \(user.userId)")
         }
       } catch {
+        logManager?.trackEvent(event: UserManagerEvent.remoteUserStreamFailure(error: error))
         print("User listener error: \(error)")
       }
     }
@@ -52,6 +56,7 @@ final class UserManager {
         try local.saveCurrentUser(user: currentUser)
         print("Success saved current user locally")
       } catch {
+        logManager?.trackEvent(event: UserManagerEvent.saveUserLocalFailure(error: error))
         print("Error saving current user locally: \(error)")
       }
     }
