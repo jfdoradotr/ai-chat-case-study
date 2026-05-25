@@ -5,6 +5,8 @@
 import SwiftUI
 
 struct OnboardingIntroductionView: View {
+  @Environment(LogManager.self) private var logManager
+
   private var avatarStyledText: Text {
     Text("avatars")
       .foregroundStyle(.accent)
@@ -27,10 +29,14 @@ struct OnboardingIntroductionView: View {
       PrimaryButton(title: "Continue") {
         OnboardingColorSelectionView()
       }
+      .simultaneousGesture(TapGesture().onEnded {
+        logManager.trackEvent(event: OnboardingEvent.introContinuePressed)
+      })
     }
     .padding(.horizontal, 24)
     .font(.title3)
     .navigationBarBackButtonHidden(true)
+    .trackScreen(ScreenEvent.onboardingIntroduction)
   }
 }
 
@@ -38,4 +44,5 @@ struct OnboardingIntroductionView: View {
   NavigationStack {
     OnboardingIntroductionView()
   }
+  .previewEnvironment()
 }

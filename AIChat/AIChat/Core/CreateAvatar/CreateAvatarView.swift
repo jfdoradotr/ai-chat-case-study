@@ -9,6 +9,7 @@ struct CreateAvatarView: View {
   @Environment(AIManager.self) private var aiManager
   @Environment(AuthManager.self) private var authManager
   @Environment(AvatarManager.self) private var avatarManager
+  @Environment(LogManager.self) private var logManager
 
   @State private var name: String = ""
   @State private var option: AvatarModel.Character = .man
@@ -60,14 +61,19 @@ struct CreateAvatarView: View {
         )
       }
     }
+    .trackScreen(ScreenEvent.createAvatar)
   }
 
   private func onClosePressed() {
+    logManager.trackEvent(event: CreateAvatarEvent.backButtonPressed)
     dismiss()
   }
 
   private func onGenerateImagePressed() {
     isGenerating = true
+    logManager.trackEvent(
+      event: CreateAvatarEvent.generateImageStart(character: option, action: action, location: location)
+    )
     Task {
       let prompt = AvatarModel.description(
         character: option,
@@ -76,8 +82,11 @@ struct CreateAvatarView: View {
       )
       do {
         generatedImage = try await aiManager.generateImage(input: prompt)
+        logManager.trackEvent(
+          event: CreateAvatarEvent.generateImageSuccess(character: option, action: action, location: location)
+        )
       } catch {
-        print("Failed to generate image: \(error)")
+        logManager.trackEvent(event: CreateAvatarEvent.generateImageFailure(error: error))
       }
       isGenerating = false
     }
@@ -85,6 +94,7 @@ struct CreateAvatarView: View {
 
   private func onSavePressed() {
     isCompletingCreateAvatar = true
+    logManager.trackEvent(event: CreateAvatarEvent.saveAvatarStart)
     Task {
       do {
         let name = try TextValidator().validate(name)
@@ -102,10 +112,12 @@ struct CreateAvatarView: View {
         )
 
         try await avatarManager.createAvatar(avatar: avatar, image: generatedImage)
+        logManager.trackEvent(event: CreateAvatarEvent.saveAvatarSuccess)
 
         dismiss()
         isCompletingCreateAvatar = false
       } catch {
+        logManager.trackEvent(event: CreateAvatarEvent.saveAvatarFailure(error: error))
         errorMessage = "Save avatar failed: \(error.localizedDescription)"
         isCompletingCreateAvatar = false
       }

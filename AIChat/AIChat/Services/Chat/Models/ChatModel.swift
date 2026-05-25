@@ -33,6 +33,17 @@ struct ChatModel: Identifiable, Codable {
       dateModified: now
     )
   }
+
+  var eventParameters: [String: Any] {
+    let ageDays = Calendar.current.dateComponents([.day], from: dateCreated, to: .now).day ?? 0
+    return [
+      "chat_id": id,
+      "chat_avatar_id": avatarId,
+      "chat_date_created": dateCreated,
+      "chat_date_modified": dateModified,
+      "chat_age_days": ageDays
+    ]
+  }
 }
 
 extension ChatModel {

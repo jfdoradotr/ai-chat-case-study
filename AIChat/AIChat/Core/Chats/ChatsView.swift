@@ -8,6 +8,7 @@ struct ChatsView: View {
   @Environment(AvatarManager.self) private var avatarManager
   @Environment(ChatManager.self) private var chatManager
   @Environment(UserManager.self) private var userManager
+  @Environment(LogManager.self) private var logManager
 
   @State private var chats: [ChatModel] = []
   @State private var recentAvatars: [AvatarModel] = []
@@ -30,24 +31,30 @@ struct ChatsView: View {
     .task(id: userManager.currentUser?.userId) {
       await listenToChats()
     }
+    .trackScreen(ScreenEvent.chats)
   }
 
   private func loadRecentAvatars() async {
+    logManager.trackEvent(event: ChatsEvent.loadRecentAvatarsStart)
     do {
-      recentAvatars = try await avatarManager.getRecentAvatars()
+      let loaded = try await avatarManager.getRecentAvatars()
+      recentAvatars = loaded
+      logManager.trackEvent(event: ChatsEvent.loadRecentAvatarsSuccess(count: loaded.count))
     } catch {
-      print("Failed to load recent avatars: \(error)")
+      logManager.trackEvent(event: ChatsEvent.loadRecentAvatarsFailure(error: error))
     }
   }
 
   private func listenToChats() async {
     guard let userId = userManager.currentUser?.userId else { return }
+    logManager.trackEvent(event: ChatsEvent.listenChatsStart)
     do {
       for try await updated in chatManager.streamAllChats(userId: userId) {
         chats = updated
+        logManager.trackEvent(event: ChatsEvent.listenChatsSuccess(count: updated.count))
       }
     } catch {
-      print("Failed to stream chats: \(error)")
+      logManager.trackEvent(event: ChatsEvent.listenChatsFailure(error: error))
     }
   }
 
@@ -69,6 +76,9 @@ struct ChatsView: View {
                 }
               }
             }
+            .simultaneousGesture(TapGesture().onEnded {
+              logManager.trackEvent(event: ChatsEvent.recentAvatarPressed(avatarId: avatar.avatarId))
+            })
           }
         }
       }
@@ -104,6 +114,9 @@ struct ChatsView: View {
             )
             .listRowSeparator(.hidden)
           }
+          .simultaneousGesture(TapGesture().onEnded {
+            logManager.trackEvent(event: ChatsEvent.chatRowPressed(chat: chat))
+          })
         }
       }
     } header: {

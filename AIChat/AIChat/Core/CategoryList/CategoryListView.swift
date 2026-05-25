@@ -47,6 +47,7 @@ struct CategoryListView: View {
     .task {
       await loadAvatars()
     }
+    .trackScreen(ScreenEvent.categoryList)
   }
 
   @ViewBuilder private var stateContent: some View {

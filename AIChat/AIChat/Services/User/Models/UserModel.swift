@@ -60,6 +60,20 @@ struct UserModel: Codable {
     guard let profileColorHex else { return .accent }
     return Color(hex: profileColorHex) ?? .accent
   }
+
+  var eventParameters: [String: Any] {
+    var params: [String: Any] = [
+      "user_id": userId,
+      "user_is_anonymous": isAnonymous,
+      "user_did_complete_onboarding": didCompleteOnboarding
+    ]
+    if let email { params["user_email"] = email }
+    if let creationDate { params["user_creation_date"] = creationDate }
+    if let creationVersion { params["user_creation_version"] = creationVersion }
+    if let lastSignInDate { params["user_last_sign_in_date"] = lastSignInDate }
+    if let profileColorHex { params["user_profile_color_hex"] = profileColorHex }
+    return params
+  }
 }
 
 extension UserModel {

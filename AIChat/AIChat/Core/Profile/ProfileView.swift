@@ -7,6 +7,7 @@ import SwiftUI
 struct ProfileView: View {
   @Environment(UserManager.self) private var userManager
   @Environment(AvatarManager.self) private var avatarManager
+  @Environment(LogManager.self) private var logManager
 
   @State private var showSettingsView = false
   @State private var showCreateAvatar = false
@@ -51,6 +52,9 @@ struct ProfileView: View {
                 subtitle: nil
               )
             }
+            .simultaneousGesture(TapGesture().onEnded {
+              logManager.trackEvent(event: ProfileEvent.avatarPressed(avatar: avatar))
+            })
           }
           .onDelete(perform: onDeleteAvatar)
         }
@@ -109,6 +113,7 @@ struct ProfileView: View {
     } message: { message in
       Text(message)
     }
+    .trackScreen(ScreenEvent.profile)
   }
 
   private func loadData() async {
@@ -122,19 +127,24 @@ struct ProfileView: View {
       return
     }
 
+    logManager.trackEvent(event: ProfileEvent.loadAvatarsStart)
     do {
       myAvatars = try await avatarManager.getAvatars(forAuthorId: userId)
+      logManager.trackEvent(event: ProfileEvent.loadAvatarsSuccess(count: myAvatars.count))
     } catch {
       errorMessage = "Failed to load your avatars: \(error.localizedDescription)"
+      logManager.trackEvent(event: ProfileEvent.loadAvatarsFailure(error: error))
     }
     isLoading = false
   }
 
   private func onSettingsButtonPressed() {
+    logManager.trackEvent(event: ProfileEvent.settingsPressed)
     showSettingsView = true
   }
 
   private func onNewAvatarButtonPressed() {
+    logManager.trackEvent(event: ProfileEvent.newAvatarPressed)
     showCreateAvatar = true
   }
   private func onDeleteAvatar(_ indexSet: IndexSet) {
@@ -142,10 +152,13 @@ struct ProfileView: View {
     myAvatars.remove(atOffsets: indexSet)
     Task {
       for avatar in removed {
+        logManager.trackEvent(event: ProfileEvent.deleteAvatarStart(avatar: avatar))
         do {
           try await avatarManager.removeAuthorIdFromAvatar(avatarId: avatar.avatarId)
+          logManager.trackEvent(event: ProfileEvent.deleteAvatarSuccess(avatar: avatar))
         } catch {
           errorMessage = "Failed to remove avatar: \(error.localizedDescription)"
+          logManager.trackEvent(event: ProfileEvent.deleteAvatarFailure(error: error))
         }
       }
     }
