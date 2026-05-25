@@ -32,7 +32,7 @@ struct FirebaseLogService: LogService {
   }
 
   func trackScreenEvent(event: any LoggableEvent) {
-    var parameters = event.parameters ?? [:]
+    var parameters = event.parameters
     parameters[AnalyticsParameterScreenName] = event.eventName
     Analytics.logEvent(AnalyticsEventScreenView, parameters: parameters)
   }
