@@ -104,6 +104,7 @@ struct ExploreView: View {
       Text(message)
     } actions: {
       Button {
+        logManager.trackEvent(event: ExploreEvent.tryAgainPressed)
         Task { await loadAll() }
       } label: {
         Text("Try Again")
@@ -123,6 +124,9 @@ struct ExploreView: View {
             subtitle: avatar.description
           )
         }
+        .simultaneousGesture(TapGesture().onEnded {
+          logManager.trackEvent(event: ExploreEvent.avatarPressed(avatar: avatar))
+        })
       }
       .frame(height: 200)
     } header: {
@@ -143,6 +147,9 @@ struct ExploreView: View {
                 )
                 .frame(height: 140)
               }
+              .simultaneousGesture(TapGesture().onEnded {
+                logManager.trackEvent(event: ExploreEvent.categoryPressed(category: category))
+              })
             }
           }
         }
@@ -155,6 +162,7 @@ struct ExploreView: View {
 
   private var devToolbarButton: some View {
     Button {
+      logManager.trackEvent(event: ExploreEvent.devSettingsPressed)
       isDevSettingsPresented = true
     } label: {
       Label("Developer Settings", systemImage: "hammer.fill")
@@ -175,6 +183,9 @@ struct ExploreView: View {
             subtitle: avatar.description
           )
         }
+        .simultaneousGesture(TapGesture().onEnded {
+          logManager.trackEvent(event: ExploreEvent.avatarPressed(avatar: avatar))
+        })
       }
     } header: {
       Text("Popular")
