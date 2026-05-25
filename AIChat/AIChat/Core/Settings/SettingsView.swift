@@ -10,6 +10,7 @@ struct SettingsView: View {
   @Environment(UserManager.self) private var userManager
   @Environment(AvatarManager.self) private var avatarManager
   @Environment(AppState.self) private var appState
+  @Environment(LogManager.self) private var logManager
 
   @State private var isPremium = false
   @State private var showCreateAccount = false
@@ -179,27 +180,40 @@ struct SettingsView: View {
   }
 
   private func onSignOutPressed() {
+    logManager.trackEvent(event: SettingsEvent.signOutPressed)
     pendingConfirmation = .signOut
   }
 
   private func onCreateAccountPressed() {
+    logManager.trackEvent(event: SettingsEvent.createAccountPressed)
     showCreateAccount = true
   }
 
   private func onDeleteAccountPressed() {
+    logManager.trackEvent(event: SettingsEvent.deleteAccountPressed)
     pendingConfirmation = .deleteAccount
   }
 
   private func perform(_ action: AuthAction) {
     switch action {
     case .signOut:
-      performAuthAction(label: "Sign out") {
+      performAuthAction(
+        label: "Sign out",
+        startEvent: .signOutStart,
+        successEvent: .signOutSuccess,
+        failureEvent: SettingsEvent.signOutFailure
+      ) {
         try authManager.signOut()
         userManager.signOut()
       }
 
     case .deleteAccount:
-      performAuthAction(label: "Delete account") {
+      performAuthAction(
+        label: "Delete account",
+        startEvent: .deleteAccountStart,
+        successEvent: .deleteAccountSuccess,
+        failureEvent: SettingsEvent.deleteAccountFailure
+      ) {
         let uid = try authManager.getAuthId()
         try await avatarManager.removeAuthorIdFromAllUserAvatars(userId: uid)
         try await userManager.deleteCurrentUser()
@@ -211,29 +225,41 @@ struct SettingsView: View {
 
   private func performAuthAction(
     label: String,
+    startEvent: SettingsEvent,
+    successEvent: SettingsEvent,
+    failureEvent: @escaping (any Error) -> SettingsEvent,
     action: @escaping () async throws -> Void
   ) {
+    logManager.trackEvent(event: startEvent)
     Task {
       do {
         try await action()
+        logManager.trackEvent(event: successEvent)
         dismiss()
         try? await Task.sleep(for: .seconds(0.3))
         appState.updateViewState(showTabBar: false)
+        logManager.trackEvent(event: SettingsEvent.signInAnonymousStart)
         do {
           let result = try await authManager.signInAnonymously()
           try await userManager.login(auth: result.user, isNewUser: result.isNewUser)
+          logManager.trackEvent(event: SettingsEvent.signInAnonymousSuccess)
         } catch {
-          print("Anonymous sign-in after \(label) failed: \(error)")
+          logManager.trackEvent(event: SettingsEvent.signInAnonymousFailure(error: error))
         }
       } catch {
+        logManager.trackEvent(event: failureEvent(error))
         errorMessage = "\(label) failed: \(error.localizedDescription)"
       }
     }
   }
 
-  private func onManagePressed() {}
+  private func onManagePressed() {
+    logManager.trackEvent(event: SettingsEvent.managePressed)
+  }
 
-  private func onContactUsPressed() {}
+  private func onContactUsPressed() {
+    logManager.trackEvent(event: SettingsEvent.contactUsPressed)
+  }
 }
 
 #Preview("Signed Out") {

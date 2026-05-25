@@ -30,8 +30,8 @@ enum CreateAvatarEvent: LoggableEvent {
     case .backButtonPressed, .saveAvatarStart, .saveAvatarSuccess:
       return [:]
 
-    case .generateImageStart(let character, let action, let location),
-      .generateImageSuccess(let character, let action, let location):
+    case let .generateImageStart(character, action, location),
+      let .generateImageSuccess(character, action, location):
       return [
         "avatar_character": character.rawValue,
         "avatar_action": action.rawValue,

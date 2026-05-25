@@ -5,6 +5,8 @@
 import SwiftUI
 
 struct OnboardingColorSelectionView: View {
+  @Environment(LogManager.self) private var logManager
+
   @State private var selectedColor: Color?
 
   private let profileColors: [Color] = [.red, .green, .orange, .blue, .mint, .purple, .cyan, .teal, .indigo]
@@ -33,6 +35,7 @@ struct OnboardingColorSelectionView: View {
         ForEach(profileColors, id: \.self) { color in
           ProfileColorCell(color: color, isSelected: selectedColor == color) {
             selectedColor = color
+            logManager.trackEvent(event: OnboardingEvent.colorSelected(hex: color.asHex() ?? ""))
           }
         }
       } header: {
@@ -48,6 +51,9 @@ struct OnboardingColorSelectionView: View {
         PrimaryButton(title: "Continue") {
           OnboardingCompletedView(selectedColor: selectedColor)
         }
+        .simultaneousGesture(TapGesture().onEnded {
+          logManager.trackEvent(event: OnboardingEvent.colorContinuePressed(hex: selectedColor.asHex() ?? ""))
+        })
         .transition(.move(edge: .bottom))
       }
     }
@@ -79,5 +85,5 @@ private struct ProfileColorCell: View {
   NavigationStack {
     OnboardingColorSelectionView()
   }
-  .environment(AppState())
+  .previewEnvironment()
 }

@@ -5,6 +5,8 @@
 import SwiftUI
 
 struct WelcomeView: View {
+  @Environment(LogManager.self) private var logManager
+
   @State private var showSignIn = false
 
   var body: some View {
@@ -21,16 +23,23 @@ struct WelcomeView: View {
         PrimaryButton(title: "Get Started") {
           OnboardingIntroductionView()
         }
+        .simultaneousGesture(TapGesture().onEnded {
+          logManager.trackEvent(event: WelcomeEvent.getStartedPressed)
+        })
 
         Button("Already have an account? Sign in", action: onSignInPressed)
           .underline()
         HStack(spacing: 8) {
-          Button("Terms of Service") {}
+          Button("Terms of Service") {
+            logManager.trackEvent(event: WelcomeEvent.termsOfServicePressed)
+          }
           Circle()
             .fill(.accent)
             .frame(width: 4, height: 4)
             .accessibilityHidden(true)
-          Button("Privacy Policy") {}
+          Button("Privacy Policy") {
+            logManager.trackEvent(event: WelcomeEvent.privacyPolicyPressed)
+          }
         }
         .font(.caption)
         .padding(.top, 16)
@@ -45,6 +54,7 @@ struct WelcomeView: View {
   }
 
   private func onSignInPressed() {
+    logManager.trackEvent(event: WelcomeEvent.signInPressed)
     showSignIn = true
   }
 }
@@ -53,4 +63,5 @@ struct WelcomeView: View {
   NavigationStack {
     WelcomeView()
   }
+  .previewEnvironment()
 }

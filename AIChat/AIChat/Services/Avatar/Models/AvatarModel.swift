@@ -103,6 +103,20 @@ struct AvatarModel: Identifiable, Codable {
 }
 
 extension AvatarModel {
+  var eventParameters: [String: Any] {
+    var params: [String: Any] = ["avatar_id": avatarId]
+    if let name { params["avatar_name"] = name }
+    if let character { params["avatar_character"] = character.rawValue }
+    if let action { params["avatar_action"] = action.rawValue }
+    if let location { params["avatar_location"] = location.rawValue }
+    if let authorId { params["avatar_author_id"] = authorId }
+    if let dateCreated { params["avatar_date_created"] = dateCreated }
+    if let clickCount { params["avatar_click_count"] = clickCount }
+    return params
+  }
+}
+
+extension AvatarModel {
   enum Character: String, CaseIterable, Codable {
     case man, woman, alien, dog, cat
 

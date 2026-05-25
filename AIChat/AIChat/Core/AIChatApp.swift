@@ -119,37 +119,40 @@ struct Dependencies {
   init(config: BuildConfiguration) {
     switch config {
     case .mock:
+      let logManager = LogManager(services: [ConsoleLogService()])
+      self.logManager = logManager
       authManager = AuthManager(service: MockAuthService(user: .preview))
-      userManager = UserManager(services: MockUserServices(user: .preview))
+      userManager = UserManager(services: MockUserServices(user: .preview), logManager: logManager)
       aiManager = AIManager(service: MockAIService())
       avatarManager = AvatarManager(services: MockAvatarServices())
       chatManager = ChatManager(services: MockChatServices())
-      logManager = LogManager(services: [ConsoleLogService()])
 
     case .dev:
-      authManager = AuthManager(service: FirebaseAuthService())
-      userManager = UserManager(services: ProductionUserServices())
-      aiManager = AIManager(service: OpenAIService())
-      avatarManager = AvatarManager(services: ProductionAvatarServices())
-      chatManager = ChatManager(services: ProductionChatServices())
-      logManager = LogManager(services: [
+      let logManager = LogManager(services: [
         ConsoleLogService(),
         FirebaseLogService(),
         FirebaseCrashlyticsLogService(),
         MixpanelLogService()
       ])
-
-    case .prod:
+      self.logManager = logManager
       authManager = AuthManager(service: FirebaseAuthService())
-      userManager = UserManager(services: ProductionUserServices())
+      userManager = UserManager(services: ProductionUserServices(), logManager: logManager)
       aiManager = AIManager(service: OpenAIService())
       avatarManager = AvatarManager(services: ProductionAvatarServices())
       chatManager = ChatManager(services: ProductionChatServices())
-      logManager = LogManager(services: [
+
+    case .prod:
+      let logManager = LogManager(services: [
         FirebaseLogService(),
         FirebaseCrashlyticsLogService(),
         MixpanelLogService()
       ])
+      self.logManager = logManager
+      authManager = AuthManager(service: FirebaseAuthService())
+      userManager = UserManager(services: ProductionUserServices(), logManager: logManager)
+      aiManager = AIManager(service: OpenAIService())
+      avatarManager = AvatarManager(services: ProductionAvatarServices())
+      chatManager = ChatManager(services: ProductionChatServices())
     }
   }
 }
