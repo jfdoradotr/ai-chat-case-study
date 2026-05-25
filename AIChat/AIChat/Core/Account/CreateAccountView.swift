@@ -38,10 +38,18 @@ struct CreateAccountView: View {
         return "Sign up with Google"
       }
     }
+
+    var eventValue: String {
+      switch self {
+      case .signIn: return "sign_in"
+      case .createAccount: return "create_account"
+      }
+    }
   }
 
   @Environment(AuthManager.self) private var authManager
   @Environment(UserManager.self) private var userManager
+  @Environment(LogManager.self) private var logManager
   @Environment(\.dismiss) private var dismiss
   @Environment(AppState.self) private var appState
 
@@ -82,23 +90,19 @@ struct CreateAccountView: View {
   }
 
   private func onGoogleButtonPressed() {
+    logManager.trackEvent(event: CreateAccountEvent.signInGooglePressed(state: presentationState.eventValue))
     Task {
+      logManager.trackEvent(event: CreateAccountEvent.signInGoogleStart(state: presentationState.eventValue))
       do {
         let (user, isNewUser) = try await authManager.signInGoogle()
-
-        print("==============================")
-        print("Signed in with Google")
-        print("uid: \(user.uid)")
-        print("email: \(user.email ?? "n/a")")
-        print("isNewUser: \(isNewUser)")
-        print("isAnonymous: \(user.isAnonymous)")
-        print("==============================\n")
-
         try await userManager.login(auth: user, isNewUser: isNewUser)
+        logManager.trackEvent(
+          event: CreateAccountEvent.signInGoogleSuccess(isNewUser: isNewUser, isAnonymous: user.isAnonymous)
+        )
         appState.updateViewState(showTabBar: true)
         dismiss()
       } catch {
-        print("Sign-in failed: \(error.localizedDescription)")
+        logManager.trackEvent(event: CreateAccountEvent.signInGoogleFailure(error: error))
       }
     }
   }
