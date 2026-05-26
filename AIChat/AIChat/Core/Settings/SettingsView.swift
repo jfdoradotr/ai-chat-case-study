@@ -259,6 +259,14 @@ struct SettingsView: View {
 
   private func onContactUsPressed() {
     logManager.trackEvent(event: SettingsEvent.contactUsPressed)
+
+    let email = "email@example.com"
+    let mailto = "mailto:\(email)"
+    guard let url = URL(string: mailto), UIApplication.shared.canOpenURL(url) else {
+      return
+    }
+
+    UIApplication.shared.open(url)
   }
 }
 
