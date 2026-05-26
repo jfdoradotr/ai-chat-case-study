@@ -16,6 +16,7 @@ struct SettingsView: View {
 
   @State private var isPremium = false
   @State private var showCreateAccount = false
+  @State private var showRatingModal = false
   @State private var pendingConfirmation: AuthAction?
   @State private var errorMessage: String?
 
@@ -67,6 +68,13 @@ struct SettingsView: View {
     .sheet(isPresented: $showCreateAccount) {
       CreateAccountView(presentationState: .createAccount)
         .presentationDetents([.medium])
+    }
+    .fullScreenCover(isPresented: $showRatingModal) {
+      AppRatingModal(
+        isPresented: $showRatingModal,
+        onYesPressed: onRatingYesPressed,
+        onNoPressed: onRatingNoPressed
+      )
     }
     .alert(
       pendingConfirmation?.title ?? "",
@@ -278,7 +286,23 @@ struct SettingsView: View {
 
   private func onRateUsButtonPressed() {
     logManager.trackEvent(event: SettingsEvent.rateUsPressed)
+    // Present without the cover's slide-up; `AppRatingModal` fades itself in.
+    var transaction = Transaction()
+    transaction.disablesAnimations = true
+    withTransaction(transaction) {
+      showRatingModal = true
+    }
+  }
+
+  private func onRatingYesPressed() {
+    // Happy user — surface the system review prompt.
+    logManager.trackEvent(event: SettingsEvent.ratingYesPressed)
     Task { await requestReview() }
+  }
+
+  private func onRatingNoPressed() {
+    // Unhappy user — close without prompting for an App Store review.
+    logManager.trackEvent(event: SettingsEvent.ratingNoPressed)
   }
 }
 

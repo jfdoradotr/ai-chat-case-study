@@ -20,6 +20,8 @@ enum SettingsEvent: LoggableEvent {
   case managePressed
   case contactUsPressed
   case rateUsPressed
+  case ratingYesPressed
+  case ratingNoPressed
 
   var eventName: String {
     switch self {
@@ -38,6 +40,8 @@ enum SettingsEvent: LoggableEvent {
     case .managePressed: return "Settings_Manage_Pressed"
     case .contactUsPressed: return "Settings_ContactUs_Pressed"
     case .rateUsPressed: return "Settings_RateUs_Pressed"
+    case .ratingYesPressed: return "Settings_Rating_Yes_Pressed"
+    case .ratingNoPressed: return "Settings_Rating_No_Pressed"
     }
   }
 
