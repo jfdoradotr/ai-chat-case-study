@@ -2,9 +2,11 @@
 //  Copyright © Juan Francisco Dorado Torres. All rights reserved.
 //
 
+import StoreKit
 import SwiftUI
 
 struct SettingsView: View {
+  @Environment(\.requestReview) private var requestReview
   @Environment(\.dismiss) private var dismiss
   @Environment(AuthManager.self) private var authManager
   @Environment(UserManager.self) private var userManager
@@ -148,6 +150,11 @@ struct SettingsView: View {
 
   private var applicationSection: some View {
     Section {
+      Button(
+        "Rate us on the App Store!",
+        action: onRateUsButtonPressed
+      )
+      .foregroundStyle(.blue)
       HStack {
         Text("Version")
         Spacer()
@@ -267,6 +274,11 @@ struct SettingsView: View {
     }
 
     UIApplication.shared.open(url)
+  }
+
+  private func onRateUsButtonPressed() {
+    logManager.trackEvent(event: SettingsEvent.rateUsPressed)
+    Task { await requestReview() }
   }
 }
 

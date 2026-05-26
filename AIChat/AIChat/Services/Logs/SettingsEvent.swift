@@ -19,6 +19,7 @@ enum SettingsEvent: LoggableEvent {
   case signInAnonymousFailure(error: any Error)
   case managePressed
   case contactUsPressed
+  case rateUsPressed
 
   var eventName: String {
     switch self {
@@ -36,6 +37,7 @@ enum SettingsEvent: LoggableEvent {
     case .signInAnonymousFailure: return "Settings_SignInAnonymous_Failure"
     case .managePressed: return "Settings_Manage_Pressed"
     case .contactUsPressed: return "Settings_ContactUs_Pressed"
+    case .rateUsPressed: return "Settings_RateUs_Pressed"
     }
   }
 
