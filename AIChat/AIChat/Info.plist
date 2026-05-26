@@ -15,5 +15,7 @@
 	</array>
 	<key>FirebaseAutomaticScreenReportingEnabled</key>
 	<false/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Your activity is used to measure the performance of our features and improve your experience.</string>
 </dict>
 </plist>

@@ -2,12 +2,14 @@
 //  Copyright © Juan Francisco Dorado Torres. All rights reserved.
 //
 
+import AppTrackingTransparency
 import SwiftUI
 
 struct AppView: View {
   @Environment(AuthManager.self) private var authManager
   @Environment(UserManager.self) private var userManager
   @Environment(LogManager.self) private var logManager
+  @Environment(\.scenePhase) private var scenePhase
   @State private var appState = AppState()
 
   var body: some View {
@@ -25,6 +27,12 @@ struct AppView: View {
     .environment(appState)
     .task {
       await checkUserStatus()
+    }
+    .onChange(of: scenePhase, initial: true) { _, newPhase in
+      // ATT only displays while the app is foreground-active; requesting in any
+      // other state silently no-ops and leaves the status `.notDetermined`.
+      guard newPhase == .active else { return }
+      Task { await showATTPromptIfNeeded() }
     }
   }
 
@@ -58,6 +66,14 @@ struct AppView: View {
         await checkUserStatus()
       }
     }
+  }
+
+  private func showATTPromptIfNeeded() async {
+    // Respect a prior decision — only prompt while the status is undetermined.
+    guard ATTrackingManager.trackingAuthorizationStatus == .notDetermined else { return }
+
+    let status = await ATTrackingManager.requestTrackingAuthorization()
+    logManager.trackEvent(event: AppEvent.attPromptResult(status: status.eventValue))
   }
 }
 

@@ -10,6 +10,7 @@ enum AppEvent: LoggableEvent {
   case existingUserLoginFailure(error: any Error)
   case anonymousSignInSuccess(isNewUser: Bool)
   case anonymousSignInFailure(error: any Error)
+  case attPromptResult(status: String)
 
   var eventName: String {
     switch self {
@@ -18,6 +19,7 @@ enum AppEvent: LoggableEvent {
     case .existingUserLoginFailure: return "App_ExistingUser_LoginFailure"
     case .anonymousSignInSuccess: return "App_AnonymousSignIn_Success"
     case .anonymousSignInFailure: return "App_AnonymousSignIn_Failure"
+    case .attPromptResult: return "App_ATTPrompt_Result"
     }
   }
 
@@ -25,6 +27,9 @@ enum AppEvent: LoggableEvent {
     switch self {
     case .checkUserStatusStarted:
       return [:]
+
+    case .attPromptResult(let status):
+      return ["att_status": status]
 
     case .existingUserLoginSuccess(let isAnonymous):
       return ["is_anonymous": isAnonymous]
